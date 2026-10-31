@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
+    <!-- SCRIPT OFICIAL DE SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-main: #0d0f12;
@@ -191,10 +193,10 @@
                         <input type="text" id="cvu-text" class="cvu-input" value="0000267900000002996367" readonly>
                         <button class="btn-secondary" onclick="copyCVU()">Copiar CVU</button>
                     </div>
-                    <p class="info-small">Retiros: Lunes a Viernes de 9 a 21 hs (Mínimo $2.500 de carga previa, Máx. $100.000 por extraction).</p>
+                    <p class="info-small">Retiros: Lunes a Viernes de 9 a 21 hs (Mínimo de retiro: <strong>$15.000 ARS</strong>).</p>
                     <div class="input-group">
                         <label>Monto a Retirar ($ ARS)</label>
-                        <input type="number" id="withdraw-amount" placeholder="Ej: 15000">
+                        <input type="number" id="withdraw-amount" placeholder="Mínimo $15.000">
                     </div>
                     <button class="btn-primary" onclick="requestWithdrawal()">Solicitar Extracción</button>
                 </div>
@@ -264,10 +266,17 @@
         </nav>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN ROBUSTA SUPABASE REST -->
+    <!-- SCRIPT DE CONEXIÓN OFICIAL SUPABASE -->
     <script>
         const SUPABASE_URL = 'https://lmhaokkhlqyxzcfkzvq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
+
+        let supabaseClient = null;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.error('Error inicializando SDK', e);
+        }
 
         const PLANS = {
             base: [
@@ -291,26 +300,16 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             const savedUser = localStorage.getItem('aura_logged_user');
-            if (savedUser) {
+            if (savedUser && supabaseClient) {
                 try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(savedUser)}`, {
-                        method: 'GET',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                            'Accept': 'application/json'
-                        }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data && data.length > 0) {
-                            currentUser = data[0];
-                            iniciarApp(currentUser.username);
-                            return;
-                        }
+                    const { data } = await supabaseClient.from('users').select('*').eq('username', savedUser).maybeSingle();
+                    if (data) {
+                        currentUser = data;
+                        iniciarApp(currentUser.username);
+                        return;
                     }
                 } catch (e) {
-                    console.error('Error al cargar sesión:', e);
+                    console.error('Error al cargar sesión', e);
                 }
             }
             document.getElementById('auth-container').classList.remove('hidden');
@@ -341,26 +340,12 @@
                 last_bonus: ''
             };
 
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify(currentUser)
-                });
-
-                if (!response.ok) {
-                    const errData = await response.json().catch(() => ({}));
-                    alert('Error en Supabase: ' + (errData.message || response.statusText));
-                    return;
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('users').insert([currentUser]);
+                } catch (e) {
+                    console.error('Error insertando en Supabase:', e);
                 }
-            } catch (e) {
-                // Sistema híbrido de respaldo si el celular bloquea el fetch de red externa
-                console.warn('Fallo de red detectado, usando respaldo local sincronizado');
             }
 
             localStorage.setItem('aura_logged_user', username);
@@ -372,39 +357,21 @@
             event.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}`, {
-                    method: 'GET',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.length > 0) {
-                        currentUser = data[0];
+            if (supabaseClient) {
+                try {
+                    const { data } = await supabaseClient.from('users').select('*').eq('username', username).maybeSingle();
+                    if (data) {
+                        currentUser = data;
                         localStorage.setItem('aura_logged_user', currentUser.username);
                         iniciarApp(currentUser.username);
                         return;
                     }
+                } catch (e) {
+                    console.error('Error en login:', e);
                 }
-            } catch (e) {
-                console.error('Error en login:', e);
             }
 
-            // Respaldo local si la red móvil bloquea la consulta de lectura
-            const localFallback = localStorage.getItem('aura_data_' + username);
-            if (localFallback) {
-                currentUser = JSON.parse(localFallback);
-                localStorage.setItem('aura_logged_user', currentUser.username);
-                iniciarApp(currentUser.username);
-                return;
-            }
-
-            alert('Usuario no encontrado en la base de datos de Supabase.');
+            alert('Usuario no encontrado en la base de datos.');
         }
 
         function iniciarApp(username) {
@@ -455,27 +422,17 @@
         function updateUI() {
             document.getElementById('user-balance').innerText = `$${(currentUser.balance || 0).toLocaleString()} ARS`;
             document.getElementById('accumulated-balance').innerText = `$${(currentUser.accumulated || 0).toLocaleString()} ARS`;
-            localStorage.setItem('aura_data_' + currentUser.username, JSON.stringify(currentUser));
         }
 
         async function syncToSupabase() {
-            if (currentUser.username) {
+            if (supabaseClient && currentUser.username) {
                 try {
-                    await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(currentUser.username)}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
-                        },
-                        body: JSON.stringify({
-                            balance: currentUser.balance,
-                            accumulated: currentUser.accumulated,
-                            investments: currentUser.investments,
-                            last_bonus: currentUser.last_bonus
-                        })
-                    });
+                    await supabaseClient.from('users').update({
+                        balance: currentUser.balance,
+                        accumulated: currentUser.accumulated,
+                        investments: currentUser.investments,
+                        last_bonus: currentUser.last_bonus
+                    }).eq('username', currentUser.username);
                 } catch (e) {
                     console.error('Error al sincronizar:', e);
                 }
@@ -535,12 +492,20 @@
         }
 
         function requestWithdrawal() {
-            const amount = document.getElementById('withdraw-amount').value;
-            if (!amount || amount <= 0) {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            if (!amount || isNaN(amount)) {
                 alert('Ingresa un monto válido para retirar.');
                 return;
             }
-            alert(`Solicitud de retiro por $${amount} enviada. Sujeta a horario hábil (9 a 21 hs).`);
+            if (amount < 15000) {
+                alert('⚠️ El monto mínimo de retiro es de $15.000 ARS.');
+                return;
+            }
+            if (currentUser.balance < amount) {
+                alert('Saldo insuficiente para realizar esta extracción.');
+                return;
+            }
+            alert(`Solicitud de retiro por $${amount.toLocaleString()} enviada con éxito. Sujeta a horario hábil (9 a 21 hs).`);
         }
 
         function initReferralLink(username) {
