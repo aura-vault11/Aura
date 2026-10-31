@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura | Inversión en Moda y Lujo</title>
+    <title>Aura | Moda y Lujo</title>
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -41,8 +41,8 @@
 
         /* App Container */
         .app-wrapper { width: 100%; max-width: 480px; height: 100vh; max-height: 900px; background: var(--bg-main); display: flex; flex-direction: column; position: relative; border: 1px solid #2a2e3d; }
-        .app-header { background: var(--bg-card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2e3d; }
-        .app-header h2 { color: var(--accent); letter-spacing: 1px; font-size: 1.2rem; }
+        .app-header { background: var(--bg-card); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2e3d; }
+        .header-logo { height: 35px; object-fit: contain; }
         .user-info { display: flex; flex-direction: column; align-items: flex-end; font-size: 0.8rem; }
         .badge-active { background: rgba(16, 185, 129, 0.2); color: var(--success); padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; margin-top: 2px; font-weight: 600; }
         .main-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; }
@@ -51,10 +51,10 @@
         .card-balance { background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid #2a2e3d; text-align: center; margin-bottom: 20px; }
         .balance-amount { font-size: 1.8rem; font-weight: bold; color: var(--accent); margin: 10px 0; }
         
-        /* Bottom Navigation */
+        /* Bottom Navigation - Solo Emojis con tamaño optimizado */
         .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; background: var(--bg-card); border-top: 1px solid #2a2e3d; display: flex; justify-content: space-around; padding: 12px 0; z-index: 10; }
-        .nav-btn { background: none; border: none; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 500; }
-        .nav-btn.active { color: var(--accent); }
+        .nav-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; display: flex; justify-content: center; align-items: center; opacity: 0.6; transition: 0.2s; padding: 5px 15px; border-radius: 8px; }
+        .nav-btn.active { opacity: 1; background: rgba(212, 175, 55, 0.15); border: 1px solid var(--accent); }
 
         /* Modal Pop-up */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
@@ -145,7 +145,7 @@
     <!-- 3. APLICACIÓN PRINCIPAL -->
     <div id="app-container" class="app-wrapper hidden">
         <header class="app-header">
-            <h2>A U R A</h2>
+            <img src="logo.png" alt="Aura Logo" class="header-logo" onerror="this.src='https://via.placeholder.com/120x35?text=AURA'">
             <div class="user-info">
                 <span id="header-username">Usuario</span>
                 <span class="badge-active">Cuenta Activa</span>
@@ -153,7 +153,7 @@
         </header>
 
         <main class="main-content">
-            <!-- SECCIÓN 1: INICIO (CON PESTAÑAS BASE / EXCLUSIVO) -->
+            <!-- SECCIÓN 1: INICIO -->
             <section id="section-1" class="app-section active">
                 <div class="card-balance">
                     <h3>Capital Disponible</h3>
@@ -223,7 +223,7 @@
                 </div>
             </section>
 
-            <!-- SECCIÓN 5: PERFIL, DATOS BANCARIOS Y CANALES TELEGRAM -->
+            <!-- SECCIÓN 5: PERFIL -->
             <section id="section-5" class="app-section">
                 <h2>Perfil y Soporte</h2>
                 <p class="info-small">Completa tus datos bancarios para reclamar tu bono de bienvenida de $500 ARS y habilitar retiros.</p>
@@ -246,7 +246,7 @@
 
                 <div class="card-balance" style="text-align: left;">
                     <h3 style="color: var(--accent); margin-bottom: 12px; font-size: 1rem;">Canales Oficiales de Ayuda</h3>
-                    <a href="https://t.me/+8GeCG3Srd3owYjIx" target="_blank" class="btn-telegram">📢 Unseguite al Canal Oficial</a>
+                    <a href="https://t.me/+8GeCG3Srd3owYjIx" target="_blank" class="btn-telegram">📢 Unete al Canal Oficial</a>
                     <a href="https://t.me/+lZEGbe1bYX9jZWUx" target="_blank" class="btn-telegram">💬 Grupo de Soporte Telegram</a>
                 </div>
 
@@ -256,12 +256,13 @@
             </section>
         </main>
 
+        <!-- Navegación inferior con solo Emojis -->
         <nav class="bottom-nav">
-            <button class="nav-btn active" onclick="switchSection(1)">🏠 Inicio</button>
-            <button class="nav-btn" onclick="switchSection(2)">⏱️ Inversiones</button>
-            <button class="nav-btn" onclick="switchSection(3)">📊 Finanzas</button>
-            <button class="nav-btn" onclick="switchSection(4)">👥 Referidos</button>
-            <button class="nav-btn" onclick="switchSection(5)">💳 Perfil</button>
+            <button class="nav-btn active" onclick="switchSection(1)">🏠</button>
+            <button class="nav-btn" onclick="switchSection(2)">⏱️</button>
+            <button class="nav-btn" onclick="switchSection(3)">📊</button>
+            <button class="nav-btn" onclick="switchSection(4)">👥</button>
+            <button class="nav-btn" onclick="switchSection(5)">💳</button>
         </nav>
     </div>
 
@@ -304,7 +305,7 @@
 
         async function handleRegister(event) {
             event.preventDefault();
-            const username = document.getElementById('reg-username').value;
+            const username = document.getElementById('reg-username').value.trim();
             const pin = document.getElementById('reg-pin').value;
 
             if (pin.length < 6 || pin.length > 8) {
@@ -318,7 +319,9 @@
 
             if (supabaseClient) {
                 const { error } = await supabaseClient.from('users').insert([{ username: username, balance: 0, accumulated: 0 }]);
-                if (error) console.error('Error al registrar en Supabase:', error.message);
+                if (error) {
+                    console.error('Error al registrar en Supabase:', error.message);
+                }
             }
 
             document.getElementById('header-username').innerText = username;
@@ -332,15 +335,18 @@
 
         async function handleLogin(event) {
             event.preventDefault();
-            const username = document.getElementById('login-username').value;
+            const username = document.getElementById('login-username').value.trim();
             
             currentUser.username = username;
             
             if (supabaseClient) {
-                const { data } = await supabaseClient.from('users').select('*').eq('username', username).single();
+                const { data, error } = await supabaseClient.from('users').select('*').eq('username', username).single();
                 if (data) {
-                    currentUser.balance = data.balance || 0;
-                    currentUser.accumulated = data.accumulated || 0;
+                    currentUser.balance = Number(data.balance) || 0;
+                    currentUser.accumulated = Number(data.accumulated) || 0;
+                } else {
+                    alert('Usuario no encontrado. Por favor, regístrese primero.');
+                    return;
                 }
             }
 
@@ -393,19 +399,30 @@
             document.getElementById('accumulated-balance').innerText = `$${currentUser.accumulated.toLocaleString()} ARS`;
         }
 
-        function buyPlan(planId, price) {
+        async function syncBalanceToSupabase() {
+            if (supabaseClient && currentUser.username) {
+                await supabaseClient.from('users').update({
+                    balance: currentUser.balance,
+                    accumulated: currentUser.accumulated
+                }).eq('username', currentUser.username);
+            }
+        }
+
+        async function buyPlan(planId, price) {
             if (currentUser.balance < price) {
                 alert('Saldo insuficiente para adquirir este plan.');
                 return;
             }
             currentUser.balance -= price;
             updateUI();
+            await syncBalanceToSupabase();
             alert(`¡Has invertido con éxito en el plan ${planId}!`);
         }
 
-        function claimDailyBonus() {
+        async function claimDailyBonus() {
             currentUser.balance += 250;
             updateUI();
+            await syncBalanceToSupabase();
             alert('¡Bono diario de $250 reclamado con éxito!');
         }
 
