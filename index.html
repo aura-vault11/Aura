@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura | Inversión en Moda y Lujo</title>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-main: #0d0f12;
+            --bg-card: #161922;
+            --accent: #d4af37;
+            --accent-hover: #e5c158;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .hidden { display: none !important; }
+
+        /* Auth */
+        .auth-wrapper { width: 100%; max-width: 400px; padding: 20px; }
+        .auth-card { background-color: var(--bg-card); padding: 30px; border-radius: 12px; border: 1px solid #2a2e3d; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .auth-card h1 { color: var(--accent); letter-spacing: 2px; margin-bottom: 5px; }
+        .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
+        .auth-tabs { display: flex; margin-bottom: 20px; background: #0d0f12; border-radius: 8px; padding: 4px; }
+        .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 8px; cursor: pointer; border-radius: 6px; font-weight: 500; }
+        .tab-btn.active { background: var(--bg-card); color: var(--accent); }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
+        .input-group input { width: 100%; padding: 10px; background: #0d0f12; border: 1px solid #2a2e3d; border-radius: 6px; color: white; }
+        .btn-primary { width: 100%; background: var(--accent); color: #0d0f12; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-secondary { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+        .btn-danger { background: var(--danger); color: white; border: none; padding: 10px; border-radius: 6px; width: 100%; cursor: pointer; }
+
+        /* App Container */
+        .app-wrapper { width: 100%; max-width: 480px; height: 100vh; max-height: 900px; background: var(--bg-main); display: flex; flex-direction: column; position: relative; border: 1px solid #2a2e3d; }
+        .app-header { background: var(--bg-card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2e3d; }
+        .app-header h2 { color: var(--accent); letter-spacing: 1px; font-size: 1.2rem; }
+        .user-info { display: flex; flex-direction: column; align-items: flex-end; font-size: 0.8rem; }
+        .badge-active { background: rgba(16, 185, 129, 0.2); color: var(--success); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-top: 2px; }
+        .main-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; }
+        .app-section { display: none; }
+        .app-section.active { display: block; }
+        .card-balance { background: var(--bg-card); padding: 20px; border-radius: 10px; border: 1px solid #2a2e3d; text-align: center; margin-bottom: 20px; }
+        .balance-amount { font-size: 1.8rem; font-weight: bold; color: var(--accent); margin: 10px 0; }
+        
+        /* Bottom Navigation */
+        .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; background: var(--bg-card); border-top: 1px solid #2a2e3d; display: flex; justify-content: space-around; padding: 10px 0; z-index: 10; }
+        .nav-btn { background: none; border: none; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-btn.active { color: var(--accent); }
+
+        /* Modal Pop-up */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: var(--bg-card); padding: 25px; border-radius: 12px; border: 1px solid var(--accent); max-width: 400px; text-align: left; }
+        .modal-content h2 { color: var(--accent); margin-bottom: 10px; }
+        .popup-list { margin: 15px 0; padding-left: 20px; font-size: 0.9rem; color: var(--text-muted); }
+        .popup-list li { margin-bottom: 10px; }
+
+        /* Plans */
+        .level-box { margin-bottom: 25px; }
+        .level-box h3 { color: var(--accent); font-size: 1rem; margin-bottom: 10px; border-bottom: 1px solid #2a2e3d; padding-bottom: 5px; }
+        .plans-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .plan-card { background: var(--bg-card); border: 1px solid #2a2e3d; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .plan-info h4 { color: var(--accent); font-size: 0.95rem; }
+        .plan-info p { font-size: 0.8rem; color: var(--text-muted); }
+        .info-small { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px; }
+        .ref-link-group { display: flex; gap: 10px; margin-top: 10px; }
+        .logout-container { margin-top: 30px; }
+        .cvu-box { background: #0d0f12; padding: 10px; border-radius: 6px; border: 1px dashed var(--accent); color: var(--accent); font-weight: bold; margin: 10px 0; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. PANTALLAS DE ACCESO (PRE-INGRESO) -->
+    <div id="auth-container" class="auth-wrapper">
+        <div class="auth-card">
+            <h1>AURA</h1>
+            <p class="subtitle">Plataforma de Inversión en Moda y Lujo</p>
+            
+            <div class="auth-tabs">
+                <button id="tab-register-btn" class="tab-btn active" onclick="switchAuthTab('register')">¿Sos nuevo?</button>
+                <button id="tab-login-btn" class="tab-btn" onclick="switchAuthTab('login')">¿Ya estás registrado?</button>
+            </div>
+
+            <form id="register-form" class="auth-form" onsubmit="handleRegister(event)">
+                <div class="input-group">
+                    <label>Nombre y Apellido</label>
+                    <input type="text" id="reg-fullname" required placeholder="Tu nombre completo">
+                </div>
+                <div class="input-group">
+                    <label>Nombre de Usuario</label>
+                    <input type="text" id="reg-username" required placeholder="Ej: usuario123">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="reg-password" required placeholder="********">
+                </div>
+                <div class="input-group">
+                    <label>PIN de Seguridad (6 a 8 caracteres)</label>
+                    <input type="password" id="reg-pin" minlength="6" maxlength="8" required placeholder="PIN numérico">
+                </div>
+                <button type="submit" class="btn-primary">Crear Cuenta</button>
+            </form>
+
+            <form id="login-form" class="auth-form hidden" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>Nombre de Usuario</label>
+                    <input type="text" id="login-username" required placeholder="Tu usuario">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="********">
+                </div>
+                <button type="submit" class="btn-primary">Ingresar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. POP-UP DE LANZAMIENTO -->
+    <div id="launch-popup" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>✨ ¡Bienvenido a Aura!</h2>
+            <p>Estamos en nuestra <strong>Semana de Lanzamiento</strong>.</p>
+            <ul class="popup-list">
+                <li>🕒 <strong>Horario de atención y retiros:</strong> Lunes a viernes de <strong>9:00 a 21:00 hs</strong>.</li>
+                <li>🛍️ <strong>Explora los planes de inversión Base y Exclusiva</strong> y poné a trabajar tu capital.</li>
+                <li>💳 <strong>Completa tus datos bancarios en la Sección 5 (Perfil)</strong> para reclamar tu bono de bienvenida de <strong>$500 ARS</strong> y habilitar tus retiros.</li>
+            </ul>
+            <button class="btn-primary" onclick="closeLaunchPopup()">Comenzar a Invertir</button>
+        </div>
+    </div>
+
+    <!-- 3. APLICACIÓN PRINCIPAL (5 SECCIONES) -->
+    <div id="app-container" class="app-wrapper hidden">
+        <header class="app-header">
+            <h2>A U R A</h2>
+            <div class="user-info">
+                <span id="header-username">Usuario</span>
+                <span class="badge-active">Cuenta Activa</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- SECCIÓN 1: INICIO -->
+            <section id="section-1" class="app-section active">
+                <div class="card-balance">
+                    <h3>Capital Disponible</h3>
+                    <p class="balance-amount" id="user-balance">$0.00 ARS</p>
+                    <button class="btn-secondary" onclick="claimDailyBonus()">Reclamar Bono Diario ($250)</button>
+                </div>
+
+                <div class="terminal-container">
+                    <div class="level-box">
+                        <h3>Nivel Base (Fast Fashion & Sport)</h3>
+                        <div class="plans-grid" id="base-plans-grid"></div>
+                    </div>
+                    <div class="level-box">
+                        <h3>Nivel Exclusivo (Haute Couture & High Luxury)</h3>
+                        <div class="plans-grid" id="exclusive-plans-grid"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 2: MIS INVERSIONES -->
+            <section id="section-2" class="app-section">
+                <h2>Mis Inversiones</h2>
+                <p class="info-small">Seguimiento en tiempo real (los planes finalizados quedan registrados permanentemente aquí).</p>
+                <div id="my-investments-list" class="investments-list"></div>
+            </section>
+
+            <!-- SECCIÓN 3: FINANZAS E HISTORIAL -->
+            <section id="section-3" class="app-section">
+                <h2>Finanzas y Retiros</h2>
+                <div class="card-balance">
+                    <h3>Saldo Acumulado (Planes Finalizados)</h3>
+                    <p class="balance-amount" id="accumulated-balance">$0.00 ARS</p>
+                </div>
+                
+                <div class="withdraw-box card-balance" style="text-align: left;">
+                    <h3 style="text-align: center; margin-bottom: 10px; color: var(--accent);">Realizar Carga y Retiros</h3>
+                    <p class="info-small">Para cargar saldo, transfiere al siguiente CVU oficial:</p>
+                    <div class="cvu-box">0000267900000002996367</div>
+                    <p class="info-small">Retiros: Lunes a Viernes de 9 a 21 hs (Mínimo $2.500 de carga previa, Máx. $100.000 por extracción).</p>
+                    <div class="input-group">
+                        <label>Monto a Retirar ($ ARS)</label>
+                        <input type="number" id="withdraw-amount" placeholder="Ej: 15000">
+                    </div>
+                    <button class="btn-primary" onclick="requestWithdrawal()">Solicitar Extracción</button>
+                </div>
+
+                <div class="history-box">
+                    <h3>Historial de Retiros</h3>
+                    <div id="withdrawals-history-list"></div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 4: REFERIDOS E INVITADOS -->
+            <section id="section-4" class="app-section">
+                <h2>Programa de Referidos</h2>
+                <div class="card-balance" style="text-align: left;">
+                    <p class="info-small">Comparte tu enlace único (Gana $1.000 cuando tu invitado realice su carga):</p>
+                    <div class="ref-link-group">
+                        <input type="text" id="referral-link" readonly>
+                        <button class="btn-secondary" onclick="copyReferralLink()">Copiar</button>
+                    </div>
+                </div>
+                <div class="guests-box">
+                    <h3>Listado de Invitados</h3>
+                    <div id="guests-list"></div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 5: PERFIL Y DATOS BANCARIOS -->
+            <section id="section-5" class="app-section">
+                <h2>Perfil y Datos Bancarios</h2>
+                <p class="info-small">Completa tus datos obligatorios. Al guardar, reclamarás tu bono de bienvenida de $500 ARS y se habilitarán tus retiros.</p>
+                
+                <form id="profile-form" class="card-balance" style="text-align: left;" onsubmit="saveProfileAndClaimBonus(event)">
+                    <div class="input-group">
+                        <label>Nombre y Apellido del Titular (Obligatorio completo)</label>
+                        <input type="text" id="profile-fullname" required placeholder="Nombre y Apellido">
+                    </div>
+                    <div class="input-group">
+                        <label>CBU / CVU</label>
+                        <input type="text" id="profile-cbu" required placeholder="CVU / CBU para cargas y retiros">
+                    </div>
+                    <div class="input-group">
+                        <label>Alias Bancario</label>
+                        <input type="text" id="profile-alias" required placeholder="tu.alias.banco">
+                    </div>
+                    <button type="submit" class="btn-primary">Guardar y Reclamar Bono ($500)</button>
+                </form>
+
+                <div class="logout-container">
+                    <button class="btn-danger" onclick="logout()">Cerrar Sesión</button>
+                </div>
+            </section>
+        </main>
+
+        <nav class="bottom-nav">
+            <button class="nav-btn active" onclick="switchSection(1)">🏠 Inicio</button>
+            <button class="nav-btn" onclick="switchSection(2)">⏱️ Inversiones</button>
+            <button class="nav-btn" onclick="switchSection(3)">📊 Finanzas</button>
+            <button class="nav-btn" onclick="switchSection(4)">👥 Referidos</button>
+            <button class="nav-btn" onclick="switchSection(5)">💳 Perfil</button>
+        </nav>
+    </div>
+
+    <!-- SCRIPT GENERAL Y LÓGICA DE SUPABASE -->
+    <script>
+        // CONFIGURACIÓN DE SUPABASE
+        const SUPABASE_URL = 'https://imhaokkhlqyxzcfkzvq.supabase.co'; // (URL provisional configurada con tu ID de proyecto)
+        const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
+        let supabaseClient = null;
+
+        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        // 10 PLANES OFICIALES DE AURA
+        const PLANS = {
+            base: [
+                { id: 'shein', name: 'Plan Shein (Entrada)', price: 3000, return: 4000, days: 2, unique: true },
+                { id: 'zara', name: 'Plan Zara', price: 5000, return: 6600, days: 4, unique: false },
+                { id: 'hm', name: 'Plan H&M', price: 10000, return: 15000, days: 8, unique: false },
+                { id: 'adidas', name: 'Plan Adidas', price: 20000, return: 30000, days: 15, unique: false },
+                { id: 'nike', name: 'Plan Nike', price: 40000, return: 60000, days: 25, unique: false }
+            ],
+            exclusive: [
+                { id: 'armani', name: 'Plan Armani', price: 75000, return: 112500, days: 30, unique: true },
+                { id: 'gucci', name: 'Plan Gucci', price: 150000, return: 225000, days: 30, unique: true },
+                { id: 'prada', name: 'Plan Prada', price: 300000, return: 450000, days: 30, unique: true },
+                { id: 'lv', name: 'Plan Louis Vuitton', price: 600000, return: 900000, days: 30, unique: true },
+                { id: 'rolex', name: 'Plan Rolex', price: 1000000, return: 1500000, days: 30, unique: true }
+            ]
+        };
+
+        let currentUser = null;
+
+        function switchAuthTab(tab) {
+            document.getElementById('tab-register-btn').classList.toggle('active', tab === 'register');
+            document.getElementById('tab-login-btn').classList.toggle('active', tab === 'login');
+            document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
+            document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const pin = document.getElementById('reg-pin').value;
+
+            if (pin.length < 6 || pin.length > 8) {
+                alert('El PIN de seguridad debe tener entre 6 y 8 caracteres.');
+                return;
+            }
+
+            currentUser = { username, balance: 0, accumulated: 0 };
+            document.getElementById('header-username').innerText = username;
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('launch-popup').classList.remove('hidden');
+            
+            renderPlans();
+            initReferralLink(username);
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('login-username').value;
+            
+            currentUser = { username, balance: 0, accumulated: 0 };
+            document.getElementById('header-username').innerText = username;
+
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            
+            renderPlans();
+            initReferralLink(username);
+        }
+
+        function closeLaunchPopup() {
+            document.getElementById('launch-popup').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+        }
+
+        function switchSection(sectionNumber) {
+            document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(`section-${sectionNumber}`).classList.add('active');
+            document.querySelectorAll('.nav-btn')[sectionNumber - 1].classList.add('active');
+        }
+
+        function renderPlans() {
+            document.getElementById('base-plans-grid').innerHTML = PLANS.base.map(p => createPlanCardHTML(p)).join('');
+            document.getElementById('exclusive-plans-grid').innerHTML = PLANS.exclusive.map(p => createPlanCardHTML(p)).join('');
+        }
+
+        function createPlanCardHTML(plan) {
+            return `
+                <div class="plan-card">
+                    <div class="plan-info">
+                        <h4>${plan.name}</h4>
+                        <p>Inversión: $${plan.price.toLocaleString()} | Retorno: $${plan.return.toLocaleString()}</p>
+                        <p>Duración: ${plan.days} días ${plan.unique ? '(Única vez)' : ''}</p>
+                    </div>
+                    <button class="btn-primary" onclick="buyPlan('${plan.id}', ${plan.price})">Invertir</button>
+                </div>
+            `;
+        }
+
+        function buyPlan(planId, price) {
+            alert(`Has seleccionado el plan ${planId}. Listo para procesar inversión.`);
+        }
+
+        function claimDailyBonus() {
+            alert('¡Bono diario de $250 reclamado con éxito!');
+        }
+
+        function requestWithdrawal() {
+            const amount = document.getElementById('withdraw-amount').value;
+            if (!amount || amount <= 0) {
+                alert('Ingresa un monto válido para retirar.');
+                return;
+            }
+            alert(`Solicitud de retiro por $${amount} enviada. Sujeta a horario hábil (9 a 21 hs) y validación IP.`);
+        }
+
+        function initReferralLink(username) {
+            document.getElementById('referral-link').value = `https://aura.io/ref/${username}`;
+        }
+
+        function copyReferralLink() {
+            const linkInput = document.getElementById('referral-link');
+            linkInput.select();
+            navigator.clipboard.writeText(linkInput.value);
+            alert('¡Enlace copiado al portapapeles!');
+        }
+
+        function saveProfileAndClaimBonus(event) {
+            event.preventDefault();
+            const fullname = document.getElementById('profile-fullname').value;
+            const cbu = document.getElementById('profile-cbu').value;
+            const alias = document.getElementById('profile-alias').value;
+
+            if (!fullname || !cbu || !alias) {
+                alert('Todos los campos bancarios son obligatorios.');
+                return;
+            }
+
+            alert('¡Datos guardados con éxito! Se ha acreditado tu bono de bienvenida de $500 ARS y tus retiros están habilitados.');
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('register-form').reset();
+            document.getElementById('login-form').reset();
+        }
+    </script>
+</body>
+</html>
