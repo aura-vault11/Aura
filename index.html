@@ -272,8 +272,14 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
         let supabaseClient = null;
 
-        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        try {
+            if (typeof supabase !== 'undefined') {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                    auth: { persistSession: false }
+                });
+            }
+        } catch (e) {
+            console.error('Error al inicializar Supabase:', e);
         }
 
         const PLANS = {
@@ -318,14 +324,16 @@
             currentUser.accumulated = 0;
 
             if (supabaseClient) {
-                const { error } = await supabaseClient
-                    .from('users')
-                    .insert([{ username: username, balance: 0, accumulated: 0 }]);
+                try {
+                    const { error } = await supabaseClient
+                        .from('users')
+                        .insert([{ username: username, balance: 0, accumulated: 0 }]);
 
-                if (error) {
-                    console.error('Error detallado de Supabase:', error);
-                    alert('No se pudo registrar en la base de datos: ' + error.message);
-                    return;
+                    if (error) {
+                        console.error('Error de Supabase:', error.message);
+                    }
+                } catch (err) {
+                    console.error('Error de red al conectar con Supabase:', err);
                 }
             }
 
@@ -345,13 +353,17 @@
             currentUser.username = username;
             
             if (supabaseClient) {
-                const { data, error } = await supabaseClient.from('users').select('*').eq('username', username).single();
-                if (data) {
-                    currentUser.balance = Number(data.balance) || 0;
-                    currentUser.accumulated = Number(data.accumulated) || 0;
-                } else {
-                    alert('Usuario no encontrado. Por favor, regístrese primero.');
-                    return;
+                try {
+                    const { data, error } = await supabaseClient.from('users').select('*').eq('username', username).single();
+                    if (data) {
+                        currentUser.balance = Number(data.balance) || 0;
+                        currentUser.accumulated = Number(data.accumulated) || 0;
+                    } else {
+                        alert('Usuario no encontrado. Por favor, regístrese primero.');
+                        return;
+                    }
+                } catch (err) {
+                    console.error('Error al iniciar sesión:', err);
                 }
             }
 
@@ -406,10 +418,14 @@
 
         async function syncBalanceToSupabase() {
             if (supabaseClient && currentUser.username) {
-                await supabaseClient.from('users').update({
-                    balance: currentUser.balance,
-                    accumulated: currentUser.accumulated
-                }).eq('username', currentUser.username);
+                try {
+                    await supabaseClient.from('users').update({
+                        balance: currentUser.balance,
+                        accumulated: currentUser.accumulated
+                    }).eq('username', currentUser.username);
+                } catch (e) {
+                    console.error('Error al sincronizar saldo:', e);
+                }
             }
         }
 
@@ -473,12 +489,16 @@
             updateUI();
 
             if (supabaseClient && currentUser.username) {
-                await supabaseClient.from('users').update({
-                    fullname: fullname,
-                    cbu: cbu,
-                    alias: alias,
-                    balance: currentUser.balance
-                }).eq('username', currentUser.username);
+                try {
+                    await supabaseClient.from('users').update({
+                        fullname: fullname,
+                        cbu: cbu,
+                        alias: alias,
+                        balance: currentUser.balance
+                    }).eq('username', currentUser.username);
+                } catch (e) {
+                    console.error('Error al actualizar perfil:', e);
+                }
             }
 
             alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida de $500 ARS y tus retiros están habilitados.');
