@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-main: #0d0f12;
@@ -264,7 +265,7 @@
         </nav>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN REST DIRECTA A SUPABASE -->
+    <!-- SCRIPT DE CONEXIÓN REST OFICIAL SUPABASE -->
     <script>
         const SUPABASE_URL = 'https://lmhaokkhlqyxzcfkzvq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
@@ -286,7 +287,7 @@
             ]
         };
 
-        let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '' };
+        let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '', fuliname: '', cbu: '', alias: '' };
         let currentPlanCategory = 'base';
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -310,7 +311,7 @@
                         }
                     }
                 } catch (e) {
-                    console.log('Usando sesión local de respaldo');
+                    console.log('Carga mediante respaldo local');
                 }
 
                 const localData = localStorage.getItem('aura_data_' + savedUser);
@@ -345,10 +346,12 @@
                 balance: 0,
                 accumulated: 0,
                 investments: [],
-                last_bonus: ''
+                last_bonus: '',
+                fuliname: '',
+                cbu: '',
+                alias: ''
             };
 
-            // Registro directo en la tabla de Supabase mediante API REST
             try {
                 await fetch(`${SUPABASE_URL}/rest/v1/users`, {
                     method: 'POST',
@@ -361,7 +364,7 @@
                     body: JSON.stringify(currentUser)
                 });
             } catch (e) {
-                console.log('Registro procesado localmente');
+                console.log('Registro guardado localmente');
             }
 
             localStorage.setItem('aura_logged_user', username);
@@ -393,7 +396,7 @@
                     }
                 }
             } catch (e) {
-                console.log('Buscando en almacenamiento local');
+                console.log('Login mediante respaldo local');
             }
 
             const localData = localStorage.getItem('aura_data_' + username);
@@ -411,6 +414,14 @@
             document.getElementById('header-username').innerText = username;
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
+            
+            // Cargar datos de perfil si ya los tenía guardados
+            if (currentUser.fuliname) {
+                document.getElementById('profile-fullname').value = currentUser.fuliname;
+                document.getElementById('profile-cbu').value = currentUser.cbu || '';
+                document.getElementById('profile-alias').value = currentUser.alias || '';
+            }
+
             renderPlans();
             renderMyInvestments();
             initReferralLink(username);
@@ -476,7 +487,10 @@
                             balance: currentUser.balance,
                             accumulated: currentUser.accumulated,
                             investments: currentUser.investments,
-                            last_bonus: currentUser.last_bonus
+                            last_bonus: currentUser.last_bonus,
+                            fuliname: currentUser.fuliname,
+                            cbu: currentUser.cbu,
+                            alias: currentUser.alias
                         })
                     });
                 } catch (e) {
@@ -565,26 +579,46 @@
             alert('¡Enlace copiado al portapapeles!');
         }
 
-        function saveProfileAndClaimBonus(event) {
+        async function saveProfileAndClaimBonus(event) {
             event.preventDefault();
-            const fullname = document.getElementById('profile-fullname').value;
-            const cbu = document.getElementById('profile-cbu').value;
-            const alias = document.getElementById('profile-alias').value;
+            const fullname = document.getElementById('profile-fullname').value.trim();
+            const cbu = document.getElementById('profile-cbu').value.trim();
+            const alias = document.getElementById('profile-alias').value.trim();
 
             if (!fullname || !cbu || !alias) {
                 alert('Todos los campos bancarios son obligatorios.');
                 return;
             }
 
+            // Validar si ya había reclamado el bono de bienvenida antes
+            if (currentUser.fuliname && currentUser.fuliname.length > 0) {
+                currentUser.fuliname = fullname;
+                currentUser.username = fullname; // Sincronizar nombre de usuario con el titular
+                currentUser.cbu = cbu;
+                currentUser.alias = alias;
+                document.getElementById('header-username').innerText = fullname;
+                updateUI();
+                await syncToSupabase();
+                alert('¡Datos bancarios actualizados con éxito!');
+                return;
+            }
+
+            // Primera vez: otorga los $500 de bono de bienvenida
+            currentUser.fuliname = fullname;
+            currentUser.username = fullname; // Sincronizar nombre de usuario con el titular
+            currentUser.cbu = cbu;
+            currentUser.alias = alias;
             currentUser.balance += 500;
+            
+            document.getElementById('header-username').innerText = fullname;
             updateUI();
-            syncToSupabase();
-            alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida de $500 ARS y tus retiros están habilitados.');
+            await syncToSupabase();
+            alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida único de $500 ARS y tus retiros están habilitados.');
         }
 
         function logout() {
             localStorage.removeItem('aura_logged_user');
-            currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '' };
+            currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '', fuliname: '', cbu: '', alias: '' };
             document.getElementById('app-container').classList.add('hidden');
             document.getElementById('auth-container').classList.remove('hidden');
             document.getElementById('register-form').reset();
