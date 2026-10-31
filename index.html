@@ -270,13 +270,6 @@
     <script>
         const SUPABASE_URL = 'https://lmhaokkhlqyxzcfkzvq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
-        
-        let db = null;
-        try {
-            db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } catch (e) {
-            console.error('Error al inicializar Supabase:', e);
-        }
 
         const PLANS = {
             base: [
@@ -300,16 +293,25 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             const savedUser = localStorage.getItem('aura_logged_user');
-            if (savedUser && db) {
+            if (savedUser) {
                 try {
-                    let { data } = await db.from('users').select('*').eq('username', savedUser).maybeSingle();
-                    if (data) {
-                        currentUser = data;
-                        iniciarApp(currentUser.username);
-                        return;
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(savedUser)}`, {
+                        method: 'GET',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.length > 0) {
+                            currentUser = data[0];
+                            iniciarApp(currentUser.username);
+                            return;
+                        }
                     }
                 } catch (e) {
-                    console.log('Error al consultar sesión');
+                    console.error('Error al cargar sesión:', e);
                 }
             }
             document.getElementById('auth-container').classList.remove('hidden');
@@ -340,12 +342,26 @@
                 last_bonus: ''
             };
 
-            if (db) {
-                const { error } = await db.from('users').insert([currentUser]);
-                if (error) {
-                    alert('Error estricto de Supabase: ' + error.message);
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(currentUser)
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    alert('Error en Supabase: ' + (errData.message || response.statusText));
                     return;
                 }
+            } catch (e) {
+                alert('Error de red al conectar con Supabase. Verifique su conexión.');
+                return;
             }
 
             localStorage.setItem('aura_logged_user', username);
@@ -357,20 +373,29 @@
             event.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             
-            let foundData = null;
-            if (db) {
-                let { data } = await db.from('users').select('*').eq('username', username).maybeSingle();
-                if (data) foundData = data;
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.length > 0) {
+                        currentUser = data[0];
+                        localStorage.setItem('aura_logged_user', currentUser.username);
+                        iniciarApp(currentUser.username);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error('Error en login:', e);
             }
 
-            if (!foundData) {
-                alert('Usuario no encontrado en la base de datos de Supabase.');
-                return;
-            }
-
-            currentUser = foundData;
-            localStorage.setItem('aura_logged_user', currentUser.username);
-            iniciarApp(currentUser.username);
+            alert('Usuario no encontrado en la base de datos de Supabase.');
         }
 
         function iniciarApp(username) {
@@ -424,13 +449,26 @@
         }
 
         async function syncToSupabase() {
-            if (db && currentUser.username) {
-                await db.from('users').update({
-                    balance: currentUser.balance,
-                    accumulated: currentUser.accumulated,
-                    investments: currentUser.investments,
-                    last_bonus: currentUser.last_bonus
-                }).eq('username', currentUser.username);
+            if (currentUser.username) {
+                try {
+                    await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(currentUser.username)}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({
+                            balance: currentUser.balance,
+                            accumulated: currentUser.accumulated,
+                            investments: currentUser.investments,
+                            last_bonus: currentUser.last_bonus
+                        })
+                    });
+                } catch (e) {
+                    console.error('Error al sincronizar:', e);
+                }
             }
         }
 
