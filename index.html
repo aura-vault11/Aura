@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-main: #0d0f12;
@@ -132,7 +130,7 @@
     <div id="launch-popup" class="modal-overlay hidden">
         <div class="modal-content">
             <h2>✨ ¡Bienvenido a Aura!</h2>
-            <p>Estamos inmersos en nuestra <strong>Semana de Lanzamiento</strong>.</p>
+            <p>Estamos en nuestra <strong>Semana de Lanzamiento</strong>.</p>
             <ul class="popup-list">
                 <li>🕒 <strong>Horario de atención y retiros:</strong> Lunes a viernes de <strong>9:00 a 21:00 hs</strong>.</li>
                 <li>🛍️ <strong>Explora los planes Base y Exclusiva</strong> y poné a trabajar tu capital.</li>
@@ -250,11 +248,6 @@
                     <a href="https://t.me/+lZEGbe1bYX9jZWUx" target="_blank" class="btn-telegram">💬 Grupo de Soporte Telegram</a>
                 </div>
 
-                <!-- Botón opcional para forzar sincronización con Supabase -->
-                <div style="margin-top: 15px;">
-                    <button class="btn-secondary" style="width: 100%; border-style: solid;" onclick="forceSyncToSupabase()">☁️ Forzar Sincronización Supabase</button>
-                </div>
-
                 <div class="logout-container">
                     <button class="btn-danger" onclick="logout()">Cerrar Sesión</button>
                 </div>
@@ -271,22 +264,8 @@
         </nav>
     </div>
 
-    <!-- SCRIPT HÍBRIDO BLINDADO -->
+    <!-- SCRIPT DE ALMACENAMIENTO LOCAL ROBUSTO -->
     <script>
-        const SUPABASE_URL = 'https://lmhaokkhlqyxzcfkzvq.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
-        let supabaseClient = null;
-
-        try {
-            if (typeof supabase !== 'undefined') {
-                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                    auth: { persistSession: false }
-                });
-            }
-        } catch (e) {
-            console.error('Error al inicializar Supabase:', e);
-        }
-
         const PLANS = {
             base: [
                 { id: 'shein', name: 'Plan Shein (Entrada)', price: 3000, return: 4000, days: 2, unique: true, img: 'shein.png' },
@@ -307,34 +286,18 @@
         let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '' };
         let currentPlanCategory = 'base';
 
-        // Auto-login súper robusto con respaldo local automático
-        window.addEventListener('DOMContentLoaded', async () => {
+        // Auto-login instantáneo y seguro mediante almacenamiento local
+        window.addEventListener('DOMContentLoaded', () => {
             const savedUser = localStorage.getItem('aura_logged_user');
             if (savedUser) {
-                let foundData = null;
-
-                // Intentamos buscar en Supabase
-                if (supabaseClient) {
-                    try {
-                        const { data } = await supabaseClient.from('users').select('*').eq('username', savedUser).single();
-                        if (data) foundData = data;
-                    } catch (err) {
-                        console.log('Modo offline / Red bloqueada: usando datos locales.');
-                    }
-                }
-
-                // Si no hay respuesta online, leemos del respaldo local del celular
-                if (!foundData) {
-                    const localRes = localStorage.getItem('aura_data_' + savedUser);
-                    if (localRes) foundData = JSON.parse(localRes);
-                }
-
-                if (foundData) {
-                    currentUser.username = foundData.username;
-                    currentUser.balance = Number(foundData.balance) || 0;
-                    currentUser.accumulated = Number(foundData.accumulated) || 0;
-                    currentUser.investments = foundData.investments || [];
-                    currentUser.last_bonus = foundData.last_bonus || '';
+                const localData = localStorage.getItem('aura_data_' + savedUser);
+                if (localData) {
+                    const userData = JSON.parse(localData);
+                    currentUser.username = userData.username;
+                    currentUser.balance = Number(userData.balance) || 0;
+                    currentUser.accumulated = Number(userData.accumulated) || 0;
+                    currentUser.investments = userData.investments || [];
+                    currentUser.last_bonus = userData.last_bonus || '';
 
                     document.getElementById('header-username').innerText = currentUser.username;
                     document.getElementById('auth-container').classList.add('hidden');
@@ -356,7 +319,7 @@
             document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
         }
 
-        async function handleRegister(event) {
+        function handleRegister(event) {
             event.preventDefault();
             const username = document.getElementById('reg-username').value.trim();
             const pin = document.getElementById('reg-pin').value;
@@ -372,24 +335,8 @@
             currentUser.investments = [];
             currentUser.last_bonus = '';
 
-            // Guardado local inmediato para garantizar acceso sin interrupciones
             localStorage.setItem('aura_logged_user', username);
             saveLocalUserData();
-
-            // Intento de subida a Supabase
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.from('users').upsert([{ 
-                        username: username, 
-                        balance: 0, 
-                        accumulated: 0, 
-                        investments: [],
-                        last_bonus: ''
-                    }], { onConflict: 'username' });
-                } catch (err) {
-                    console.log('Registro guardado localmente (red restringida).');
-                }
-            }
 
             document.getElementById('header-username').innerText = username;
             document.getElementById('auth-container').classList.add('hidden');
@@ -400,31 +347,17 @@
             updateUI();
         }
 
-        async function handleLogin(event) {
+        function handleLogin(event) {
             event.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             
-            let foundData = null;
-
-            if (supabaseClient) {
-                try {
-                    const { data } = await supabaseClient.from('users').select('*').eq('username', username).single();
-                    if (data) foundData = data;
-                } catch (err) {
-                    console.log('Búsqueda online fallida, verificando datos locales...');
-                }
-            }
-
-            if (!foundData) {
-                const localRes = localStorage.getItem('aura_data_' + username);
-                if (localRes) foundData = JSON.parse(localRes);
-            }
-
-            if (!foundData) {
-                alert('Usuario no encontrado. Regístrese o verifique el nombre.');
+            const localRes = localStorage.getItem('aura_data_' + username);
+            if (!localRes) {
+                alert('Usuario no encontrado en este dispositivo. Por favor, regístrese primero.');
                 return;
             }
 
+            const foundData = JSON.parse(localRes);
             currentUser.username = foundData.username;
             currentUser.balance = Number(foundData.balance) || 0;
             currentUser.accumulated = Number(foundData.accumulated) || 0;
@@ -432,8 +365,6 @@
             currentUser.last_bonus = foundData.last_bonus || '';
 
             localStorage.setItem('aura_logged_user', currentUser.username);
-            saveLocalUserData();
-
             document.getElementById('header-username').innerText = currentUser.username;
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
@@ -489,48 +420,7 @@
             saveLocalUserData();
         }
 
-        async function syncUserDataToSupabase() {
-            saveLocalUserData();
-            if (supabaseClient && currentUser.username) {
-                try {
-                    await supabaseClient.from('users').upsert([{ 
-                        username: currentUser.username,
-                        balance: currentUser.balance,
-                        accumulated: currentUser.accumulated,
-                        investments: currentUser.investments,
-                        last_bonus: currentUser.last_bonus
-                    }], { onConflict: 'username' });
-                } catch (e) {
-                    console.log('Sincronización en segundo plano pendiente por red.');
-                }
-            }
-        }
-
-        async function forceSyncToSupabase() {
-            if (!supabaseClient) {
-                alert('No hay conexión con Supabase.');
-                return;
-            }
-            try {
-                const { error } = await supabaseClient.from('users').upsert([{ 
-                    username: currentUser.username,
-                    balance: currentUser.balance,
-                    accumulated: currentUser.accumulated,
-                    investments: currentUser.investments,
-                    last_bonus: currentUser.last_bonus
-                }], { onConflict: 'username' });
-
-                if (error) {
-                    alert('Error al sincronizar: ' + error.message);
-                } else {
-                    alert('¡Sincronizado con éxito en Supabase!');
-                }
-            } catch (err) {
-                alert('Error de red al intentar sincronizar.');
-            }
-        }
-
-        async function buyPlan(planId, planName, price, planReturn, days) {
+        function buyPlan(planId, planName, price, planReturn, days) {
             if (currentUser.balance < price) {
                 alert('Saldo insuficiente para adquirir este plan.');
                 return;
@@ -549,7 +439,6 @@
             currentUser.investments.push(newInvestment);
             updateUI();
             renderMyInvestments();
-            await syncUserDataToSupabase();
             alert(`¡Has invertido con éxito en el ${planName}!`);
         }
 
@@ -565,13 +454,13 @@
                     <div class="plan-info">
                         <h4 style="color: var(--success);">${inv.name}</h4>
                         <p>Invertido: $${inv.price.toLocaleString()} | Retorno: $${inv.return.toLocaleString()}</p>
-                        <p>Fecha: ${inv.date} (${inv.days} días)</p>
+                        <p>Fecha: ${inv.date} (${inv.days} days)</p>
                     </div>
                 </div>
             `).join('');
         }
 
-        async function claimDailyBonus() {
+        function claimDailyBonus() {
             const today = new Date().toISOString().slice(0, 10);
             
             if (currentUser.last_bonus === today) {
@@ -582,7 +471,6 @@
             currentUser.balance += 250;
             currentUser.last_bonus = today;
             updateUI();
-            await syncUserDataToSupabase();
             alert('¡Bono diario de $250 reclamado con éxito!');
         }
 
@@ -613,7 +501,7 @@
             alert('¡Enlace copiado al portapapeles!');
         }
 
-        async function saveProfileAndClaimBonus(event) {
+        function saveProfileAndClaimBonus(event) {
             event.preventDefault();
             const fullname = document.getElementById('profile-fullname').value;
             const cbu = document.getElementById('profile-cbu').value;
@@ -626,7 +514,6 @@
 
             currentUser.balance += 500;
             updateUI();
-            await syncUserDataToSupabase();
 
             alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida de $500 ARS y tus retiros están habilitados.');
         }
