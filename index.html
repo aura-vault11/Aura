@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
-    <!-- SCRIPT OFICIAL DE SUPABASE -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-main: #0d0f12;
@@ -266,7 +264,7 @@
         </nav>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN CON SUPABASE -->
+    <!-- SCRIPT DE CONEXIÓN CON SUPABASE (MODO SEGURO CORS) -->
     <script>
         const SUPABASE_URL = 'https://lmhaokkhlqyxzcfkzvq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
@@ -297,6 +295,7 @@
                 try {
                     const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(savedUser)}`, {
                         method: 'GET',
+                        mode: 'cors',
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,
                             'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
@@ -345,6 +344,7 @@
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
                     method: 'POST',
+                    mode: 'cors',
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -376,6 +376,7 @@
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}`, {
                     method: 'GET',
+                    mode: 'cors',
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
@@ -453,6 +454,7 @@
                 try {
                     await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(currentUser.username)}`, {
                         method: 'PATCH',
+                        mode: 'cors',
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,
                             'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
