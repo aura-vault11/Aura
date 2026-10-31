@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
+    <!-- SCRIPT OFICIAL DE SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -192,10 +193,10 @@
                         <input type="text" id="cvu-text" class="cvu-input" value="0000267900000002996367" readonly>
                         <button class="btn-secondary" onclick="copyCVU()">Copiar CVU</button>
                     </div>
-                    <p class="info-small">Retiros: Lunes a Viernes de 9 a 21 hs (Mínimo de retiro: <strong>$15.000 ARS</strong>).</p>
+                    <p class="info-small">Retiros: Lunes a Viernes de 9 a 21 hs (Mínimo: $15.000 - Máx: $100.000).</p>
                     <div class="input-group">
                         <label>Monto a Retirar ($ ARS)</label>
-                        <input type="number" id="withdraw-amount" placeholder="Mínimo $15.000">
+                        <input type="number" id="withdraw-amount" placeholder="Ej: 15000">
                     </div>
                     <button class="btn-primary" onclick="requestWithdrawal()">Solicitar Extracción</button>
                 </div>
@@ -240,7 +241,7 @@
                         <label>Alias Bancario</label>
                         <input type="text" id="profile-alias" required placeholder="tu.alias.banco">
                     </div>
-                    <button type="submit" class="btn-primary">Guardar y Reclamar Bono ($500)</button>
+                    <button type="submit" id="btn-save-profile" class="btn-primary">Guardar y Reclamar Bono ($500)</button>
                 </form>
 
                 <div class="card-balance" style="text-align: left;">
@@ -265,10 +266,17 @@
         </nav>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN REST OFICIAL SUPABASE -->
+    <!-- SCRIPT OFICIAL DE SUPABASE CONECTADO Y BLINDADO -->
     <script>
         const SUPABASE_URL = 'https://lmhaokkhlqyxzcfkzvq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
+
+        let supabaseClient = null;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.error('Error inicializando SDK Supabase', e);
+        }
 
         const PLANS = {
             base: [
@@ -292,28 +300,26 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             const savedUser = localStorage.getItem('aura_logged_user');
-            if (savedUser) {
+            if (savedUser && supabaseClient) {
                 try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(savedUser)}`, {
-                        method: 'GET',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                            'Accept': 'application/json'
-                        }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data && data.length > 0) {
-                            currentUser = data[0];
-                            iniciarApp(currentUser.username);
-                            return;
-                        }
+                    const { data, error } = await supabaseClient
+                        .from('users')
+                        .select('*')
+                        .eq('username', savedUser)
+                        .maybeSingle();
+
+                    if (data) {
+                        currentUser = data;
+                        iniciarApp(currentUser.username);
+                        return;
                     }
                 } catch (e) {
-                    console.log('Carga mediante respaldo local');
+                    console.log('Error de red al cargar, usando respaldo local');
                 }
+            }
 
+            // Respaldo local si no hay conexión
+            if (savedUser) {
                 const localData = localStorage.getItem('aura_data_' + savedUser);
                 if (localData) {
                     currentUser = JSON.parse(localData);
@@ -352,19 +358,12 @@
                 alias: ''
             };
 
-            try {
-                await fetch(`${SUPABASE_URL}/rest/v1/users`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify(currentUser)
-                });
-            } catch (e) {
-                console.log('Registro guardado localmente');
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('users').insert([currentUser]);
+                } catch (e) {
+                    console.log('Guardado local por red móvil');
+                }
             }
 
             localStorage.setItem('aura_logged_user', username);
@@ -377,37 +376,39 @@
             event.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}`, {
-                    method: 'GET',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Accept': 'application/json'
+            let found = false;
+            if (supabaseClient) {
+                try {
+                    const { data } = await supabaseClient
+                        .from('users')
+                        .select('*')
+                        .eq('username', username)
+                        .maybeSingle();
+
+                    if (data) {
+                        currentUser = data;
+                        found = true;
                     }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.length > 0) {
-                        currentUser = data[0];
-                        localStorage.setItem('aura_logged_user', currentUser.username);
-                        iniciarApp(currentUser.username);
-                        return;
-                    }
+                } catch (e) {
+                    console.log('Login local activo');
                 }
-            } catch (e) {
-                console.log('Login mediante respaldo local');
             }
 
-            const localData = localStorage.getItem('aura_data_' + username);
-            if (localData) {
-                currentUser = JSON.parse(localData);
-                localStorage.setItem('aura_logged_user', currentUser.username);
-                iniciarApp(currentUser.username);
+            if (!found) {
+                const localData = localStorage.getItem('aura_data_' + username);
+                if (localData) {
+                    currentUser = JSON.parse(localData);
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                alert('Usuario no encontrado en la base de datos.');
                 return;
             }
 
-            alert('Usuario no encontrado en la base de datos.');
+            localStorage.setItem('aura_logged_user', currentUser.username);
+            iniciarApp(currentUser.username);
         }
 
         function iniciarApp(username) {
@@ -415,7 +416,6 @@
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
             
-            // Cargar datos de perfil si ya los tenía guardados
             if (currentUser.fuliname) {
                 document.getElementById('profile-fullname').value = currentUser.fuliname;
                 document.getElementById('profile-cbu').value = currentUser.cbu || '';
@@ -472,18 +472,11 @@
         }
 
         async function syncToSupabase() {
-            if (currentUser.username) {
-                localStorage.setItem('aura_data_' + currentUser.username, JSON.stringify(currentUser));
+            if (supabaseClient && currentUser.username) {
                 try {
-                    await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(currentUser.username)}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
-                        },
-                        body: JSON.stringify({
+                    await supabaseClient
+                        .from('users')
+                        .update({
                             balance: currentUser.balance,
                             accumulated: currentUser.accumulated,
                             investments: currentUser.investments,
@@ -492,14 +485,14 @@
                             cbu: currentUser.cbu,
                             alias: currentUser.alias
                         })
-                    });
+                        .eq('username', currentUser.username);
                 } catch (e) {
-                    console.log('Sincronización local realizada');
+                    console.error('Error al sincronizar con Supabase', e);
                 }
             }
         }
 
-        function buyPlan(planId, planName, price, planReturn, days) {
+        async function buyPlan(planId, planName, price, planReturn, days) {
             if (currentUser.balance < price) {
                 alert('Saldo insuficiente para adquirir este plan.');
                 return;
@@ -510,7 +503,7 @@
             });
             updateUI();
             renderMyInvestments();
-            syncToSupabase();
+            await syncToSupabase();
             alert(`¡Has invertido con éxito en el ${planName}!`);
         }
 
@@ -531,7 +524,7 @@
             `).join('');
         }
 
-        function claimDailyBonus() {
+        async function claimDailyBonus() {
             const today = new Date().toISOString().slice(0, 10);
             if (currentUser.last_bonus === today) {
                 alert('⏳ Ya has reclamado tu bono diario hoy. ¡Vuelve mañana!');
@@ -540,7 +533,7 @@
             currentUser.balance += 250;
             currentUser.last_bonus = today;
             updateUI();
-            syncToSupabase();
+            await syncToSupabase();
             alert('¡Bono diario de $250 reclamado con éxito!');
         }
 
@@ -559,6 +552,10 @@
             }
             if (amount < 15000) {
                 alert('⚠️ El monto mínimo de retiro es de $15.000 ARS.');
+                return;
+            }
+            if (amount > 100000) {
+                alert('⚠️ El monto máximo de extracción por operación es de $100.000 ARS.');
                 return;
             }
             if (currentUser.balance < amount) {
@@ -590,10 +587,10 @@
                 return;
             }
 
-            // Validar si ya había reclamado el bono de bienvenida antes
+            // Validar si el bono de bienvenida ya fue reclamado previamente (si ya tiene fuliname registrado)
             if (currentUser.fuliname && currentUser.fuliname.length > 0) {
                 currentUser.fuliname = fullname;
-                currentUser.username = fullname; // Sincronizar nombre de usuario con el titular
+                currentUser.username = fullname; // Sincroniza nombre de usuario con el titular
                 currentUser.cbu = cbu;
                 currentUser.alias = alias;
                 document.getElementById('header-username').innerText = fullname;
@@ -603,13 +600,13 @@
                 return;
             }
 
-            // Primera vez: otorga los $500 de bono de bienvenida
+            // Única vez: otorga los $500 de bono de bienvenida al registrar el perfil
             currentUser.fuliname = fullname;
-            currentUser.username = fullname; // Sincronizar nombre de usuario con el titular
+            currentUser.username = fullname; // Sincroniza nombre de usuario con el titular
             currentUser.cbu = cbu;
             currentUser.alias = alias;
             currentUser.balance += 500;
-            
+
             document.getElementById('header-username').innerText = fullname;
             updateUI();
             await syncToSupabase();
