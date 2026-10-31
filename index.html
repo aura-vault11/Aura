@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
-    <!-- Librería oficial de Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-main: #0d0f12;
@@ -26,6 +24,9 @@
         .auth-card { background-color: var(--bg-card); padding: 30px; border-radius: 12px; border: 1px solid #2a2e3d; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         .auth-card h1 { color: var(--accent); letter-spacing: 2px; margin-bottom: 5px; }
         .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
+        .auth-tabs { display: flex; margin-bottom: 20px; background: #0d0f12; border-radius: 8px; padding: 4px; }
+        .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 10px; cursor: pointer; border-radius: 6px; font-weight: 600; font-size: 0.9rem; }
+        .tab-btn.active { background: var(--bg-card); color: var(--accent); }
         .input-group { margin-bottom: 15px; text-align: left; }
         .input-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
         .input-group input { width: 100%; padding: 12px; background: #0d0f12; border: 1px solid #2a2e3d; border-radius: 8px; color: white; font-size: 0.95rem; }
@@ -33,6 +34,7 @@
         .btn-primary:hover { background: var(--accent-hover); }
         .btn-secondary { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
         .btn-telegram { background: #229ed9; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold; text-decoration: none; display: block; text-align: center; margin-bottom: 10px; font-size: 0.95rem; }
+        .btn-telegram:hover { background: #1f8ad2; }
         .btn-danger { background: var(--danger); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold; font-size: 0.95rem; }
 
         /* App Container */
@@ -88,17 +90,38 @@
         <div class="auth-card">
             <h1>AURA</h1>
             <p class="subtitle">Plataforma de Inversión en Moda y Lujo</p>
+            
+            <div class="auth-tabs">
+                <button id="tab-register-btn" class="tab-btn active" onclick="switchAuthTab('register')">¿Sos nuevo?</button>
+                <button id="tab-login-btn" class="tab-btn" onclick="switchAuthTab('login')">¿Ya estás registrado?</button>
+            </div>
 
-            <form id="register-form" class="auth-form" onsubmit="handleAuthSubmit(event)">
+            <form id="register-form" class="auth-form" onsubmit="handleRegister(event)">
                 <div class="input-group">
                     <label>Nombre de Usuario</label>
                     <input type="text" id="reg-username" required placeholder="Ej: usuario123">
                 </div>
                 <div class="input-group">
-                    <label>PIN de Seguridad (4 dígitos)</label>
-                    <input type="password" id="reg-pin" minlength="4" maxlength="4" required placeholder="PIN numérico">
+                    <label>Contraseña</label>
+                    <input type="password" id="reg-password" required placeholder="********">
                 </div>
-                <button type="submit" class="btn-primary">Ingresar / Registrarse</button>
+                <div class="input-group">
+                    <label>PIN de Seguridad (6 a 8 caracteres)</label>
+                    <input type="password" id="reg-pin" minlength="6" maxlength="8" required placeholder="PIN numérico">
+                </div>
+                <button type="submit" class="btn-primary">Crear Cuenta</button>
+            </form>
+
+            <form id="login-form" class="auth-form hidden" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>Nombre de Usuario</label>
+                    <input type="text" id="login-username" required placeholder="Tu usuario">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="********">
+                </div>
+                <button type="submit" class="btn-primary">Ingresar</button>
             </form>
         </div>
     </div>
@@ -175,6 +198,11 @@
                     </div>
                     <button class="btn-primary" onclick="requestWithdrawal()">Solicitar Extracción</button>
                 </div>
+
+                <div class="history-box">
+                    <h3>Historial de Retiros</h3>
+                    <div id="withdrawals-history-list"></div>
+                </div>
             </section>
 
             <!-- SECCIÓN 4: REFERIDOS -->
@@ -186,6 +214,10 @@
                         <input type="text" id="referral-link" readonly class="cvu-input">
                         <button class="btn-secondary" onclick="copyReferralLink()">Copiar</button>
                     </div>
+                </div>
+                <div class="guests-box">
+                    <h3>Listado de Invitados</h3>
+                    <div id="guests-list"></div>
                 </div>
             </section>
 
@@ -222,7 +254,7 @@
             </section>
         </main>
 
-        <!-- Navegación inferior -->
+        <!-- Navegación inferior con solo Emojis -->
         <nav class="bottom-nav">
             <button class="nav-btn active" onclick="switchSection(1)">🏠</button>
             <button class="nav-btn" onclick="switchSection(2)">⏱️</button>
@@ -232,11 +264,10 @@
         </nav>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN OFICIAL CON SUPABASE -->
+    <!-- SCRIPT DE CONEXIÓN DIRECTA A SUPABASE (REST FETCH) -->
     <script>
         const SUPABASE_URL = 'https://lmhaokkhlqyxzcfkzvq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
-        const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const PLANS = {
             base: [
@@ -255,82 +286,162 @@
             ]
         };
 
-        let currentUser = null;
+        let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '' };
         let currentPlanCategory = 'base';
 
-        function getDeviceId() {
-            let devId = localStorage.getItem('aura_device_id');
-            if (!devId) {
-                devId = 'DEV-' + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
-                localStorage.setItem('aura_device_id', devId);
-            }
-            return devId;
-        }
-
-        // Validación de sesión activa en Supabase al cargar
-        async function checkExistingSession() {
-            const deviceId = getDeviceId();
-            let { data: existingUser } = await db.from('users').select('*').eq('device_id', deviceId).maybeSingle();
-            
-            if (existingUser) {
-                currentUser = existingUser;
-                document.getElementById('auth-container').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
-                iniciarApp();
+        // Funciones de comunicación directa por Fetch con Supabase (Evita bloqueos y guarda en la tabla)
+        async function dbUpsert(userData) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                return response.ok;
+            } catch (e) {
+                console.error('Error de red Supabase:', e);
+                return false;
             }
         }
 
-        async function handleAuthSubmit(event) {
+        async function dbFetch(username) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.length > 0) return data[0];
+                }
+            } catch (e) {
+                console.error('Error al consultar Supabase:', e);
+            }
+            return null;
+        }
+
+        // Auto-login al cargar la página
+        window.addEventListener('DOMContentLoaded', async () => {
+            const savedUser = localStorage.getItem('aura_logged_user');
+            if (savedUser) {
+                let userData = await dbFetch(savedUser);
+                if (!userData) {
+                    const localRes = localStorage.getItem('aura_data_' + savedUser);
+                    if (localRes) userData = JSON.parse(localRes);
+                }
+
+                if (userData) {
+                    currentUser.username = userData.username;
+                    currentUser.balance = Number(userData.balance) || 0;
+                    currentUser.accumulated = Number(userData.accumulated) || 0;
+                    currentUser.investments = userData.investments || [];
+                    currentUser.last_bonus = userData.last_bonus || '';
+
+                    document.getElementById('header-username').innerText = currentUser.username;
+                    document.getElementById('auth-container').classList.add('hidden');
+                    document.getElementById('app-container').classList.remove('hidden');
+                    renderPlans();
+                    renderMyInvestments();
+                    initReferralLink(currentUser.username);
+                    updateUI();
+                    return;
+                }
+            }
+            document.getElementById('auth-container').classList.remove('hidden');
+        });
+
+        function switchAuthTab(tab) {
+            document.getElementById('tab-register-btn').classList.toggle('active', tab === 'register');
+            document.getElementById('tab-login-btn').classList.toggle('active', tab === 'login');
+            document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
+            document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+        }
+
+        async function handleRegister(event) {
             event.preventDefault();
-            const nameVal = document.getElementById('reg-username').value.trim();
-            const pinVal = document.getElementById('reg-pin').value.trim();
-            const deviceId = getDeviceId();
+            const username = document.getElementById('reg-username').value.trim();
+            const pin = document.getElementById('reg-pin').value;
 
-            if (!nameVal || pinVal.length !== 4) {
-                alert("Ingrese un nombre y un PIN de 4 dígitos válido.");
+            if (pin.length < 6 || pin.length > 8) {
+                alert('El PIN de seguridad debe tener entre 6 y 8 caracteres.');
                 return;
             }
 
-            let { data: existingUser } = await db.from('users').select('*').eq('device_id', deviceId).maybeSingle();
+            currentUser.username = username;
+            currentUser.balance = 0;
+            currentUser.accumulated = 0;
+            currentUser.investments = [];
+            currentUser.last_bonus = '';
 
-            if (existingUser) {
-                currentUser = existingUser;
-            } else {
-                let { data: newUser, error: insertError } = await db.from('users').insert([{
-                    device_id: deviceId,
-                    username: nameVal,
-                    balance: 0,
-                    accumulated: 0,
-                    investments: [],
-                    last_bonus: ''
-                }]).select().single();
+            localStorage.setItem('aura_logged_user', username);
+            saveLocalUserData();
 
-                if (insertError) {
-                    console.error("Error Supabase:", insertError);
-                    alert("Error al registrar en la base de datos. Verifique su conexión.");
-                    return;
-                }
-                currentUser = newUser;
+            // Registro directo en Supabase
+            const success = await dbUpsert({
+                username: username,
+                balance: 0,
+                accumulated: 0,
+                investments: [],
+                last_bonus: ''
+            });
+
+            if (!success) {
+                alert('Aviso: Se guardó localmente, pero hubo un detalle al sincronizar con Supabase.');
             }
 
+            document.getElementById('header-username').innerText = username;
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('launch-popup').classList.remove('hidden');
-            iniciarApp();
+            
+            renderPlans();
+            initReferralLink(username);
+            updateUI();
         }
 
-        function iniciarApp() {
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            
+            let foundData = await dbFetch(username);
+            if (!foundData) {
+                const localRes = localStorage.getItem('aura_data_' + username);
+                if (localRes) foundData = JSON.parse(localRes);
+            }
+
+            if (!foundData) {
+                alert('Usuario no encontrado. Por favor, regístrese primero.');
+                return;
+            }
+
+            currentUser.username = foundData.username;
+            currentUser.balance = Number(foundData.balance) || 0;
+            currentUser.accumulated = Number(foundData.accumulated) || 0;
+            currentUser.investments = foundData.investments || [];
+            currentUser.last_bonus = foundData.last_bonus || '';
+
+            localStorage.setItem('aura_logged_user', currentUser.username);
+            saveLocalUserData();
+
             document.getElementById('header-username').innerText = currentUser.username;
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            
             renderPlans();
             renderMyInvestments();
             initReferralLink(currentUser.username);
             updateUI();
         }
 
-        async function updateDBUser(fields) {
-            if (!currentUser) return;
-            let { data } = await db.from('users').update(fields).eq('id', currentUser.id).select().single();
-            if (data) currentUser = data;
-            updateUI();
+        function saveLocalUserData() {
+            localStorage.setItem('aura_data_' + currentUser.username, JSON.stringify(currentUser));
         }
 
         function closeLaunchPopup() {
@@ -369,42 +480,49 @@
         }
 
         function updateUI() {
-            if (!currentUser) return;
-            document.getElementById('user-balance').innerText = `$${(currentUser.balance || 0).toLocaleString()} ARS`;
-            document.getElementById('accumulated-balance').innerText = `$${(currentUser.accumulated || 0).toLocaleString()} ARS`;
+            document.getElementById('user-balance').innerText = `$${currentUser.balance.toLocaleString()} ARS`;
+            document.getElementById('accumulated-balance').innerText = `$${currentUser.accumulated.toLocaleString()} ARS`;
+            saveLocalUserData();
+        }
+
+        async function syncToSupabase() {
+            saveLocalUserData();
+            if (currentUser.username) {
+                await dbUpsert({
+                    username: currentUser.username,
+                    balance: currentUser.balance,
+                    accumulated: currentUser.accumulated,
+                    investments: currentUser.investments,
+                    last_bonus: currentUser.last_bonus
+                });
+            }
         }
 
         async function buyPlan(planId, planName, price, planReturn, days) {
-            if (!currentUser) return;
             if (currentUser.balance < price) {
                 alert('Saldo insuficiente para adquirir este plan.');
                 return;
             }
+            currentUser.balance -= price;
             
-            const newBalance = currentUser.balance - price;
-            const newInvestment = {
+            currentUser.investments.push({
                 id: planId,
                 name: planName,
                 price: price,
                 return: planReturn,
                 days: days,
                 date: new Date().toLocaleDateString()
-            };
-
-            const updatedInvestments = [...(currentUser.investments || []), newInvestment];
-            
-            await updateDBUser({
-                balance: newBalance,
-                investments: updatedInvestments
             });
 
+            updateUI();
             renderMyInvestments();
-            alert(`¡Has invertido con éxito en el ${planName} y se ha registrado en Supabase!`);
+            await syncToSupabase();
+            alert(`¡Has invertido con éxito en el ${planName}!`);
         }
 
         function renderMyInvestments() {
             const container = document.getElementById('my-investments-list');
-            if (!currentUser || !currentUser.investments || currentUser.investments.length === 0) {
+            if (!currentUser.investments || currentUser.investments.length === 0) {
                 container.innerHTML = `<p class="info-small" style="text-align:center; margin-top:20px;">Aún no tienes inversiones activas.</p>`;
                 return;
             }
@@ -422,16 +540,17 @@
 
         async function claimDailyBonus() {
             const today = new Date().toISOString().slice(0, 10);
+            
             if (currentUser.last_bonus === today) {
                 alert('⏳ Ya has reclamado tu bono diario hoy. ¡Vuelve mañana!');
                 return;
             }
 
-            await updateDBUser({
-                balance: (currentUser.balance || 0) + 250,
-                last_bonus: today
-            });
-            alert('¡Bono diario de $250 reclamado y guardado en Supabase!');
+            currentUser.balance += 250;
+            currentUser.last_bonus = today;
+            updateUI();
+            await syncToSupabase();
+            alert('¡Bono diario de $250 reclamado con éxito!');
         }
 
         function copyCVU() {
@@ -447,7 +566,7 @@
                 alert('Ingresa un monto válido para retirar.');
                 return;
             }
-            alert(`Solicitud de retiro por $${amount} enviada. Sujeta a horario hábil.`);
+            alert(`Solicitud de retiro por $${amount} enviada. Sujeta a horario hábil (9 a 21 hs).`);
         }
 
         function initReferralLink(username) {
@@ -472,22 +591,21 @@
                 return;
             }
 
-            await updateDBUser({
-                balance: (currentUser.balance || 0) + 500
-            });
-            alert('¡Datos guardados! Se acreditó tu bono de bienvenida de $500 ARS en Supabase.');
+            currentUser.balance += 500;
+            updateUI();
+            await syncToSupabase();
+
+            alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida de $500 ARS y tus retiros están habilitados.');
         }
 
         function logout() {
-            localStorage.removeItem('aura_device_id');
-            currentUser = null;
+            localStorage.removeItem('aura_logged_user');
+            currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '' };
             document.getElementById('app-container').classList.add('hidden');
             document.getElementById('auth-container').classList.remove('hidden');
             document.getElementById('register-form').reset();
+            document.getElementById('login-form').reset();
         }
-
-        // Ejecutar verificación de sesión al iniciar
-        checkExistingSession();
     </script>
 </body>
 </html>
