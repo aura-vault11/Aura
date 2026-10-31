@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
+    <!-- Librería oficial de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-main: #0d0f12;
@@ -264,10 +266,17 @@
         </nav>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN CON SUPABASE (MODO SEGURO CORS) -->
+    <!-- SCRIPT DE SUPABASE CLIENT OFICIAL -->
     <script>
         const SUPABASE_URL = 'https://lmhaokkhlqyxzcfkzvq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
+
+        let supabaseClient = null;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.error('Error inicializando SDK de Supabase', e);
+        }
 
         const PLANS = {
             base: [
@@ -291,23 +300,18 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             const savedUser = localStorage.getItem('aura_logged_user');
-            if (savedUser) {
+            if (savedUser && supabaseClient) {
                 try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(savedUser)}`, {
-                        method: 'GET',
-                        mode: 'cors',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                        }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data && data.length > 0) {
-                            currentUser = data[0];
-                            iniciarApp(currentUser.username);
-                            return;
-                        }
+                    const { data, error } = await supabaseClient
+                        .from('users')
+                        .select('*')
+                        .eq('username', savedUser)
+                        .maybeSingle();
+
+                    if (data) {
+                        currentUser = data;
+                        iniciarApp(currentUser.username);
+                        return;
                     }
                 } catch (e) {
                     console.error('Error al cargar sesión:', e);
@@ -341,22 +345,18 @@
                 last_bonus: ''
             };
 
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify(currentUser)
-                });
+            if (!supabaseClient) {
+                alert('Error: El cliente de Supabase no está inicializado.');
+                return;
+            }
 
-                if (!response.ok) {
-                    const errData = await response.json();
-                    alert('Error en Supabase: ' + (errData.message || response.statusText));
+            try {
+                const { error } = await supabaseClient
+                    .from('users')
+                    .insert([currentUser]);
+
+                if (error) {
+                    alert('Error en Supabase: ' + error.message);
                     return;
                 }
             } catch (e) {
@@ -373,24 +373,23 @@
             event.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}`, {
-                    method: 'GET',
-                    mode: 'cors',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
+            if (!supabaseClient) {
+                alert('Error: El cliente de Supabase no está inicializado.');
+                return;
+            }
 
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.length > 0) {
-                        currentUser = data[0];
-                        localStorage.setItem('aura_logged_user', currentUser.username);
-                        iniciarApp(currentUser.username);
-                        return;
-                    }
+            try {
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .eq('username', username)
+                    .maybeSingle();
+
+                if (data) {
+                    currentUser = data;
+                    localStorage.setItem('aura_logged_user', currentUser.username);
+                    iniciarApp(currentUser.username);
+                    return;
                 }
             } catch (e) {
                 console.error('Error en login:', e);
@@ -450,24 +449,17 @@
         }
 
         async function syncToSupabase() {
-            if (currentUser.username) {
+            if (supabaseClient && currentUser.username) {
                 try {
-                    await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(currentUser.username)}`, {
-                        method: 'PATCH',
-                        mode: 'cors',
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
-                        },
-                        body: JSON.stringify({
+                    await supabaseClient
+                        .from('users')
+                        .update({
                             balance: currentUser.balance,
                             accumulated: currentUser.accumulated,
                             investments: currentUser.investments,
                             last_bonus: currentUser.last_bonus
                         })
-                    });
+                        .eq('username', currentUser.username);
                 } catch (e) {
                     console.error('Error al sincronizar:', e);
                 }
