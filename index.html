@@ -299,29 +299,37 @@
             ]
         };
 
-        let currentUser = { username: '', balance: 0, accumulated: 0, investments: [] };
+        let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '' };
         let currentPlanCategory = 'base';
 
-        // Auto-login al cargar si ya había una sesión activa
+        // Auto-login persistente conectado directamente a Supabase
         window.addEventListener('DOMContentLoaded', async () => {
             const savedUser = localStorage.getItem('aura_logged_user');
             if (savedUser && supabaseClient) {
-                const { data } = await supabaseClient.from('users').select('*').eq('username', savedUser).single();
-                if (data) {
-                    currentUser.username = data.username;
-                    currentUser.balance = Number(data.balance) || 0;
-                    currentUser.accumulated = Number(data.accumulated) || 0;
-                    currentUser.investments = data.investments || [];
+                try {
+                    const { data } = await supabaseClient.from('users').select('*').eq('username', savedUser).single();
+                    if (data) {
+                        currentUser.username = data.username;
+                        currentUser.balance = Number(data.balance) || 0;
+                        currentUser.accumulated = Number(data.accumulated) || 0;
+                        currentUser.investments = data.investments || [];
+                        currentUser.last_bonus = data.last_bonus || '';
 
-                    document.getElementById('header-username').innerText = currentUser.username;
-                    document.getElementById('auth-container').classList.add('hidden');
-                    document.getElementById('app-container').classList.remove('hidden');
-                    renderPlans();
-                    renderMyInvestments();
-                    initReferralLink(currentUser.username);
-                    updateUI();
+                        document.getElementById('header-username').innerText = currentUser.username;
+                        document.getElementById('auth-container').classList.add('hidden');
+                        document.getElementById('app-container').classList.remove('hidden');
+                        renderPlans();
+                        renderMyInvestments();
+                        initReferralLink(currentUser.username);
+                        updateUI();
+                        return;
+                    }
+                } catch (err) {
+                    console.error('Error al restaurar sesión:', err);
                 }
             }
+            // Si no hay sesión válida, muestra la pantalla de autenticación
+            document.getElementById('auth-container').classList.remove('hidden');
         });
 
         function switchAuthTab(tab) {
@@ -345,17 +353,23 @@
             currentUser.balance = 0;
             currentUser.accumulated = 0;
             currentUser.investments = [];
+            currentUser.last_bonus = '';
 
             if (supabaseClient) {
                 try {
-                    await supabaseClient.from('users').upsert([{ 
+                    const { error } = await supabaseClient.from('users').upsert([{ 
                         username: username, 
                         balance: 0, 
                         accumulated: 0, 
-                        investments: [] 
+                        investments: [],
+                        last_bonus: ''
                     }], { onConflict: 'username' });
+
+                    if (error) {
+                        console.error('Error al registrar en Supabase:', error.message);
+                    }
                 } catch (err) {
-                    console.error('Error al registrar:', err);
+                    console.error('Error de red en registro:', err);
                 }
             }
 
@@ -381,13 +395,14 @@
                         currentUser.balance = Number(data.balance) || 0;
                         currentUser.accumulated = Number(data.accumulated) || 0;
                         currentUser.investments = data.investments || [];
+                        currentUser.last_bonus = data.last_bonus || '';
                     } else {
                         alert('Usuario no encontrado. Por favor, regístrese primero.');
                         return;
                     }
                 } catch (err) {
                     console.error('Error al iniciar sesión:', err);
-                    alert('Error de conexión con la base de datos.');
+                    alert('Error al conectar con la base de datos.');
                     return;
                 }
             }
@@ -449,7 +464,8 @@
                     await supabaseClient.from('users').update({
                         balance: currentUser.balance,
                         accumulated: currentUser.accumulated,
-                        investments: currentUser.investments
+                        investments: currentUser.investments,
+                        last_bonus: currentUser.last_bonus
                     }).eq('username', currentUser.username);
                 } catch (e) {
                     console.error('Error al sincronizar con Supabase:', e);
@@ -500,16 +516,15 @@
 
         async function claimDailyBonus() {
             const today = new Date().toISOString().slice(0, 10);
-            const lastClaim = localStorage.getItem('last_bonus_' + currentUser.username);
             
-            if (lastClaim === today) {
+            if (currentUser.last_bonus === today) {
                 alert('⏳ Ya has reclamado tu bono diario hoy. ¡Vuelve mañana!');
                 return;
             }
 
             currentUser.balance += 250;
+            currentUser.last_bonus = today;
             updateUI();
-            localStorage.setItem('last_bonus_' + currentUser.username, today);
             await syncUserDataToSupabase();
             alert('¡Bono diario de $250 reclamado con éxito!');
         }
@@ -561,7 +576,7 @@
 
         function logout() {
             localStorage.removeItem('aura_logged_user');
-            currentUser = { username: '', balance: 0, accumulated: 0, investments: [] };
+            currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '' };
             document.getElementById('app-container').classList.add('hidden');
             document.getElementById('auth-container').classList.remove('hidden');
             document.getElementById('register-form').reset();
