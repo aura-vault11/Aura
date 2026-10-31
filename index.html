@@ -266,7 +266,7 @@
         </nav>
     </div>
 
-    <!-- SCRIPT -->
+    <!-- SCRIPT HÍBRIDO (SUPABASE + LOCALSTORAGE ANTI-BORRADO) -->
     <script>
         const SUPABASE_URL = 'https://imhaokkhlqyxzcfkzvq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
@@ -302,33 +302,46 @@
         let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '' };
         let currentPlanCategory = 'base';
 
-        // Auto-login persistente conectado directamente a Supabase
+        // Auto-login ultra seguro (lee de Supabase y respalda en LocalStorage)
         window.addEventListener('DOMContentLoaded', async () => {
             const savedUser = localStorage.getItem('aura_logged_user');
-            if (savedUser && supabaseClient) {
-                try {
-                    const { data } = await supabaseClient.from('users').select('*').eq('username', savedUser).single();
-                    if (data) {
-                        currentUser.username = data.username;
-                        currentUser.balance = Number(data.balance) || 0;
-                        currentUser.accumulated = Number(data.accumulated) || 0;
-                        currentUser.investments = data.investments || [];
-                        currentUser.last_bonus = data.last_bonus || '';
-
-                        document.getElementById('header-username').innerText = currentUser.username;
-                        document.getElementById('auth-container').classList.add('hidden');
-                        document.getElementById('app-container').classList.remove('hidden');
-                        renderPlans();
-                        renderMyInvestments();
-                        initReferralLink(currentUser.username);
-                        updateUI();
-                        return;
+            if (savedUser) {
+                // Intentamos cargar de Supabase primero
+                let userData = null;
+                if (supabaseClient) {
+                    try {
+                        const { data } = await supabaseClient.from('users').select('*').eq('username', savedUser).single();
+                        if (data) userData = data;
+                    } catch (err) {
+                        console.warn('Supabase offline o inalcanzable, usando respaldo local.');
                     }
-                } catch (err) {
-                    console.error('Error al restaurar sesión:', err);
+                }
+
+                // Si no hay datos en Supabase, leemos del respaldo local para que jamás falle
+                if (!userData) {
+                    const localData = localStorage.getItem('aura_data_' + savedUser);
+                    if (localData) {
+                        userData = JSON.parse(localData);
+                    }
+                }
+
+                if (userData) {
+                    currentUser.username = userData.username;
+                    currentUser.balance = Number(userData.balance) || 0;
+                    currentUser.accumulated = Number(userData.accumulated) || 0;
+                    currentUser.investments = userData.investments || [];
+                    currentUser.last_bonus = userData.last_bonus || '';
+
+                    document.getElementById('header-username').innerText = currentUser.username;
+                    document.getElementById('auth-container').classList.add('hidden');
+                    document.getElementById('app-container').classList.remove('hidden');
+                    renderPlans();
+                    renderMyInvestments();
+                    initReferralLink(currentUser.username);
+                    updateUI();
+                    return;
                 }
             }
-            // Si no hay sesión válida, muestra la pantalla de autenticación
             document.getElementById('auth-container').classList.remove('hidden');
         });
 
@@ -355,25 +368,25 @@
             currentUser.investments = [];
             currentUser.last_bonus = '';
 
+            // Guardamos localmente de inmediato para garantizar estabilidad
+            localStorage.setItem('aura_logged_user', username);
+            saveLocalUserData();
+
+            // Intentamos guardar en Supabase en segundo plano
             if (supabaseClient) {
                 try {
-                    const { error } = await supabaseClient.from('users').upsert([{ 
+                    await supabaseClient.from('users').upsert([{ 
                         username: username, 
                         balance: 0, 
                         accumulated: 0, 
                         investments: [],
                         last_bonus: ''
                     }], { onConflict: 'username' });
-
-                    if (error) {
-                        console.error('Error al registrar en Supabase:', error.message);
-                    }
                 } catch (err) {
-                    console.error('Error de red en registro:', err);
+                    console.error('No se pudo sincronizar el registro en Supabase:', err);
                 }
             }
 
-            localStorage.setItem('aura_logged_user', username);
             document.getElementById('header-username').innerText = username;
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('launch-popup').classList.remove('hidden');
@@ -387,27 +400,39 @@
             event.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             
+            let userData = null;
+
             if (supabaseClient) {
                 try {
-                    const { data, error } = await supabaseClient.from('users').select('*').eq('username', username).single();
-                    if (data) {
-                        currentUser.username = data.username;
-                        currentUser.balance = Number(data.balance) || 0;
-                        currentUser.accumulated = Number(data.accumulated) || 0;
-                        currentUser.investments = data.investments || [];
-                        currentUser.last_bonus = data.last_bonus || '';
-                    } else {
-                        alert('Usuario no encontrado. Por favor, regístrese primero.');
-                        return;
-                    }
+                    const { data } = await supabaseClient.from('users').select('*').eq('username', username).single();
+                    if (data) userData = data;
                 } catch (err) {
-                    console.error('Error al iniciar sesión:', err);
-                    alert('Error al conectar con la base de datos.');
-                    return;
+                    console.warn('Error consultando Supabase en login.');
                 }
             }
 
+            // Fallback a almacenamiento local si Supabase no responde o el usuario se creó offline
+            if (!userData) {
+                const localData = localStorage.getItem('aura_data_' + username);
+                if (localData) {
+                    userData = JSON.parse(localData);
+                }
+            }
+
+            if (!userData) {
+                alert('Usuario no encontrado. Por favor, regístrese primero.');
+                return;
+            }
+
+            currentUser.username = userData.username;
+            currentUser.balance = Number(userData.balance) || 0;
+            currentUser.accumulated = Number(userData.accumulated) || 0;
+            currentUser.investments = userData.investments || [];
+            currentUser.last_bonus = userData.last_bonus || '';
+
             localStorage.setItem('aura_logged_user', currentUser.username);
+            saveLocalUserData();
+
             document.getElementById('header-username').innerText = currentUser.username;
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
@@ -416,6 +441,10 @@
             renderMyInvestments();
             initReferralLink(currentUser.username);
             updateUI();
+        }
+
+        function saveLocalUserData() {
+            localStorage.setItem('aura_data_' + currentUser.username, JSON.stringify(currentUser));
         }
 
         function closeLaunchPopup() {
@@ -456,9 +485,11 @@
         function updateUI() {
             document.getElementById('user-balance').innerText = `$${currentUser.balance.toLocaleString()} ARS`;
             document.getElementById('accumulated-balance').innerText = `$${currentUser.accumulated.toLocaleString()} ARS`;
+            saveLocalUserData();
         }
 
         async function syncUserDataToSupabase() {
+            saveLocalUserData(); // Respaldo local inmediato
             if (supabaseClient && currentUser.username) {
                 try {
                     await supabaseClient.from('users').update({
@@ -468,7 +499,7 @@
                         last_bonus: currentUser.last_bonus
                     }).eq('username', currentUser.username);
                 } catch (e) {
-                    console.error('Error al sincronizar con Supabase:', e);
+                    console.error('Error sincronizando con Supabase:', e);
                 }
             }
         }
