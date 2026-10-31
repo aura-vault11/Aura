@@ -341,10 +341,10 @@
             };
 
             if (supabaseClient) {
-                try {
-                    await supabaseClient.from('users').insert([currentUser]);
-                } catch (e) {
-                    console.error('Error insertando en Supabase:', e);
+                const { error } = await supabaseClient.from('users').insert([currentUser]);
+                if (error) {
+                    alert('Error al guardar en Supabase: ' + error.message);
+                    return;
                 }
             }
 
