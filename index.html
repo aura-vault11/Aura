@@ -51,7 +51,7 @@
         .card-balance { background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid #2a2e3d; text-align: center; margin-bottom: 20px; }
         .balance-amount { font-size: 1.8rem; font-weight: bold; color: var(--accent); margin: 10px 0; }
         
-        /* Bottom Navigation - Solo Emojis con tamaño optimizado */
+        /* Bottom Navigation - Solo Emojis */
         .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; background: var(--bg-card); border-top: 1px solid #2a2e3d; display: flex; justify-content: space-around; padding: 12px 0; z-index: 10; }
         .nav-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; display: flex; justify-content: center; align-items: center; opacity: 0.6; transition: 0.2s; padding: 5px 15px; border-radius: 8px; }
         .nav-btn.active { opacity: 1; background: rgba(212, 175, 55, 0.15); border: 1px solid var(--accent); }
@@ -318,9 +318,14 @@
             currentUser.accumulated = 0;
 
             if (supabaseClient) {
-                const { error } = await supabaseClient.from('users').insert([{ username: username, balance: 0, accumulated: 0 }]);
+                const { error } = await supabaseClient
+                    .from('users')
+                    .insert([{ username: username, balance: 0, accumulated: 0 }]);
+
                 if (error) {
-                    console.error('Error al registrar en Supabase:', error.message);
+                    console.error('Error detallado de Supabase:', error);
+                    alert('No se pudo registrar en la base de datos: ' + error.message);
+                    return;
                 }
             }
 
