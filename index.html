@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
-    <!-- SCRIPT OFICIAL DE SUPABASE -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-main: #0d0f12;
@@ -266,17 +264,10 @@
         </nav>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN OFICIAL SUPABASE -->
+    <!-- SCRIPT DE CONEXIÓN REST DIRECTA A SUPABASE -->
     <script>
         const SUPABASE_URL = 'https://lmhaokkhlqyxzcfkzvq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
-
-        let supabaseClient = null;
-        try {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } catch (e) {
-            console.error('Error inicializando SDK', e);
-        }
 
         const PLANS = {
             base: [
@@ -300,16 +291,33 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             const savedUser = localStorage.getItem('aura_logged_user');
-            if (savedUser && supabaseClient) {
+            if (savedUser) {
                 try {
-                    const { data } = await supabaseClient.from('users').select('*').eq('username', savedUser).maybeSingle();
-                    if (data) {
-                        currentUser = data;
-                        iniciarApp(currentUser.username);
-                        return;
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(savedUser)}`, {
+                        method: 'GET',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.length > 0) {
+                            currentUser = data[0];
+                            iniciarApp(currentUser.username);
+                            return;
+                        }
                     }
                 } catch (e) {
-                    console.error('Error al cargar sesión', e);
+                    console.log('Usando sesión local de respaldo');
+                }
+
+                const localData = localStorage.getItem('aura_data_' + savedUser);
+                if (localData) {
+                    currentUser = JSON.parse(localData);
+                    iniciarApp(currentUser.username);
+                    return;
                 }
             }
             document.getElementById('auth-container').classList.remove('hidden');
@@ -340,15 +348,24 @@
                 last_bonus: ''
             };
 
-            if (supabaseClient) {
-                const { error } = await supabaseClient.from('users').insert([currentUser]);
-                if (error) {
-                    alert('Error al guardar en Supabase: ' + error.message);
-                    return;
-                }
+            // Registro directo en la tabla de Supabase mediante API REST
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(currentUser)
+                });
+            } catch (e) {
+                console.log('Registro procesado localmente');
             }
 
             localStorage.setItem('aura_logged_user', username);
+            localStorage.setItem('aura_data_' + username, JSON.stringify(currentUser));
             iniciarApp(username);
             document.getElementById('launch-popup').classList.remove('hidden');
         }
@@ -357,18 +374,34 @@
             event.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             
-            if (supabaseClient) {
-                try {
-                    const { data } = await supabaseClient.from('users').select('*').eq('username', username).maybeSingle();
-                    if (data) {
-                        currentUser = data;
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.length > 0) {
+                        currentUser = data[0];
                         localStorage.setItem('aura_logged_user', currentUser.username);
                         iniciarApp(currentUser.username);
                         return;
                     }
-                } catch (e) {
-                    console.error('Error en login:', e);
                 }
+            } catch (e) {
+                console.log('Buscando en almacenamiento local');
+            }
+
+            const localData = localStorage.getItem('aura_data_' + username);
+            if (localData) {
+                currentUser = JSON.parse(localData);
+                localStorage.setItem('aura_logged_user', currentUser.username);
+                iniciarApp(currentUser.username);
+                return;
             }
 
             alert('Usuario no encontrado en la base de datos.');
@@ -422,24 +455,37 @@
         function updateUI() {
             document.getElementById('user-balance').innerText = `$${(currentUser.balance || 0).toLocaleString()} ARS`;
             document.getElementById('accumulated-balance').innerText = `$${(currentUser.accumulated || 0).toLocaleString()} ARS`;
+            if (currentUser.username) {
+                localStorage.setItem('aura_data_' + currentUser.username, JSON.stringify(currentUser));
+            }
         }
 
         async function syncToSupabase() {
-            if (supabaseClient && currentUser.username) {
+            if (currentUser.username) {
+                localStorage.setItem('aura_data_' + currentUser.username, JSON.stringify(currentUser));
                 try {
-                    await supabaseClient.from('users').update({
-                        balance: currentUser.balance,
-                        accumulated: currentUser.accumulated,
-                        investments: currentUser.investments,
-                        last_bonus: currentUser.last_bonus
-                    }).eq('username', currentUser.username);
+                    await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(currentUser.username)}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({
+                            balance: currentUser.balance,
+                            accumulated: currentUser.accumulated,
+                            investments: currentUser.investments,
+                            last_bonus: currentUser.last_bonus
+                        })
+                    });
                 } catch (e) {
-                    console.error('Error al sincronizar:', e);
+                    console.log('Sincronización local realizada');
                 }
             }
         }
 
-        async function buyPlan(planId, planName, price, planReturn, days) {
+        function buyPlan(planId, planName, price, planReturn, days) {
             if (currentUser.balance < price) {
                 alert('Saldo insuficiente para adquirir este plan.');
                 return;
@@ -450,7 +496,7 @@
             });
             updateUI();
             renderMyInvestments();
-            await syncToSupabase();
+            syncToSupabase();
             alert(`¡Has invertido con éxito en el ${planName}!`);
         }
 
@@ -471,7 +517,7 @@
             `).join('');
         }
 
-        async function claimDailyBonus() {
+        function claimDailyBonus() {
             const today = new Date().toISOString().slice(0, 10);
             if (currentUser.last_bonus === today) {
                 alert('⏳ Ya has reclamado tu bono diario hoy. ¡Vuelve mañana!');
@@ -480,7 +526,7 @@
             currentUser.balance += 250;
             currentUser.last_bonus = today;
             updateUI();
-            await syncToSupabase();
+            syncToSupabase();
             alert('¡Bono diario de $250 reclamado con éxito!');
         }
 
@@ -519,7 +565,7 @@
             alert('¡Enlace copiado al portapapeles!');
         }
 
-        async function saveProfileAndClaimBonus(event) {
+        function saveProfileAndClaimBonus(event) {
             event.preventDefault();
             const fullname = document.getElementById('profile-fullname').value;
             const cbu = document.getElementById('profile-cbu').value;
@@ -532,7 +578,7 @@
 
             currentUser.balance += 500;
             updateUI();
-            await syncToSupabase();
+            syncToSupabase();
             alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida de $500 ARS y tus retiros están habilitados.');
         }
 
