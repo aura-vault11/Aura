@@ -264,8 +264,11 @@
         </nav>
     </div>
 
-    <!-- SCRIPT DE ALMACENAMIENTO LOCAL ROBUSTO -->
+    <!-- SCRIPT CON FETCH DIRECTO A SUPABASE -->
     <script>
+        const SUPABASE_URL = 'https://lmhaokkhlqyxzcfkzvq.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
+
         const PLANS = {
             base: [
                 { id: 'shein', name: 'Plan Shein (Entrada)', price: 3000, return: 4000, days: 2, unique: true, img: 'shein.png' },
@@ -286,13 +289,56 @@
         let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '' };
         let currentPlanCategory = 'base';
 
-        // Auto-login instantáneo y seguro mediante almacenamiento local
-        window.addEventListener('DOMContentLoaded', () => {
+        // Función directa para enviar datos a Supabase mediante API REST (Evita bloqueos de librerías)
+        async function dbUpsert(userData) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                return response.ok;
+            } catch (e) {
+                console.error('Error de red al conectar con Supabase:', e);
+                return false;
+            }
+        }
+
+        async function dbFetch(username) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${encodeURIComponent(username)}`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.length > 0) return data[0];
+                }
+            } catch (e) {
+                console.error('Error al consultar Supabase:', e);
+            }
+            return null;
+        }
+
+        // Auto-login consultando directamente a Supabase
+        window.addEventListener('DOMContentLoaded', async () => {
             const savedUser = localStorage.getItem('aura_logged_user');
             if (savedUser) {
-                const localData = localStorage.getItem('aura_data_' + savedUser);
-                if (localData) {
-                    const userData = JSON.parse(localData);
+                let userData = await dbFetch(savedUser);
+                if (!userData) {
+                    const localRes = localStorage.getItem('aura_data_' + savedUser);
+                    if (localRes) userData = JSON.parse(localRes);
+                }
+
+                if (userData) {
                     currentUser.username = userData.username;
                     currentUser.balance = Number(userData.balance) || 0;
                     currentUser.accumulated = Number(userData.accumulated) || 0;
@@ -319,7 +365,7 @@
             document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
         }
 
-        function handleRegister(event) {
+        async function handleRegister(event) {
             event.preventDefault();
             const username = document.getElementById('reg-username').value.trim();
             const pin = document.getElementById('reg-pin').value;
@@ -338,6 +384,15 @@
             localStorage.setItem('aura_logged_user', username);
             saveLocalUserData();
 
+            // Guardado directo en la tabla de Supabase
+            await dbUpsert({
+                username: username,
+                balance: 0,
+                accumulated: 0,
+                investments: [],
+                last_bonus: ''
+            });
+
             document.getElementById('header-username').innerText = username;
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('launch-popup').classList.remove('hidden');
@@ -347,17 +402,21 @@
             updateUI();
         }
 
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             
-            const localRes = localStorage.getItem('aura_data_' + username);
-            if (!localRes) {
-                alert('Usuario no encontrado en este dispositivo. Por favor, regístrese primero.');
+            let foundData = await dbFetch(username);
+            if (!foundData) {
+                const localRes = localStorage.getItem('aura_data_' + username);
+                if (localRes) foundData = JSON.parse(localRes);
+            }
+
+            if (!foundData) {
+                alert('Usuario no encontrado. Por favor, regístrese primero.');
                 return;
             }
 
-            const foundData = JSON.parse(localRes);
             currentUser.username = foundData.username;
             currentUser.balance = Number(foundData.balance) || 0;
             currentUser.accumulated = Number(foundData.accumulated) || 0;
@@ -365,6 +424,8 @@
             currentUser.last_bonus = foundData.last_bonus || '';
 
             localStorage.setItem('aura_logged_user', currentUser.username);
+            saveLocalUserData();
+
             document.getElementById('header-username').innerText = currentUser.username;
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
@@ -420,7 +481,20 @@
             saveLocalUserData();
         }
 
-        function buyPlan(planId, planName, price, planReturn, days) {
+        async function syncUserDataToSupabase() {
+            saveLocalUserData();
+            if (currentUser.username) {
+                await dbUpsert({
+                    username: currentUser.username,
+                    balance: currentUser.balance,
+                    accumulated: currentUser.accumulated,
+                    investments: currentUser.investments,
+                    last_bonus: currentUser.last_bonus
+                });
+            }
+        }
+
+        async function buyPlan(planId, planName, price, planReturn, days) {
             if (currentUser.balance < price) {
                 alert('Saldo insuficiente para adquirir este plan.');
                 return;
@@ -439,6 +513,7 @@
             currentUser.investments.push(newInvestment);
             updateUI();
             renderMyInvestments();
+            await syncUserDataToSupabase();
             alert(`¡Has invertido con éxito en el ${planName}!`);
         }
 
@@ -454,13 +529,13 @@
                     <div class="plan-info">
                         <h4 style="color: var(--success);">${inv.name}</h4>
                         <p>Invertido: $${inv.price.toLocaleString()} | Retorno: $${inv.return.toLocaleString()}</p>
-                        <p>Fecha: ${inv.date} (${inv.days} days)</p>
+                        <p>Fecha: ${inv.date} (${inv.days} días)</p>
                     </div>
                 </div>
             `).join('');
         }
 
-        function claimDailyBonus() {
+        async function claimDailyBonus() {
             const today = new Date().toISOString().slice(0, 10);
             
             if (currentUser.last_bonus === today) {
@@ -471,6 +546,7 @@
             currentUser.balance += 250;
             currentUser.last_bonus = today;
             updateUI();
+            await syncUserDataToSupabase();
             alert('¡Bono diario de $250 reclamado con éxito!');
         }
 
@@ -501,7 +577,7 @@
             alert('¡Enlace copiado al portapapeles!');
         }
 
-        function saveProfileAndClaimBonus(event) {
+        async function saveProfileAndClaimBonus(event) {
             event.preventDefault();
             const fullname = document.getElementById('profile-fullname').value;
             const cbu = document.getElementById('profile-cbu').value;
@@ -514,6 +590,7 @@
 
             currentUser.balance += 500;
             updateUI();
+            await syncUserDataToSupabase();
 
             alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida de $500 ARS y tus retiros están habilitados.');
         }
