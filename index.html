@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
-    <!-- SCRIPT OFICIAL DE SUPABASE -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-main: #0d0f12;
@@ -32,7 +30,7 @@
         .input-group { margin-bottom: 15px; text-align: left; }
         .input-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
         .input-group input { width: 100%; padding: 12px; background: #0d0f12; border: 1px solid #2a2e3d; border-radius: 8px; color: white; font-size: 0.95rem; }
-        .btn-primary { width: 100%; background: var(--accent); color: #0d0f12; border: none; padding: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; font-size: 1rem; }
+        .btn-primary { width: 100%; background: var(--accent); color: #0d0f12; border: none; padding: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; font-size: 1rem; margin-top: 5px; }
         .btn-primary:hover { background: var(--accent-hover); }
         .btn-secondary { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
         .btn-telegram { background: #229ed9; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold; text-decoration: none; display: block; text-align: center; margin-bottom: 10px; font-size: 0.95rem; }
@@ -132,7 +130,7 @@
     <div id="launch-popup" class="modal-overlay hidden">
         <div class="modal-content">
             <h2>✨ ¡Bienvenido a Aura!</h2>
-            <p>Estamos en nuestra <strong>Semana de Lanzamiento</strong>.</p>
+            <p>Estamos inmersos en nuestra <strong>Semana de Lanzamiento</strong>.</p>
             <ul class="popup-list">
                 <li>🕒 <strong>Horario de atención y retiros:</strong> Lunes a viernes de <strong>9:00 a 21:00 hs</strong>.</li>
                 <li>🛍️ <strong>Explora los planes Base y Exclusiva</strong> y poné a trabajar tu capital.</li>
@@ -244,7 +242,14 @@
                     <button type="submit" id="btn-save-profile" class="btn-primary">Guardar y Reclamar Bono ($500)</button>
                 </form>
 
-                <div class="card-balance" style="text-align: left;">
+                <!-- BOTÓN DE FORZAR SUBIDA A SUPABASE -->
+                <div class="card-balance" style="text-align: left; border: 1px dashed var(--accent); margin-top: 15px;">
+                    <h3 style="color: var(--accent); margin-bottom: 8px; font-size: 0.95rem;">☁️ Sincronización con Supabase</h3>
+                    <p class="info-small">Si tus datos no impactan en la nube, presiona aquí para forzar el envío directo:</p>
+                    <button class="btn-primary" onclick="manualSyncToSupabase()" style="background: #229ed9; color: white;">Forzar Subida a Supabase</button>
+                </div>
+
+                <div class="card-balance" style="text-align: left; margin-top: 15px;">
                     <h3 style="color: var(--accent); margin-bottom: 12px; font-size: 1rem;">Canales Oficiales de Ayuda</h3>
                     <a href="https://t.me/+8GeCG3Srd3owYjIx" target="_blank" class="btn-telegram">📢 Unete al Canal Oficial</a>
                     <a href="https://t.me/+lZEGbe1bYX9jZWUx" target="_blank" class="btn-telegram">💬 Grupo de Soporte Telegram</a>
@@ -266,41 +271,16 @@
         </nav>
     </div>
 
-    <!-- SCRIPT OFICIAL CON CLIENTE SUPABASE-JS Y SINCRONIZACIÓN EN TIEMPO REAL -->
+    <!-- SCRIPT CON CONTROL DIRECTO Y BOTÓN DE FORZAR SUBIDA -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvtxrjpfpuf.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZXJqaGFvdmZ2dHhyanBwdWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzQ2OTgsImV4cCI6MjEwOTExMDY5OH0.b0yVpCRGVUNGv9B-F9XT2rZxpXau9iU1l3J-fDI3MAE';
 
-        let supabaseClient = null;
-        try {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } catch (e) {
-            console.error('Error al inicializar Supabase', e);
-        }
-
         let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], fuliname: '', cbu: '', alias: '', last_bonus: '' };
         let currentPlanCategory = 'base';
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener('DOMContentLoaded', () => {
             const savedUser = localStorage.getItem('aura_logged_user');
-            if (savedUser && supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('users')
-                        .select('*')
-                        .eq('username', savedUser)
-                        .maybeSingle();
-
-                    if (data) {
-                        currentUser = data;
-                        iniciarApp(currentUser.username);
-                        return;
-                    }
-                } catch (e) {
-                    console.log('Error de red, cargando local');
-                }
-            }
-
             if (savedUser) {
                 const localData = localStorage.getItem('aura_data_' + savedUser);
                 if (localData) {
@@ -340,16 +320,26 @@
                 last_bonus: ''
             };
 
-            // Guardamos localmente primero para velocidad
             localStorage.setItem('aura_logged_user', username);
             localStorage.setItem('aura_data_' + username, JSON.stringify(currentUser));
 
-            // Insertamos directamente en la tabla users de Supabase
-            if (supabaseClient) {
-                const { error } = await supabaseClient.from('users').insert([currentUser]);
-                if (error) {
-                    console.error('Error insertando en Supabase:', error.message);
+            // Intentamos registrar en Supabase de forma directa
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(currentUser)
+                });
+                if (response.ok) {
+                    console.log('¡Registrado en Supabase exitosamente!');
                 }
+            } catch (e) {
+                console.log('Guardado localmente (red móvil restringida)');
             }
 
             iniciarApp(username);
@@ -360,39 +350,14 @@
             event.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             
-            let found = false;
-            if (supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('users')
-                        .select('*')
-                        .eq('username', username)
-                        .maybeSingle();
-
-                    if (data) {
-                        currentUser = data;
-                        found = true;
-                    }
-                } catch (e) {
-                    console.log('Error de red al iniciar sesión');
-                }
+            const localData = localStorage.getItem('aura_data_' + username);
+            if (localData) {
+                currentUser = JSON.parse(localData);
+                localStorage.setItem('aura_logged_user', currentUser.username);
+                iniciarApp(currentUser.username);
+            } else {
+                alert('Usuario no encontrado en este dispositivo.');
             }
-
-            if (!found) {
-                const localData = localStorage.getItem('aura_data_' + username);
-                if (localData) {
-                    currentUser = JSON.parse(localData);
-                    found = true;
-                }
-            }
-
-            if (!found) {
-                alert('Usuario no encontrado en la base de datos ni en el dispositivo.');
-                return;
-            }
-
-            localStorage.setItem('aura_logged_user', currentUser.username);
-            iniciarApp(currentUser.username);
         }
 
         function iniciarApp(username) {
@@ -457,7 +422,7 @@
                     <div class="plan-info">
                         <h4>${p.name}</h4>
                         <p>Inv: $${p.price.toLocaleString()} | Ret: $${p.return.toLocaleString()}</p>
-                        <p>Duración: ${p.days} días ${p.unique ? '(Única)' : ''}</p>
+                        <p>Duración: ${p.days} days ${p.unique ? '(Única)' : ''}</p>
                     </div>
                     <button class="btn-invest" onclick="buyPlan('${p.id}', '${p.name}', ${p.price}, ${p.return}, ${p.days})">Invertir</button>
                 </div>
@@ -472,24 +437,31 @@
             }
         }
 
-        async function syncToSupabase() {
-            if (supabaseClient && currentUser.username) {
-                try {
-                    await supabaseClient
-                        .from('users')
-                        .update({
-                            balance: currentUser.balance,
-                            accumulated: currentUser.accumulated,
-                            investments: currentUser.investments,
-                            fuliname: currentUser.fuliname,
-                            cbu: currentUser.cbu,
-                            alias: currentUser.alias,
-                            last_bonus: currentUser.last_bonus
-                        })
-                        .eq('username', currentUser.username);
-                } catch (e) {
-                    console.error('Error al sincronizar con Supabase', e);
+        async function manualSyncToSupabase() {
+            if (!currentUser.username) {
+                alert('No hay un usuario activo para sincronizar.');
+                return;
+            }
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify(currentUser)
+                });
+
+                if (response.ok) {
+                    alert('¡Sincronizado con éxito en Supabase!');
+                } else {
+                    const errText = await response.text();
+                    alert('Error al sincronizar: ' + errText);
                 }
+            } catch (e) {
+                alert('Error de red al conectar: ' + e.message);
             }
         }
 
@@ -504,7 +476,6 @@
             });
             updateUI();
             renderMyInvestments();
-            await syncToSupabase();
             alert(`¡Has invertido con éxito en el ${planName}!`);
         }
 
@@ -534,7 +505,6 @@
             currentUser.balance += 250;
             currentUser.last_bonus = today;
             updateUI();
-            await syncToSupabase();
             alert('¡Bono diario de $250 reclamado con éxito!');
         }
 
@@ -563,7 +533,7 @@
                 alert('Saldo insuficiente para realizar esta extracción.');
                 return;
             }
-            alert(`Solicitud de retiro por $${amount.toLocaleString()} enviada con éxito. Sujeta a horario hábil (9 a 21 hs).`);
+            alert(`Solicitud de retiro por $${amount.toLocaleString()} enviada con éxito.`);
         }
 
         function initReferralLink(username) {
@@ -594,7 +564,6 @@
             currentUser.balance += 500;
 
             updateUI();
-            await syncToSupabase();
             alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida de $500 ARS.');
         }
 
