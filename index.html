@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
-    <!-- SCRIPT OFICIAL DE SUPABASE -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-main: #0d0f12;
@@ -266,59 +264,34 @@
         </nav>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN A SUPABASE CON LAS CREDENCIALES EXACTAS -->
+    <!-- SCRIPT CON PETICIÓN FETCH DIRECTA (SIN LIBRERÍA EXTERNA) -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvtxrjpfpuf.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZXJqaGFvdmZ2dHhyanBwdWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzQ2OTgsImV4cCI6MjEwOTExMDY5OH0.b0yVpCRGVUNGv9B-F9XT2rZxpXau9iU1l3J-fDI3MAE';
-
-        let supabaseClient = null;
-        try {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } catch (e) {
-            console.error('Error inicializando Supabase', e);
-        }
-
-        const PLANS = {
-            base: [
-                { id: 'shein', name: 'Plan Shein (Entrada)', price: 3000, return: 4000, days: 2, unique: true, img: 'shein.png' },
-                { id: 'zara', name: 'Plan Zara', price: 5000, return: 6600, days: 4, unique: false, img: 'zara.png' },
-                { id: 'hm', name: 'Plan H&M', price: 10000, return: 15000, days: 8, unique: false, img: 'hm.png' },
-                { id: 'adidas', name: 'Plan Adidas', price: 20000, return: 30000, days: 15, unique: false, img: 'adidas.png' },
-                { id: 'nike', name: 'Plan Nike', price: 40000, return: 60000, days: 25, unique: false, img: 'nike.png' }
-            ],
-            exclusive: [
-                { id: 'armani', name: 'Plan Armani', price: 75000, return: 112500, days: 30, unique: true, img: 'armani.png' },
-                { id: 'gucci', name: 'Plan Gucci', price: 150000, return: 225000, days: 30, unique: true, img: 'gucci.png' },
-                { id: 'prada', name: 'Plan Prada', price: 300000, return: 450000, days: 30, unique: true, img: 'prada.png' },
-                { id: 'lv', name: 'Plan Louis Vuitton', price: 600000, return: 900000, days: 30, unique: true, img: 'lv.png' },
-                { id: 'rolex', name: 'Plan Rolex', price: 1000000, return: 1500500, days: 30, unique: true, img: 'rolex.png' }
-            ]
-        };
 
         let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '', fuliname: '', cbu: '', alias: '' };
         let currentPlanCategory = 'base';
 
         window.addEventListener('DOMContentLoaded', async () => {
             const savedUser = localStorage.getItem('aura_logged_user');
-            if (savedUser && supabaseClient) {
+            if (savedUser) {
                 try {
-                    const { data, error } = await supabaseClient
-                        .from('users')
-                        .select('*')
-                        .eq('username', savedUser)
-                        .maybeSingle();
-
-                    if (data) {
-                        currentUser = data;
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${savedUser}&select=*`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+                    const data = await response.json();
+                    if (data && data.length > 0) {
+                        currentUser = data[0];
                         iniciarApp(currentUser.username);
                         return;
                     }
                 } catch (e) {
                     console.log('Usando respaldo local');
                 }
-            }
 
-            if (savedUser) {
                 const localData = localStorage.getItem('aura_data_' + savedUser);
                 if (localData) {
                     currentUser = JSON.parse(localData);
@@ -357,14 +330,25 @@
                 alias: ''
             };
 
-            if (supabaseClient) {
-                const { error } = await supabaseClient.from('users').insert([currentUser]);
-                if (error) {
-                    alert('Error al guardar en Supabase: ' + error.message);
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(currentUser)
+                });
+
+                if (!response.ok) {
+                    const errText = await response.text();
+                    alert('Error en Supabase: ' + errText);
                     return;
                 }
-            } else {
-                alert('No hay conexión con Supabase.');
+            } catch (e) {
+                alert('Error de red al conectar con Supabase: ' + e.message);
                 return;
             }
 
@@ -379,21 +363,20 @@
             const username = document.getElementById('login-username').value.trim();
             
             let found = false;
-            if (supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('users')
-                        .select('*')
-                        .eq('username', username)
-                        .maybeSingle();
-
-                    if (data) {
-                        currentUser = data;
-                        found = true;
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${username}&select=*`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
-                } catch (e) {
-                    console.log('Error al buscar');
+                });
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    currentUser = data[0];
+                    found = true;
                 }
+            } catch (e) {
+                console.log('Error al buscar');
             }
 
             if (!found) {
@@ -450,6 +433,23 @@
             renderPlans();
         }
 
+        const PLANS = {
+            base: [
+                { id: 'shein', name: 'Plan Shein (Entrada)', price: 3000, return: 4000, days: 2, unique: true, img: 'shein.png' },
+                { id: 'zara', name: 'Plan Zara', price: 5000, return: 6600, days: 4, unique: false, img: 'zara.png' },
+                { id: 'hm', name: 'Plan H&M', price: 10000, return: 15000, days: 8, unique: false, img: 'hm.png' },
+                { id: 'adidas', name: 'Plan Adidas', price: 20000, return: 30000, days: 15, unique: false, img: 'adidas.png' },
+                { id: 'nike', name: 'Plan Nike', price: 40000, return: 60000, days: 25, unique: false, img: 'nike.png' }
+            ],
+            exclusive: [
+                { id: 'armani', name: 'Plan Armani', price: 75000, return: 112500, days: 30, unique: true, img: 'armani.png' },
+                { id: 'gucci', name: 'Plan Gucci', price: 150000, return: 225000, days: 30, unique: true, img: 'gucci.png' },
+                { id: 'prada', name: 'Plan Prada', price: 300000, return: 450000, days: 30, unique: true, img: 'prada.png' },
+                { id: 'lv', name: 'Plan Louis Vuitton', price: 600000, return: 900000, days: 30, unique: true, img: 'lv.png' },
+                { id: 'rolex', name: 'Plan Rolex', price: 1000000, return: 1500500, days: 30, unique: true, img: 'rolex.png' }
+            ]
+        };
+
         function renderPlans() {
             const plans = PLANS[currentPlanCategory];
             document.getElementById('plans-grid').innerHTML = plans.map(p => `
@@ -474,11 +474,17 @@
         }
 
         async function syncToSupabase() {
-            if (supabaseClient && currentUser.username) {
+            if (currentUser.username) {
                 try {
-                    await supabaseClient
-                        .from('users')
-                        .update({
+                    await fetch(`${SUPABASE_URL}/rest/v1/users?username=eq.${currentUser.username}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({
                             balance: currentUser.balance,
                             accumulated: currentUser.accumulated,
                             investments: currentUser.investments,
@@ -487,7 +493,7 @@
                             cbu: currentUser.cbu,
                             alias: currentUser.alias
                         })
-                        .eq('username', currentUser.username);
+                    });
                 } catch (e) {
                     console.error('Error al sincronizar', e);
                 }
