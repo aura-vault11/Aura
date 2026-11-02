@@ -266,16 +266,16 @@
         </nav>
     </div>
 
-    <!-- SCRIPT OFICIAL DE SUPABASE CONECTADO Y BLINDADO -->
+    <!-- SCRIPT DE CONEXIÓN A SUPABASE CON LAS CREDENCIALES NUEVAS -->
     <script>
-        const SUPABASE_URL = 'https://lmhaokkhlqyxzcfkzvq.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_f4G88bTlqJ5eh1Ojtkd4fw_kGkoLcSJ';
+        const SUPABASE_URL = 'https://eferjhaovfvtxrjpfpuf.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZXJqaGFvdmZ2dHhyanBwdWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzQ2OTgsImV4cCI6MjEwOTExMDY5OH0.b0yVpCRGVUNGv9B-F9XT2rZxpXau9iU1l3J-fDI3MAE';
 
         let supabaseClient = null;
         try {
             supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         } catch (e) {
-            console.error('Error inicializando SDK Supabase', e);
+            console.error('Error inicializando Supabase', e);
         }
 
         const PLANS = {
@@ -314,11 +314,10 @@
                         return;
                     }
                 } catch (e) {
-                    console.log('Error de red al cargar, usando respaldo local');
+                    console.log('Usando respaldo local por red');
                 }
             }
 
-            // Respaldo local si no hay conexión
             if (savedUser) {
                 const localData = localStorage.getItem('aura_data_' + savedUser);
                 if (localData) {
@@ -390,7 +389,7 @@
                         found = true;
                     }
                 } catch (e) {
-                    console.log('Login local activo');
+                    console.log('Buscando localmente');
                 }
             }
 
@@ -587,10 +586,9 @@
                 return;
             }
 
-            // Validar si el bono de bienvenida ya fue reclamado previamente (si ya tiene fuliname registrado)
             if (currentUser.fuliname && currentUser.fuliname.length > 0) {
                 currentUser.fuliname = fullname;
-                currentUser.username = fullname; // Sincroniza nombre de usuario con el titular
+                currentUser.username = fullname;
                 currentUser.cbu = cbu;
                 currentUser.alias = alias;
                 document.getElementById('header-username').innerText = fullname;
@@ -600,9 +598,8 @@
                 return;
             }
 
-            // Única vez: otorga los $500 de bono de bienvenida al registrar el perfil
             currentUser.fuliname = fullname;
-            currentUser.username = fullname; // Sincroniza nombre de usuario con el titular
+            currentUser.username = fullname;
             currentUser.cbu = cbu;
             currentUser.alias = alias;
             currentUser.balance += 500;
