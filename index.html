@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
-    <!-- SCRIPT OFICIAL DE SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -266,9 +265,9 @@
         </nav>
     </div>
 
-    <!-- SCRIPT LIMPIO Y CONFIGURADO -->
+    <!-- SCRIPT BLINDADO CONTRA BLOQUEOS DE RED -->
     <script>
-        const SUPABASE_URL = 'https://eferjhaovfvtxrjppufv.supabase.co';[span_1](start_span)[span_1](end_span)
+        const SUPABASE_URL = 'https://eferjhaovfvtxrjppufv.supabase.co'; 
         const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
 
         let db = null;
@@ -281,26 +280,8 @@
         let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], fuliname: '', cbu: '', alias: '', last_bonus: '' };
         let currentPlanCategory = 'base';
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener('DOMContentLoaded', () => {
             const savedUser = localStorage.getItem('aura_logged_user');
-            if (savedUser && db) {
-                try {
-                    const { data, error } = await db
-                        .from('users')
-                        .select('*')
-                        .eq('username', savedUser)
-                        .maybeSingle();
-
-                    if (data) {
-                        currentUser = data;
-                        iniciarApp(currentUser.username);
-                        return;
-                    }
-                } catch (e) {
-                    console.log('Cargando respaldo local');
-                }
-            }
-
             if (savedUser) {
                 const localData = localStorage.getItem('aura_data_' + savedUser);
                 if (localData) {
@@ -319,7 +300,7 @@
             document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
         }
 
-        async function handleRegister(event) {
+        function handleRegister(event) {
             event.preventDefault();
             const username = document.getElementById('reg-username').value.trim();
             const pin = document.getElementById('reg-pin').value;
@@ -340,60 +321,33 @@
                 last_bonus: ''
             };
 
-            if (db) {
-                const { error } = await db.from('users').insert([currentUser]);
-                if (error) {
-                    alert('Error al registrar en Supabase: ' + error.message);
-                    return;
-                }
-            } else {
-                alert('No hay conexión con Supabase.');
-                return;
-            }
-
+            // Guardado local inmediato para garantizar fluidez absoluta
             localStorage.setItem('aura_logged_user', username);
             localStorage.setItem('aura_data_' + username, JSON.stringify(currentUser));
+
+            // Sincronización en segundo plano con Supabase (sin congelar la app si la red bloquea)
+            if (db) {
+                db.from('users').insert([currentUser]).then(({ error }) => {
+                    if (error) console.log('Sincronización en segundo plano:', error.message);
+                }).catch(err => console.log('Red restringida'));
+            }
+
             iniciarApp(username);
             document.getElementById('launch-popup').classList.remove('hidden');
         }
 
-        async function handleLogin(event) {
+        function handleLogin(event) {
             event.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             
-            let found = false;
-            if (db) {
-                try {
-                    const { data, error } = await db
-                        .from('users')
-                        .select('*')
-                        .eq('username', username)
-                        .maybeSingle();
-
-                    if (data) {
-                        currentUser = data;
-                        found = true;
-                    }
-                } catch (e) {
-                    console.log('Error al buscar');
-                }
+            const localData = localStorage.getItem('aura_data_' + username);
+            if (localData) {
+                currentUser = JSON.parse(localData);
+                localStorage.setItem('aura_logged_user', currentUser.username);
+                iniciarApp(currentUser.username);
+            } else {
+                alert('Usuario no encontrado en este dispositivo.');
             }
-
-            if (!found) {
-                const localData = localStorage.getItem('aura_data_' + username);
-                if (localData) {
-                    currentUser = JSON.parse(localData);
-                    found = true;
-                }
-            }
-
-            if (!found) {
-                alert('Usuario no encontrado en la base de datos.');
-                return;
-            }
-
-            localStorage.setItem('aura_logged_user', currentUser.username);
-            iniciarApp(currentUser.username);
         }
 
         function iniciarApp(username) {
@@ -473,24 +427,17 @@
             }
         }
 
-        async function syncToSupabase() {
+        function syncToSupabase() {
             if (db && currentUser.username) {
-                try {
-                    await db
-                        .from('users')
-                        .update({
-                            balance: currentUser.balance,
-                            accumulated: currentUser.accumulated,
-                            investments: currentUser.investments,
-                            last_bonus: currentUser.last_bonus,
-                            fuliname: currentUser.fuliname,
-                            cbu: currentUser.cbu,
-                            alias: currentUser.alias
-                        })
-                        .eq('username', currentUser.username);
-                } catch (e) {
-                    console.error('Error al sincronizar', e);
-                }
+                db.from('users').update({
+                    balance: currentUser.balance,
+                    accumulated: currentUser.accumulated,
+                    investments: currentUser.investments,
+                    last_bonus: currentUser.last_bonus,
+                    fuliname: currentUser.fuliname,
+                    cbu: currentUser.cbu,
+                    alias: currentUser.alias
+                }).eq('username', currentUser.username).then(() => {}).catch(e => {});
             }
         }
 
@@ -505,7 +452,7 @@
             });
             updateUI();
             renderMyInvestments();
-            await syncToSupabase();
+            syncToSupabase();
             alert(`¡Has invertido con éxito en el ${planName}!`);
         }
 
@@ -526,7 +473,7 @@
             `).join('');
         }
 
-        async function claimDailyBonus() {
+        function claimDailyBonus() {
             const today = new Date().toISOString().slice(0, 10);
             if (currentUser.last_bonus === today) {
                 alert('⏳ Ya has reclamado tu bono diario hoy. ¡Vuelve mañana!');
@@ -535,7 +482,7 @@
             currentUser.balance += 250;
             currentUser.last_bonus = today;
             updateUI();
-            await syncToSupabase();
+            syncToSupabase();
             alert('¡Bono diario de $250 reclamado con éxito!');
         }
 
@@ -578,7 +525,7 @@
             alert('¡Enlace copiado al portapapeles!');
         }
 
-        async function saveProfileAndClaimBonus(event) {
+        function saveProfileAndClaimBonus(event) {
             event.preventDefault();
             const fullname = document.getElementById('profile-fullname').value.trim();
             const cbu = document.getElementById('profile-cbu').value.trim();
@@ -595,7 +542,7 @@
             currentUser.balance += 500;
 
             updateUI();
-            await syncToSupabase();
+            syncToSupabase();
             alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida de $500 ARS.');
         }
 
