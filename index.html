@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura | Moda y Lujo</title>
+    <!-- SCRIPT OFICIAL DE SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -265,9 +266,9 @@
         </nav>
     </div>
 
-    <!-- SCRIPT BLINDADO CONTRA BLOQUEOS DE RED -->
+    <!-- SCRIPT ACTUALIZADO CON PIN Y NOMBRE DE PERFIL EN ENCABEZADO -->
     <script>
-        const SUPABASE_URL = 'https://eferjhaovfvtxrjppufv.supabase.co'; 
+        const SUPABASE_URL = 'https://eferjhaovfvtxrjppufv.supabase.co';[span_0](start_span)[span_0](end_span)
         const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
 
         let db = null;
@@ -277,7 +278,7 @@
             console.error('Error inicializando Supabase', e);
         }
 
-        let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], fuliname: '', cbu: '', alias: '', last_bonus: '' };
+        let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], fuliname: '', cbu: '', alias: '', last_bonus: '', pin: '' };
         let currentPlanCategory = 'base';
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -318,14 +319,13 @@
                 fuliname: '',
                 cbu: '',
                 alias: '',
-                last_bonus: ''
+                last_bonus: '',
+                pin: pin
             };
 
-            // Guardado local inmediato para garantizar fluidez absoluta
             localStorage.setItem('aura_logged_user', username);
             localStorage.setItem('aura_data_' + username, JSON.stringify(currentUser));
 
-            // Sincronización en segundo plano con Supabase (sin congelar la app si la red bloquea)
             if (db) {
                 db.from('users').insert([currentUser]).then(({ error }) => {
                     if (error) console.log('Sincronización en segundo plano:', error.message);
@@ -351,7 +351,10 @@
         }
 
         function iniciarApp(username) {
-            document.getElementById('header-username').innerText = username;
+            // Si ya cargó su nombre y apellido, se muestra en lugar del usuario
+            const displayName = currentUser.fuliname ? currentUser.fuliname : username;
+            document.getElementById('header-username').innerText = displayName;
+
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
             
@@ -433,10 +436,11 @@
                     balance: currentUser.balance,
                     accumulated: currentUser.accumulated,
                     investments: currentUser.investments,
-                    last_bonus: currentUser.last_bonus,
                     fuliname: currentUser.fuliname,
                     cbu: currentUser.cbu,
-                    alias: currentUser.alias
+                    alias: currentUser.alias,
+                    last_bonus: currentUser.last_bonus,
+                    pin: currentUser.pin
                 }).eq('username', currentUser.username).then(() => {}).catch(e => {});
             }
         }
@@ -541,6 +545,9 @@
             currentUser.alias = alias;
             currentUser.balance += 500;
 
+            // Actualiza de inmediato el nombre en la cabecera superior
+            document.getElementById('header-username').innerText = fullname;
+
             updateUI();
             syncToSupabase();
             alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida de $500 ARS.');
@@ -548,7 +555,7 @@
 
         function logout() {
             localStorage.removeItem('aura_logged_user');
-            currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '', fuliname: '', cbu: '', alias: '' };
+            currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '', fuliname: '', cbu: '', alias: '', pin: '' };
             document.getElementById('app-container').classList.add('hidden');
             document.getElementById('auth-container').classList.remove('hidden');
             document.getElementById('register-form').reset();
