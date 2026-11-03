@@ -85,7 +85,7 @@
         .cvu-input { flex: 1; background: #0d0f12; padding: 12px; border-radius: 8px; border: 1px dashed var(--accent); color: var(--accent); font-weight: bold; font-size: 0.9rem; text-align: center; }
         
         /* Referrals info box */
-        .ref-rules { background: #0d0f12; border:: 1px solid #2a2e3d; border-radius: 8px; padding: 12px; margin-top: 15px; font-size: 0.75rem; color: var(--text-muted); }
+        .ref-rules { background: #0d0f12; border: 1px solid #2a2e3d; border-radius: 8px; padding: 12px; margin-top: 15px; font-size: 0.75rem; color: var(--text-muted); }
         .ref-rules h4 { color: var(--accent); margin-bottom: 6px; font-size: 0.85rem; }
         .ref-rules ul { padding-left: 15px; }
         .ref-rules li { margin-bottom: 4px; }
@@ -280,7 +280,7 @@
         </nav>
     </div>
 
-    <!-- SCRIPT CON LA LÓGICA INTEGRADA -->
+    <!-- SCRIPT CON SINCRONIZACIÓN DIRECTA A SUPABASE -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvtxrjppufv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
@@ -315,7 +315,7 @@
             document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
         }
 
-        function handleRegister(event) {
+        async function handleRegister(event) {
             event.preventDefault();
             const username = document.getElementById('reg-username').value.trim();
 
@@ -331,31 +331,59 @@
                 guests: []
             };
 
+            // Inserción directa y obligatoria en Supabase
+            if (db) {
+                const { error } = await db.from('users').insert([currentUser]);
+                if (error) {
+                    alert('Error al registrar en la nube: ' + error.message);
+                    return;
+                }
+            }
+
             localStorage.setItem('aura_logged_user', username);
             localStorage.setItem('aura_data_' + username, JSON.stringify(currentUser));
-
-            if (db) {
-                db.from('users').insert([currentUser]).then(({ error }) => {
-                    if (error) console.log('Sincronización en segundo plano:', error.message);
-                }).catch(err => console.log('Red restringida'));
-            }
 
             iniciarApp(username);
             document.getElementById('launch-popup').classList.remove('hidden');
         }
 
-        function handleLogin(event) {
+        async function handleLogin(event) {
             event.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             
-            const localData = localStorage.getItem('aura_data_' + username);
-            if (localData) {
-                currentUser = JSON.parse(localData);
-                localStorage.setItem('aura_logged_user', currentUser.username);
-                iniciarApp(currentUser.username);
-            } else {
-                alert('Usuario no encontrado en este dispositivo.');
+            let found = false;
+            if (db) {
+                try {
+                    const { data, error } = await db
+                        .from('users')
+                        .select('*')
+                        .eq('username', username)
+                        .maybeSingle();
+
+                    if (data) {
+                        currentUser = data;
+                        found = true;
+                    }
+                } catch (e) {
+                    console.log('Error al buscar en nube');
+                }
             }
+
+            if (!found) {
+                const localData = localStorage.getItem('aura_data_' + username);
+                if (localData) {
+                    currentUser = JSON.parse(localData);
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                alert('Usuario no encontrado.');
+                return;
+            }
+
+            localStorage.setItem('aura_logged_user', currentUser.username);
+            iniciarApp(currentUser.username);
         }
 
         function iniciarApp(username) {
@@ -438,18 +466,22 @@
             }
         }
 
-        function syncToSupabase() {
+        async function syncToSupabase() {
             if (db && currentUser.username) {
-                db.from('users').update({
-                    balance: currentUser.balance,
-                    accumulated: currentUser.accumulated,
-                    investments: currentUser.investments,
-                    last_bonus: currentUser.last_bonus,
-                    fuliname: currentUser.fuliname,
-                    cbu: currentUser.cbu,
-                    alias: currentUser.alias,
-                    guests: currentUser.guests
-                }).eq('username', currentUser.username).then(() => {}).catch(e => {});
+                try {
+                    await db.from('users').update({
+                        balance: currentUser.balance,
+                        accumulated: currentUser.accumulated,
+                        investments: currentUser.investments,
+                        last_bonus: currentUser.last_bonus,
+                        fuliname: currentUser.fuliname,
+                        cbu: currentUser.cbu,
+                        alias: currentUser.alias,
+                        guests: currentUser.guests
+                    }).eq('username', currentUser.username);
+                } catch (e) {
+                    console.error('Error al sincronizar', e);
+                }
             }
         }
 
@@ -464,7 +496,7 @@
             });
             updateUI();
             renderMyInvestments();
-            syncToSupabase();
+            await syncToSupabase();
             alert(`¡Has invertido con éxito en el ${planName}!`);
         }
 
@@ -501,7 +533,7 @@
             `).join('');
         }
 
-        function claimDailyBonus() {
+        async function claimDailyBonus() {
             const today = new Date().toISOString().slice(0, 10);
             if (currentUser.last_bonus === today) {
                 alert('⏳ Ya has reclamado tu bono diario hoy. ¡Vuelve mañana!');
@@ -510,7 +542,7 @@
             currentUser.balance += 250;
             currentUser.last_bonus = today;
             updateUI();
-            syncToSupabase();
+            await syncToSupabase();
             alert('¡Bono diario de $250 reclamado con éxito!');
         }
 
@@ -553,7 +585,7 @@
             alert('¡Enlace copiado al portapapeles!');
         }
 
-        function saveProfileAndClaimBonus(event) {
+        async function saveProfileAndClaimBonus(event) {
             event.preventDefault();
             const fullname = document.getElementById('profile-fullname').value.trim();
             const cbu = document.getElementById('profile-cbu').value.trim();
@@ -572,7 +604,7 @@
             document.getElementById('header-username').innerText = fullname;
 
             updateUI();
-            syncToSupabase();
+            await syncToSupabase();
             alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida de $500 ARS.');
         }
 
