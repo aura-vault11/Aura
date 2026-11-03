@@ -199,10 +199,10 @@
                         <input type="text" id="cvu-text" class="cvu-input" value="0000267900000002996367" readonly>
                         <button class="btn-secondary" onclick="copyCVU()">Copiar CVU</button>
                     </div>
-                    <p class="info-small">Retiros: Lunes a Viernes de 9 a 21 hs (Mínimo: $15.000 - Máx: $100.000).</p>
+                    <p class="info-small">Retiros: Lunes a Viernes de 9 a 21 hs (Sin mínimo de retiro temporal por promoción).</p>
                     <div class="input-group">
                         <label>Monto a Retirar ($ ARS)</label>
-                        <input type="number" id="withdraw-amount" placeholder="Ej: 15000">
+                        <input type="number" id="withdraw-amount" placeholder="Ej: 500">
                     </div>
                     <button class="btn-primary" onclick="requestWithdrawal()">Solicitar Extracción</button>
                 </div>
@@ -284,7 +284,7 @@
         </nav>
     </div>
 
-    <!-- SCRIPT CON TODAS LAS CORRECCIONES Y BENEFICIOS -->
+    <!-- SCRIPT SIN MÍNIMO DE RETIRO -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvtxrjppufv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
@@ -568,23 +568,22 @@
 
         function requestWithdrawal() {
             const amount = parseFloat(document.getElementById('withdraw-amount').value);
-            if (!amount || isNaN(amount)) {
+            if (!amount || isNaN(amount) || amount <= 0) {
                 alert('Ingresa un monto válido para retirar.');
                 return;
             }
-            if (amount < 15000) {
-                alert('⚠️ El monto mínimo de retiro es de $15.000 ARS.');
-                return;
-            }
-            if (amount > 100000) {
-                alert('⚠️ El monto máximo de extracción por operación es de $100.000 ARS.');
-                return;
-            }
-            if (currentUser.balance < amount) {
+            if (amount > currentUser.balance) {
                 alert('Saldo insuficiente para realizar esta extracción.');
                 return;
             }
-            alert(`Solicitud de retiro por $${amount.toLocaleString()} enviada con éxito. Sujeta a horario hábil (9 a 21 hs).`);
+            
+            // Descuenta del balance disponible
+            currentUser.balance -= amount;
+            updateUI();
+            syncToSupabase();
+
+            alert(`Solicitud de retiro por $${amount.toLocaleString()} enviada con éxito. (Sin mínimo por promoción).`);
+            document.getElementById('withdraw-amount').value = '';
         }
 
         function initReferralLink(username) {
