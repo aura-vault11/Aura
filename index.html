@@ -259,7 +259,7 @@
                         <label>Alias Bancario</label>
                         <input type="text" id="profile-alias" required placeholder="tu.alias.banco">
                     </div>
-                    <button type="submit" id="btn-save-profile" class="btn-primary">Guardar y Reclamar Bono ($500)</button>
+                    <button type="submit" id="btn-save-profile" class="btn-primary">Guardar Datos de Perfil</button>
                 </form>
 
                 <div class="card-balance" style="text-align: left;">
@@ -284,7 +284,7 @@
         </nav>
     </div>
 
-    <!-- SCRIPT CON PIN, NIVELES DE REFERIDOS Y SUPABASE -->
+    <!-- SCRIPT CORREGIDO: CONTROL DE BONO ÚNICO Y ACTUALIZACIÓN DE IDENTIFICADOR -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvtxrjppufv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
@@ -296,7 +296,7 @@
             console.error('Error inicializando Supabase', e);
         }
 
-        let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], fuliname: '', cbu: '', alias: '', last_bonus: '', pin: '', guests: [] };
+        let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], fuliname: '', cbu: '', alias: '', last_bonus: '', pin: '', guests: [], profile_claimed: false };
         let currentPlanCategory = 'base';
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -339,7 +339,8 @@
                 alias: '',
                 last_bonus: '',
                 pin: pin,
-                guests: []
+                guests: [],
+                profile_claimed: false
             };
 
             if (db) {
@@ -364,7 +365,7 @@
             let found = false;
             if (db) {
                 try {
-                    const { data, error } = await db
+                    const { data } = await db
                         .from('users')
                         .select('*')
                         .eq('username', username)
@@ -488,7 +489,8 @@
                         cbu: currentUser.cbu,
                         alias: currentUser.alias,
                         pin: currentUser.pin,
-                        guests: currentUser.guests
+                        guests: currentUser.guests,
+                        profile_claimed: currentUser.profile_claimed
                     }).eq('username', currentUser.username);
                 } catch (e) {
                     console.error('Error al sincronizar', e);
@@ -610,18 +612,25 @@
             currentUser.fuliname = fullname;
             currentUser.cbu = cbu;
             currentUser.alias = alias;
-            currentUser.balance += 500;
+
+            // EL BONO DE $500 SOLO SE ACREDITA POR ÚNICA VEZ
+            let mensajeExito = '¡Datos de perfil guardados con éxito!';
+            if (!currentUser.profile_claimed) {
+                currentUser.balance += 500;
+                currentUser.profile_claimed = true;
+                mensajeExito = '¡Datos guardados con éxito! Se acreditó tu bono de bienvenida único de $500 ARS.';
+            }
 
             document.getElementById('header-username').innerText = fullname;
 
             updateUI();
             await syncToSupabase();
-            alert('¡Datos guardados con éxito! Se acreditó tu bono de bienvenida de $500 ARS.');
+            alert(mensajeExito);
         }
 
         function logout() {
             localStorage.removeItem('aura_logged_user');
-            currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '', fuliname: '', cbu: '', alias: '', pin: '', guests: [] };
+            currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '', fuliname: '', cbu: '', alias: '', pin: '', guests: [], profile_claimed: false };
             document.getElementById('app-container').classList.add('hidden');
             document.getElementById('auth-container').classList.remove('hidden');
             document.getElementById('register-form').reset();
