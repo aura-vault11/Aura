@@ -113,6 +113,10 @@
                     <label>Contraseña</label>
                     <input type="password" id="reg-password" required placeholder="********">
                 </div>
+                <div class="input-group">
+                    <label>PIN de Seguridad (6 a 8 caracteres)</label>
+                    <input type="password" id="reg-pin" minlength="6" maxlength="8" required placeholder="PIN numérico">
+                </div>
                 <button type="submit" class="btn-primary">Crear Cuenta</button>
             </form>
 
@@ -280,7 +284,7 @@
         </nav>
     </div>
 
-    <!-- SCRIPT CON SINCRONIZACIÓN DIRECTA A SUPABASE -->
+    <!-- SCRIPT CON PIN, NIVELES DE REFERIDOS Y SUPABASE -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvtxrjppufv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
@@ -292,7 +296,7 @@
             console.error('Error inicializando Supabase', e);
         }
 
-        let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], fuliname: '', cbu: '', alias: '', last_bonus: '', guests: [] };
+        let currentUser = { username: '', balance: 0, accumulated: 0, investments: [], fuliname: '', cbu: '', alias: '', last_bonus: '', pin: '', guests: [] };
         let currentPlanCategory = 'base';
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -318,6 +322,12 @@
         async function handleRegister(event) {
             event.preventDefault();
             const username = document.getElementById('reg-username').value.trim();
+            const pin = document.getElementById('reg-pin').value;
+
+            if (pin.length < 6 || pin.length > 8) {
+                alert('El PIN de seguridad debe tener entre 6 y 8 caracteres.');
+                return;
+            }
 
             currentUser = {
                 username: username,
@@ -328,10 +338,10 @@
                 cbu: '',
                 alias: '',
                 last_bonus: '',
+                pin: pin,
                 guests: []
             };
 
-            // Inserción directa y obligatoria en Supabase
             if (db) {
                 const { error } = await db.from('users').insert([currentUser]);
                 if (error) {
@@ -477,6 +487,7 @@
                         fuliname: currentUser.fuliname,
                         cbu: currentUser.cbu,
                         alias: currentUser.alias,
+                        pin: currentUser.pin,
                         guests: currentUser.guests
                     }).eq('username', currentUser.username);
                 } catch (e) {
@@ -610,7 +621,7 @@
 
         function logout() {
             localStorage.removeItem('aura_logged_user');
-            currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '', fuliname: '', cbu: '', alias: '', guests: [] };
+            currentUser = { username: '', balance: 0, accumulated: 0, investments: [], last_bonus: '', fuliname: '', cbu: '', alias: '', pin: '', guests: [] };
             document.getElementById('app-container').classList.add('hidden');
             document.getElementById('auth-container').classList.remove('hidden');
             document.getElementById('register-form').reset();
