@@ -142,7 +142,7 @@
             <ul class="popup-list">
                 <li>🕒 <strong>Horario de atención y retiros:</strong> Lunes a viernes de <strong>9:00 a 21:00 hs</strong>.</li>
                 <li>🛍️ <strong>Explora los planes Base y Exclusiva</strong> y poné a trabajar tu capital.</li>
-                <li>💳 <strong>Completa tus datos en la Sección 5 (Perfil)</strong> para reclamar tu bono de bienvenida de <strong>$500 ARS</strong> y habilitar tu retiro.</li>
+                <li>💳 <strong>Completa tus datos en la Sección 5 (Perfil)</strong> para reclamar tu bono único de bienvenida de <strong>$500 ARS</strong> y habilitar tu retiro.</li>
             </ul>
             <button class="btn-primary" onclick="closeLaunchPopup()">Comenzar a Invertir</button>
         </div>
@@ -223,14 +223,14 @@
                         <button class="btn-secondary" onclick="copyReferralLink()">Copiar</button>
                     </div>
 
-                    <!-- Nota de aclaración con los niveles y bonos -->
+                    <!-- Nota de aclaración con los niveles, bonos y el beneficio del Nivel 4 -->
                     <div class="ref-rules">
                         <h4>📈 ¿Cómo funcionan los niveles y bonos?</h4>
                         <ul>
                             <li><strong>Nivel 1 (1 a 25 invitados activos):</strong> Bono de <strong>$1.000</strong> por cada uno.</li>
                             <li><strong>Nivel 2 (26 a 50 invitados activos):</strong> Bono de <strong>$2.000</strong> por cada uno.</li>
                             <li><strong>Nivel 3 (51 a 75 invitados activos):</strong> Bono de <strong>$3.000</strong> por cada uno.</li>
-                            <li><strong>Nivel 4 (76 a 100 invitados activos):</strong> Bono tope de <strong>$4.000</strong> por cada uno.</li>
+                            <li><strong>Nivel 4 (76 a 100 invitados activos):</strong> Bono tope de <strong>$4.000</strong> por cada uno + <em>¡Cuenta activa permanente sin requerir nuevos depósitos!</em></li>
                         </ul>
                         <p style="margin-top: 6px; font-style: italic;">* Los invitados cuentan como activos una vez que realizan su depósito.</p>
                     </div>
@@ -244,7 +244,7 @@
             <!-- SECCIÓN 5: PERFIL -->
             <section id="section-5" class="app-section">
                 <h2>Perfil y Soporte</h2>
-                <p class="info-small">Completa tus datos bancarios para reclamar tu bono de bienvenida de $500 ARS y habilitar retiros.</p>
+                <p class="info-small">Completa tus datos bancarios para reclamar tu bono único de bienvenida de $500 ARS y habilitar retiros.</p>
                 
                 <form id="profile-form" class="card-balance" style="text-align: left;" onsubmit="saveProfileAndClaimBonus(event)">
                     <div class="input-group">
@@ -284,7 +284,7 @@
         </nav>
     </div>
 
-    <!-- SCRIPT CORREGIDO: CONTROL DE BONO ÚNICO Y ACTUALIZACIÓN DE IDENTIFICADOR -->
+    <!-- SCRIPT CON TODAS LAS CORRECCIONES Y BENEFICIOS -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvtxrjppufv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
@@ -613,12 +613,11 @@
             currentUser.cbu = cbu;
             currentUser.alias = alias;
 
-            // EL BONO DE $500 SOLO SE ACREDITA POR ÚNICA VEZ
             let mensajeExito = '¡Datos de perfil guardados con éxito!';
             if (!currentUser.profile_claimed) {
                 currentUser.balance += 500;
                 currentUser.profile_claimed = true;
-                mensajeExito = '¡Datos guardados con éxito! Se acreditó tu bono de bienvenida único de $500 ARS.';
+                mensajeExito = '¡Datos guardados con éxito! Se acreditó tu bono único de bienvenida de $500 ARS.';
             }
 
             document.getElementById('header-username').innerText = fullname;
