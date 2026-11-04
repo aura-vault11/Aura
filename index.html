@@ -285,7 +285,7 @@
         </nav>
     </div>
 
-    <!-- SCRIPT CON ENLACES DE WHATSAPP -->
+    <!-- SCRIPT COMPLETO CON ENLACE DE REFERIDOS CORREGIDO -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvtxrjppufv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
@@ -587,7 +587,10 @@
         }
 
         function initReferralLink(username) {
-            document.getElementById('referral-link').value = `https://aura.io/ref/${username}`;
+            // Genera el enlace apuntando al GitHub Pages real y limpiando espacios
+            const cleanUsername = encodeURIComponent(username.trim());
+            const baseUrl = window.location.origin + window.location.pathname; 
+            document.getElementById('referral-link').value = `${baseUrl}?ref=${cleanUsername}`;
         }
 
         function copyReferralLink() {
