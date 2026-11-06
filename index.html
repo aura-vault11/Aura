@@ -8,56 +8,59 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: #f4f6f9; color: #333; }
+        body { background-color: #121212; color: #e0e0e0; }
         .screen { display: none; padding-bottom: 80px; }
         .screen.active { display: block; }
         .view { display: none; padding: 20px; }
         .view.active { display: block; }
         .hidden { display: none; }
 
-        /* Auth */
-        .auth-container { max-width: 400px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
-        .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
-        .auth-tabs button { flex: 1; padding: 10px; background: none; border: none; font-weight: bold; cursor: pointer; color: #777; }
+        /* Auth Modo Oscuro */
+        .auth-container { max-width: 400px; margin: 40px auto; background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: center; border: 1px solid #333; }
+        .auth-container h1 { color: #fff; }
+        .auth-container p { color: #aaa; }
+        .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #333; }
+        .auth-tabs button { flex: 1; padding: 10px; background: none; border: none; font-weight: bold; cursor: pointer; color: #888; }
         .auth-tabs button.active { border-bottom: 2px solid #28a745; color: #28a745; }
         .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { display: block; font-size: 13px; margin-bottom: 5px; color: #555; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        .input-group label { display: block; font-size: 13px; margin-bottom: 5px; color: #bbb; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #444; background: #2a2a2a; color: #fff; border-radius: 6px; }
         .btn-primary { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-primary:active { background: #218838; }
 
-        /* Estrellas / Grilla de Inicio */
-        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .wallet-pill { background: #e8f5e9; color: #2e7d32; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+        /* Estrellas / Grilla de Inicio (Oscuro) */
+        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: #fff; }
+        .wallet-pill { background: #1e3a1e; color: #4ade80; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; border: 1px solid #2e7d32; }
         .vip-grid { display: flex; flex-direction: column; gap: 15px; }
-        .vip-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #28a745; }
+        .vip-card { background: #1e1e1e; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); border-left: 5px solid #28a745; border: 1px solid #333; }
         .vip-card img { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; }
-        .vip-card h3 { margin-bottom: 8px; color: #222; font-size: 18px; }
-        .vip-card p { font-size: 14px; margin-bottom: 4px; color: #666; }
-        .vip-price { font-size: 18px; font-weight: bold; color: #000; margin: 10px 0; }
+        .vip-card h3 { margin-bottom: 8px; color: #fff; font-size: 18px; }
+        .vip-card p { font-size: 14px; margin-bottom: 4px; color: #aaa; }
+        .vip-price { font-size: 18px; font-weight: bold; color: #fff; margin: 10px 0; }
         .btn-buy { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; }
 
         /* Barra de Navegación */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #181818; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; box-shadow: 0 -2px 5px rgba(0,0,0,0.5); }
         .nav-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; font-size: 20px; cursor: pointer; color: #888; }
         .nav-item span { font-size: 11px; margin-top: 2px; }
-        .nav-item.active { color: #28a745; }
+        .nav-item.active { color: #4ade80; }
 
-        /* Finanzas y Perfil */
-        .balance-card-large { background: #28a745; color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
-        .deposit-info-box { background: #e8f5e9; border: 1px solid #c8e6c9; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #2e7d32; }
-        .referral-box { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        /* Finanzas y Perfil (Oscuro) */
+        .balance-card-large { background: #1e3a1e; border: 1px solid #2e7d32; color: #fff; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
+        .deposit-info-box { background: #1a2e1a; border: 1px solid #2e7d32; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #a3e635; }
+        .referral-box { background: #1e1e1e; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 15px; color: #ccc; }
         .ref-link-container { display: flex; gap: 5px; margin: 10px 0; }
-        .ref-link-container input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .ref-link-container input { flex: 1; padding: 8px; border: 1px solid #444; background: #2a2a2a; color: #fff; border-radius: 4px; }
         .ref-link-container button, .btn-whatsapp { background: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
         .btn-whatsapp { background: #25d366; margin-top: 5px; }
         .team-stats { display: flex; gap: 10px; }
-        .stat-card { background: white; flex: 1; padding: 12px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .stat-card { background: #1e1e1e; border: 1px solid #333; flex: 1; padding: 12px; border-radius: 8px; text-align: center; color: #ccc; }
         .btn-logout { background: #dc3545; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; margin-top: 15px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA DE ACCESO (LOGIN / REGISTRO) -->
+    <!-- PANTALLA DE ACCESO -->
     <div id="auth-screen" class="screen active">
         <div class="auth-container">
             <h1>AURA</h1>
@@ -106,8 +109,6 @@
 
     <!-- APLICACIÓN PRINCIPAL -->
     <div id="app-screen" class="screen">
-        
-        <!-- INICIO (10 Estrellas) -->
         <div id="view-inicio" class="view active">
             <header class="app-header">
                 <h2>Flota Eléctrica</h2>
@@ -116,13 +117,11 @@
             <div class="vip-grid" id="vip-catalog"></div>
         </div>
 
-        <!-- MI PRODUCTO -->
         <div id="view-mi-producto" class="view">
             <h2>Mis Vehículos Activos</h2>
             <div id="active-investments-list"><p>Aquí verás tus vehículos adquiridos.</p></div>
         </div>
 
-        <!-- MI EQUIPO -->
         <div id="view-mi-equipo" class="view">
             <h2>Mi Equipo y Referidos</h2>
             <div class="referral-box">
@@ -140,7 +139,6 @@
             </div>
         </div>
 
-        <!-- FINANZAS -->
         <div id="view-finanzas" class="view">
             <h2>Finanzas y Depósitos</h2>
             <div class="balance-card-large">
@@ -148,28 +146,26 @@
                 <h1 id="finance-balance">ARS 0</h1>
             </div>
 
-            <!-- Información para Depósitos -->
             <div class="deposit-info-box">
                 <p><strong>Datos para Depositar (CBU):</strong></p>
                 <p style="font-size: 16px; font-weight: bold; margin-top: 4px; user-select: all;">0000267900000002996367</p>
                 <p style="font-size: 12px; margin-top: 4px;">Realiza tu transferencia y adquiere tu vehículo eléctrico para activar tu cuenta.</p>
             </div>
 
-            <div class="withdrawal-form" style="background: white; padding: 15px; border-radius: 8px;">
-                <h3>Solicitar Retiro (1 por día)</h3>
+            <div class="withdrawal-form" style="background: #1e1e1e; border: 1px solid #333; padding: 15px; border-radius: 8px;">
+                <h3 style="color: #fff;">Solicitar Retiro (1 por día)</h3>
                 <div class="input-group" style="margin-top: 10px;">
                     <input type="number" id="withdrawal-amount" placeholder="Monto a retirar">
                 </div>
                 <button class="btn-primary" onclick="requestWithdrawal()">Solicitar Retiro</button>
-                <p style="font-size: 12px; color: #666; margin-top: 8px;">Demora hasta 24 hs. Requiere un vehículo activo.</p>
+                <p style="font-size: 12px; color: #aaa; margin-top: 8px;">Demora hasta 24 hs. Requiere un vehículo activo.</p>
             </div>
             <div class="history-section" style="margin-top: 20px;">
-                <h3>Historial de Movimientos y Retiros</h3>
+                <h3 style="color: #fff;">Historial de Movimientos y Retiros</h3>
                 <div id="withdrawal-history" style="margin-top: 10px;"></div>
             </div>
         </div>
 
-        <!-- MÍO (PERFIL) -->
         <div id="view-mio" class="view">
             <h2>Mi Perfil</h2>
             <div class="profile-form" style="margin-top: 15px;">
@@ -181,7 +177,6 @@
             </div>
         </div>
 
-        <!-- BARRA INFERIOR -->
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="switchView('inicio')">🏠<span>Inicio</span></button>
             <button class="nav-item" onclick="switchView('mi-producto')">📦<span>Mi Producto</span></button>
@@ -191,16 +186,13 @@
         </nav>
     </div>
 
-    <!-- SCRIPT TODO EN UNO -->
     <script>
-        // Recuerda colocar aquí las credenciales de tu proyecto "Aura Moda y Lujos"
         const SUPABASE_URL = 'Tus_Supabase_URL';
         const SUPABASE_ANON_KEY = 'Tus_Supabase_Anon_Key';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUser = null;
 
-        // CATÁLOGO DE LAS 10 ESTRELLAS (90 días de validez)
         const vipsCatalog = [
             { id: 1, name: "Estrella 1 - Scooter Urbano Eco", price: 15000, daily: 2222, total: 200000, days: 90, img: "img/estrella1.jpg" },
             { id: 2, name: "Estrella 2 - Bicicleta Eléctrica", price: 35000, daily: 5333, total: 480000, days: 90, img: "img/estrella2.jpg" },
@@ -241,15 +233,23 @@
             if (password !== confirmPass) { alert("Las contraseñas no coinciden."); return; }
 
             const refCode = generateRandomCode();
-            const { data, error } = await supabaseClient.from('users').insert([
-                { phone: phone, password: password, balance: 5000.00, referral_code: refCode }
-            ]).select();
+            
+            try {
+                const { data, error } = await supabaseClient.from('users').insert([
+                    { phone: phone, password: password, balance: 5000.00, referral_code: refCode }
+                ]).select();
 
-            if (error) { alert("Error al registrarse: " + error.message); }
-            else {
-                alert("¡Registro exitoso! Se acreditaron $5.000 ARS de regalo.");
-                currentUser = data[0];
-                initAppSession();
+                if (error) { 
+                    alert("Error de Supabase: " + error.message); 
+                } else if (!data || data.length === 0) {
+                    alert("No se pudo completar el registro.");
+                } else {
+                    alert("¡Registro exitoso! Se acreditaron $5.000 ARS de regalo.");
+                    currentUser = data[0];
+                    initAppSession();
+                }
+            } catch (err) {
+                alert("Error inesperado: " + err.message);
             }
         }
 
@@ -258,10 +258,14 @@
             const phone = "+54" + document.getElementById('login-phone').value.trim();
             const password = document.getElementById('login-password').value;
 
-            const { data, error } = await supabaseClient.from('users').select('*').eq('phone', phone).eq('password', password).single();
+            try {
+                const { data, error } = await supabaseClient.from('users').select('*').eq('phone', phone).eq('password', password).single();
 
-            if (error || !data) { alert("Teléfono o contraseña incorrectos."); }
-            else { currentUser = data; initAppSession(); }
+                if (error || !data) { alert("Teléfono o contraseña incorrectos."); }
+                else { currentUser = data; initAppSession(); }
+            } catch (err) {
+                alert("Error al conectar con la base de datos.");
+            }
         }
 
         function initAppSession() {
@@ -377,14 +381,14 @@
         function loadHistory() {
             const container = document.getElementById('withdrawal-history');
             const withdrawals = currentUser.withdrawals || [];
-            if (withdrawals.length === 0) { container.innerHTML = '<p>No hay retiros registrados.</p>'; return; }
+            if (withdrawals.length === 0) { container.innerHTML = '<p style="color:#888;">No hay retiros registrados.</p>'; return; }
 
             container.innerHTML = '';
             withdrawals.slice().reverse().forEach(item => {
                 container.innerHTML += `
-                    <div style="background:white; padding:10px; border-radius:6px; margin-bottom:8px; font-size:13px;">
+                    <div style="background:#2a2a2a; border:1px solid #333; padding:10px; border-radius:6px; margin-bottom:8px; font-size:13px; color:#ddd;">
                         <p><strong>Monto:</strong> ARS ${item.amount}</p>
-                        <p><strong>Estado:</strong> <span style="color:orange; font-weight:bold;">${item.status}</span></p>
+                        <p><strong>Estado:</strong> <span style="color:#fbbf24; font-weight:bold;">${item.status}</span></p>
                         <p><strong>Fecha:</strong> ${new Date(item.date).toLocaleString()}</p>
                     </div>
                 `;
