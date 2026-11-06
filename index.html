@@ -80,6 +80,7 @@
 </head>
 <body>
 
+    <!-- POPUP DE BIENVENIDA -->
     <div id="welcome-modal" class="modal-overlay">
         <div class="modal-content">
             <h2>🚀 ¡Gran Lanzamiento Aura!</h2>
@@ -93,6 +94,7 @@
         </div>
     </div>
 
+    <!-- PANTALLA DE ACCESO -->
     <div id="auth-screen" class="screen active">
         <div class="auth-container">
             <div class="logo-container">
@@ -107,6 +109,7 @@
                 <button id="tab-register" onclick="switchAuthTab('register')">¿Sos nuevo?</button>
             </div>
 
+            <!-- Login -->
             <form id="form-login" onsubmit="handleLogin(event)">
                 <div class="input-group">
                     <label>Teléfono (+54)</label>
@@ -119,6 +122,7 @@
                 <button type="submit" class="btn-primary">Iniciar Sesión</button>
             </form>
 
+            <!-- Registro con Celular y Código de Invitación -->
             <form id="form-register" class="hidden" onsubmit="handleRegister(event)">
                 <div class="input-group">
                     <label>Teléfono (+54 obligatorio)</label>
@@ -141,6 +145,7 @@
         </div>
     </div>
 
+    <!-- APLICACIÓN PRINCIPAL -->
     <div id="app-screen" class="screen">
         <div id="view-inicio" class="view active">
             <header class="app-header">
@@ -219,14 +224,14 @@
         </nav>
     </div>
 
-    <!-- SCRIPT CON LA CLAVE ANON PÚBLICA CLÁSICA -->
+    <!-- SCRIPT DE CONEXIÓN CON SUPABASE -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvdtxrjppufv.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZXJjhaovfvdtxrjppufvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzQ2OTgsImV4cCI6MjEwOTExMDY5OH0.b0yVpCRGVUNGv9B-F9XT2rZxpXau9iU1l3J-fDI3MAE';
+        const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
 
         let supabaseClient = null;
         try {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         } catch (e) {
             console.error('Error al inicializar Supabase:', e);
         }
