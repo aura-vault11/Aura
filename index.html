@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura - Flota de Movilidad Sostenible</title>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
         body { background-color: #121212; color: #e0e0e0; }
@@ -13,6 +15,7 @@
         .view.active { display: block; }
         .hidden { display: none; }
 
+        /* Estilos del Popup de Bienvenida */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center;
@@ -34,6 +37,7 @@
             border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%;
         }
 
+        /* Logo en la raíz */
         .logo-container { text-align: center; margin-bottom: 15px; }
         .logo-container img { max-width: 120px; max-height: 60px; object-fit: contain; }
         .logo-placeholder {
@@ -42,6 +46,7 @@
             align-items: center; justify-content: center; font-size: 11px; color: #888;
         }
 
+        /* Auth Modo Oscuro */
         .auth-container { max-width: 400px; margin: 40px auto; background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: center; border: 1px solid #333; }
         .auth-container h1 { color: #fff; margin-bottom: 5px; }
         .auth-container p { color: #aaa; margin-bottom: 20px; }
@@ -52,7 +57,9 @@
         .input-group label { display: block; font-size: 13px; margin-bottom: 5px; color: #bbb; }
         .input-group input { width: 100%; padding: 10px; border: 1px solid #444; background: #2a2a2a; color: #fff; border-radius: 6px; }
         .btn-primary { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-primary:active { background: #218838; }
 
+        /* Estrellas / Grilla de Inicio (Oscuro) */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: #fff; }
         .wallet-pill { background: #1e3a1e; color: #4ade80; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; border: 1px solid #2e7d32; }
         .vip-grid { display: flex; flex-direction: column; gap: 15px; }
@@ -63,11 +70,13 @@
         .vip-price { font-size: 18px; font-weight: bold; color: #fff; margin: 10px 0; }
         .btn-buy { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; }
 
+        /* Barra de Navegación */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #181818; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; box-shadow: 0 -2px 5px rgba(0,0,0,0.5); }
         .nav-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; font-size: 20px; cursor: pointer; color: #888; }
         .nav-item span { font-size: 11px; margin-top: 2px; }
         .nav-item.active { color: #4ade80; }
 
+        /* Finanzas y Perfil (Oscuro) */
         .balance-card-large { background: #1e3a1e; border: 1px solid #2e7d32; color: #fff; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
         .deposit-info-box { background: #1a2e1a; border: 1px solid #2e7d32; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #a3e635; }
         .referral-box { background: #1e1e1e; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 15px; color: #ccc; }
@@ -82,23 +91,27 @@
 </head>
 <body>
 
+    <!-- POPUP DE BIENVENIDA Y LANZAMIENTO -->
     <div id="welcome-modal" class="modal-overlay">
         <div class="modal-content">
             <h2>🚀 ¡Gran Lanzamiento Aura!</h2>
             <p>¡Bienvenidos a la plataforma de inversión en movilidad sostenible! Estamos oficialmente en marcha.</p>
             <p>⏰ <strong>Horario de atención y soporte:</strong><br>Lunes a Sábados de 09:00 a 21:00 hs.</p>
             <p>👥 ¡Invita a más personas a formar tu equipo, comparte tu enlace y potencia tus ganancias diarias!</p>
+            
             <a href="https://chat.whatsapp.com/Cw5yYW0BOsqJ0UrgjCUe44?s=cl&p=a&iam=2" target="_blank" class="modal-whatsapp-btn">
                 💬 Unirme al Grupo de WhatsApp
             </a>
+            
             <button class="modal-close-btn" onclick="closeWelcomeModal()">Entendido, ¡Empezar!</button>
         </div>
     </div>
 
+    <!-- PANTALLA DE ACCESO -->
     <div id="auth-screen" class="screen active">
         <div class="auth-container">
             <div class="logo-container">
-                <img src="img/logo.png" alt="Logo Aura" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
+                <img src="logo.png" alt="Logo Aura" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
                 <div id="fallback-logo" class="logo-placeholder" style="display:none;">LOGO</div>
             </div>
 
@@ -110,10 +123,11 @@
                 <button id="tab-register" onclick="switchAuthTab('register')">¿Sos nuevo?</button>
             </div>
 
+            <!-- Formulario de Login -->
             <form id="form-login" onsubmit="handleLogin(event)">
                 <div class="input-group">
-                    <label>Teléfono (+54)</label>
-                    <input type="text" id="login-phone" placeholder="911XXXXXXXX" required>
+                    <label>Nombre de Usuario</label>
+                    <input type="text" id="login-username" placeholder="Tu usuario" required>
                 </div>
                 <div class="input-group">
                     <label>Contraseña</label>
@@ -122,10 +136,11 @@
                 <button type="submit" class="btn-primary">Iniciar Sesión</button>
             </form>
 
+            <!-- Formulario de Registro -->
             <form id="form-register" class="hidden" onsubmit="handleRegister(event)">
                 <div class="input-group">
-                    <label>Teléfono (+54 obligatorio)</label>
-                    <input type="text" id="reg-phone" placeholder="911XXXXXXXX" required>
+                    <label>Nombre de Usuario</label>
+                    <input type="text" id="reg-username" placeholder="Ej: usuario123" required>
                 </div>
                 <div class="input-group">
                     <label>Contraseña</label>
@@ -135,15 +150,12 @@
                     <label>Confirmar Contraseña</label>
                     <input type="password" id="reg-password-confirm" placeholder="••••••••" required>
                 </div>
-                <div class="input-group">
-                    <label>Código de Invitación (Opcional)</label>
-                    <input type="text" id="reg-invitation" placeholder="Código opcional">
-                </div>
                 <button type="submit" class="btn-primary">Registrarse ($5.000 Regalo)</button>
             </form>
         </div>
     </div>
 
+    <!-- APLICACIÓN PRINCIPAL -->
     <div id="app-screen" class="screen">
         <div id="view-inicio" class="view active">
             <header class="app-header">
@@ -222,9 +234,17 @@
         </nav>
     </div>
 
+    <!-- SCRIPT DE CONEXIÓN CON SUPABASE -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvdtxrjppufv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
+
+        let db = null;
+        try {
+            db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch (e) {
+            console.error('Error inicializando Supabase', e);
+        }
 
         let currentUser = null;
 
@@ -265,7 +285,7 @@
 
         async function handleRegister(event) {
             event.preventDefault();
-            const phone = "+54" + document.getElementById('reg-phone').value.trim();
+            const username = document.getElementById('reg-username').value.trim();
             const password = document.getElementById('reg-password').value;
             const confirmPass = document.getElementById('reg-password-confirm').value;
 
@@ -274,21 +294,12 @@
             const refCode = generateRandomCode();
             
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify({ phone: phone, password: password, balance: 5000.00, referral_code: refCode })
-                });
+                const { data, error } = await db.from('users').insert([
+                    { username: username, password: password, balance: 5000.00, referral_code: refCode }
+                ]).select();
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    alert("Error de Supabase: " + (data.message || JSON.stringify(data)));
+                if (error) { 
+                    alert("Error de Supabase: " + error.message); 
                 } else if (!data || data.length === 0) {
                     alert("No se pudo completar el registro.");
                 } else {
@@ -297,32 +308,20 @@
                     initAppSession();
                 }
             } catch (err) {
-                alert("Error de red: " + err.message);
+                alert("Error inesperado: " + err.message);
             }
         }
 
         async function handleLogin(event) {
             event.preventDefault();
-            const phone = "+54" + document.getElementById('login-phone').value.trim();
+            const username = document.getElementById('login-username').value.trim();
             const password = document.getElementById('login-password').value;
 
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?phone=eq.${encodeURIComponent(phone)}&password=eq.${encodeURIComponent(password)}`, {
-                    method: 'GET',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`
-                    }
-                });
+                const { data, error } = await db.from('users').select('*').eq('username', username).eq('password', password).single();
 
-                const data = await response.json();
-
-                if (!response.ok || !data || data.length === 0) {
-                    alert("Teléfono o contraseña incorrectos.");
-                } else {
-                    currentUser = data[0];
-                    initAppSession();
-                }
+                if (error || !data) { alert("Usuario o contraseña incorrectos."); }
+                else { currentUser = data; initAppSession(); }
             } catch (err) {
                 alert("Error al conectar con la base de datos.");
             }
@@ -369,30 +368,20 @@
             let investments = currentUser.investments || [];
             investments.push({ starId, date: new Date().toISOString() });
 
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${currentUser.id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify({ balance: newBalance, investments: investments, has_active_product: true })
-                });
+            const { error } = await db.from('users').update({
+                balance: newBalance,
+                investments: investments,
+                has_active_product: true
+            }).eq('id', currentUser.id);
 
-                if (!response.ok) {
-                    alert("Error en la compra.");
-                } else {
-                    currentUser.balance = newBalance;
-                    currentUser.has_active_product = true;
-                    currentUser.investments = investments;
-                    document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
-                    document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
-                    alert("¡Vehículo adquirido con éxito! Cuenta activa.");
-                }
-            } catch (err) {
-                alert("Error de red al comprar.");
+            if (error) { alert("Error en la compra: " + error.message); }
+            else {
+                currentUser.balance = newBalance;
+                currentUser.has_active_product = true;
+                currentUser.investments = investments;
+                document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
+                document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
+                alert("¡Vehículo adquirido con éxito! Cuenta activa.");
             }
         }
 
@@ -413,22 +402,9 @@
             const cbu = document.getElementById('profile-cbu').value;
             const alias = document.getElementById('profile-alias').value;
 
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${currentUser.id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ fuliname, cbu, alias })
-                });
-
-                if (!response.ok) alert("Error al guardar.");
-                else alert("¡Datos guardados correctamente!");
-            } catch (err) {
-                alert("Error de red.");
-            }
+            const { error } = await db.from('users').update({ fuliname, cbu, alias }).eq('id', currentUser.id);
+            if (error) alert("Error al guardar: " + error.message);
+            else alert("¡Datos guardados correctamente!");
         }
 
         async function requestWithdrawal() {
@@ -446,31 +422,20 @@
             });
 
             const newBalance = currentUser.balance - amount;
+            const { error } = await db.from('users').update({
+                balance: newBalance,
+                withdrawals: withdrawals
+            }).eq('id', currentUser.id);
 
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${currentUser.id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ balance: newBalance, withdrawals: withdrawals })
-                });
-
-                if (!response.ok) {
-                    alert("Error al solicitar retiro.");
-                } else {
-                    currentUser.balance = newBalance;
-                    currentUser.withdrawals = withdrawals;
-                    document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
-                    document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
-                    document.getElementById('withdrawal-amount').value = '';
-                    alert("¡Retiro solicitado con éxito! Demora hasta 24 hs.");
-                    loadHistory();
-                }
-            } catch (err) {
-                alert("Error de red.");
+            if (error) { alert("Error al solicitar retiro: " + error.message); }
+            else {
+                currentUser.balance = newBalance;
+                currentUser.withdrawals = withdrawals;
+                document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
+                document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
+                document.getElementById('withdrawal-amount').value = '';
+                alert("¡Retiro solicitado con éxito! Demora hasta 24 hs.");
+                loadHistory();
             }
         }
 
@@ -493,7 +458,7 @@
 
         function loadProfileData() {
             if (currentUser.fuliname) document.getElementById('profile-name').value = currentUser.fuliname;
-            if (currentUser.cbu) document.getElementById('profile-cbu').value = currentUser.cbu;
+            if (currentUser.cbu) document.getElementById('profile-cbu').value = currentUser.cBU;
             if (currentUser.alias) document.getElementById('profile-alias').value = currentUser.alias;
         }
 
