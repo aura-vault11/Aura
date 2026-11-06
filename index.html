@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AURA - Flota de Movilidad Sostenible</title>
-    <!-- Tailwind CSS para diseño moderno -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-950 text-white font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- PANTALLA DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
+    <!-- PANTALLA DE AUTENTICACIÓN (REGISTRO POR DEFECTO / LOGIN) -->
     <div id="auth-screen" class="flex-1 flex flex-col justify-center items-center p-4 max-w-md mx-auto w-full">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full shadow-2xl">
             <div class="text-center mb-6">
@@ -18,13 +18,13 @@
                 <p class="text-xs text-gray-400 mt-1">Flota de Movilidad Sostenible</p>
             </div>
 
-            <!-- Pestañas de Navegación Login / Registro -->
+            <!-- Pestañas de Navegación -->
             <div class="flex bg-gray-800 rounded-lg p-1 mb-6">
-                <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white">Ya estoy registrado</button>
-                <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400">¿Sos nuevo?</button>
+                <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white">¿Sos nuevo?</button>
+                <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400">Ya estoy registrado</button>
             </div>
 
-            <!-- Formulario -->
+            <!-- Formulario de Autenticación -->
             <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4" autocomplete="off">
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Teléfono</label>
@@ -36,7 +36,7 @@
                 </div>
                 
                 <!-- Campos exclusivos de registro -->
-                <div id="register-fields" class="hidden space-y-4">
+                <div id="register-fields" class="space-y-4">
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Confirmar Contraseña</label>
                         <input type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password" name="user_confirm_pass_clean" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
@@ -47,41 +47,38 @@
                     </div>
                 </div>
 
-                <button type="submit" id="submit-btn" class="w-full bg-green-500 hover:bg-green-600 text-gray-950 font-bold py-3 rounded-lg transition shadow-lg">Iniciar Sesión</button>
+                <button type="submit" id="submit-btn" class="w-full bg-green-500 hover:bg-green-600 text-gray-950 font-bold py-3 rounded-lg transition shadow-lg">Registrarse ($5.000 Regalo por única vez)</button>
             </form>
         </div>
     </div>
 
-    <!-- PANEL PRINCIPAL (OCULTO HASTA INICIAR SESIÓN) -->
+    <!-- PANEL PRINCIPAL CON 5 PESTAÑAS -->
     <div id="app-screen" class="hidden flex-1 flex flex-col pb-20">
-        <!-- Header -->
+        <!-- Header Fijo Superior -->
         <header class="bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center sticky top-0 z-10">
             <div class="flex items-center space-x-2">
                 <img src="logo.png" alt="Aura" class="w-8 h-8 object-contain" onerror="this.src='logo.PNG'">
                 <h2 class="text-lg font-bold text-white" id="header-title">Flota Eléctrica</h2>
             </div>
             <div class="bg-green-900/40 border border-green-500/30 px-3 py-1 rounded-full text-green-400 text-xs font-semibold">
-                Saldo: ARS <span id="user-balance">5000</span>
+                Capital: ARS <span id="user-balance">5000</span>
             </div>
         </header>
 
-        <!-- SECCIÓN 1: INICIO (PRODUCTOS & CVU) -->
+        <!-- PESTAÑA 1: INICIO (CHECK-IN Y CATÁLOGO DE 10 PRODUCTOS) -->
         <main id="view-inicio" class="p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
-            
-            <!-- CÓDIGO DE INVITACIÓN -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
-                <h3 class="font-bold text-sm text-green-400">🔗 Tu Código de Invitación Único</h3>
-                <p class="text-xs text-gray-400">Comparte este código para que tus invitados se unan a tu red:</p>
-                <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
-                    <span id="my-referral-code" class="text-sm font-mono font-bold text-white">Cargando...</span>
-                    <button onclick="compartirWhatsApp()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">
-                        💬 Compartir
-                    </button>
+            <!-- Bloque de Bono Diario -->
+            <div class="bg-gradient-to-r from-green-900/60 to-gray-900 border border-green-500/30 rounded-xl p-4 flex justify-between items-center shadow">
+                <div>
+                    <h3 class="font-bold text-sm text-green-400">🎁 Bono Diario de Check-in</h3>
+                    <p class="text-xs text-gray-300 mt-0.5">Reclama $500 ARS cada 24 horas</p>
                 </div>
+                <button onclick="reclamarBonoDiario()" id="btn-checkin" class="bg-green-500 hover:bg-green-400 text-gray-950 font-bold px-3.5 py-2 rounded-lg text-xs transition shadow">Reclamar $500</button>
             </div>
 
-            <!-- LISTA DE PRODUCTOS -->
+            <!-- Lista Completa de 10 Productos -->
             <div class="space-y-4">
+                <!-- Estrella 1 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella1.png" alt="Estrella 1" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella1.PNG'">
                     <div class="flex-1">
@@ -90,11 +87,12 @@
                         <p class="text-xs text-gray-400">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
                             <span class="text-sm font-bold text-white">ARS 15,000</span>
-                            <button onclick="comprarProducto('Estrella 1', 15000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <button onclick="comprarProducto('Estrella 1', 15000, 2222)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
                         </div>
                     </div>
                 </div>
 
+                <!-- Estrella 2 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella2.png" alt="Estrella 2" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella2.PNG'">
                     <div class="flex-1">
@@ -103,11 +101,12 @@
                         <p class="text-xs text-gray-400">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
                             <span class="text-sm font-bold text-white">ARS 35,000</span>
-                            <button onclick="comprarProducto('Estrella 2', 35000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <button onclick="comprarProducto('Estrella 2', 35000, 5333)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
                         </div>
                     </div>
                 </div>
 
+                <!-- Estrella 3 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella3.png" alt="Estrella 3" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella3.PNG'">
                     <div class="flex-1">
@@ -116,52 +115,196 @@
                         <p class="text-xs text-gray-400">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
                             <span class="text-sm font-bold text-white">ARS 80,000</span>
-                            <button onclick="comprarProducto('Estrella 3', 80000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <button onclick="comprarProducto('Estrella 3', 80000, 12444)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estrella 4 -->
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella4.png" alt="Estrella 4" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella4.PNG'">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm text-green-400">Estrella 4 - Triciclo de Carga</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 24,000</p>
+                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-sm font-bold text-white">ARS 150,000</span>
+                            <button onclick="comprarProducto('Estrella 4', 150000, 24000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estrella 5 -->
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella5.png" alt="Estrella 5" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella5.PNG'">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm text-green-400">Estrella 5 - Auto Eléctrico Urbano</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 50,000</p>
+                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-sm font-bold text-white">ARS 300,000</span>
+                            <button onclick="comprarProducto('Estrella 5', 300000, 50000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estrella 6 -->
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella6.png" alt="Estrella 6" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella6.PNG'">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm text-green-400">Estrella 6 - Van Eléctrica Ejecutiva</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 105,000</p>
+                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-sm font-bold text-white">ARS 600,000</span>
+                            <button onclick="comprarProducto('Estrella 6', 600000, 105000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estrella 7 -->
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella7.png" alt="Estrella 7" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella7.PNG'">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm text-green-400">Estrella 7 - Minibús Sostenible</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 220,000</p>
+                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-sm font-bold text-white">ARS 1,200,000</span>
+                            <button onclick="comprarProducto('Estrella 7', 1200000, 220000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estrella 8 -->
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella8.png" alt="Estrella 8" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella8.PNG'">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm text-green-400">Estrella 8 - Colectivo Eléctrico</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 480,000</p>
+                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-sm font-bold text-white">ARS 2,500,000</span>
+                            <button onclick="comprarProducto('Estrella 8', 2500000, 480000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estrella 9 -->
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella9.png" alt="Estrella 9" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella9.PNG'">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm text-green-400">Estrella 9 - Flota Industrial Aura</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 1,000,000</p>
+                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-sm font-bold text-white">ARS 5,000,000</span>
+                            <button onclick="comprarProducto('Estrella 9', 5000000, 1000000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estrella 10 -->
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella10.png" alt="Estrella 10" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella10.PNG'">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm text-green-400">Estrella 10 - Red de Movilidad Global</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 2,200,000</p>
+                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-sm font-bold text-white">ARS 10,000,000</span>
+                            <button onclick="comprarProducto('Estrella 10', 10000000, 2200000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- CVU DE DEPÓSITO -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
-                <h3 class="font-bold text-sm text-gray-200">Datos para Depósitos (CVU Oficial)</h3>
-                <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
-                    <span id="cvu-text" class="text-xs font-mono text-gray-300">0000003100000000000000</span>
-                    <button onclick="copiarCvu()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Copiar CVU</button>
-                </div>
-            </div>
         </main>
 
-        <!-- SECCIÓN 2: MI PRODUCTO -->
+        <!-- PESTAÑA 2: MI PRODUCTO (CON TEMPORIZADOR DE 24 HS) -->
         <main id="view-productos" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             <h3 class="font-bold text-base text-green-400">📦 Mis Inversiones Activas</h3>
             <div id="my-products-list" class="space-y-3">
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
-                    <p class="text-sm text-gray-400">Aún no tienes productos activos en producción.</p>
+                    <p class="text-sm text-gray-400">Aún no tienes productos activos produciendo ingresos.</p>
                 </div>
             </div>
         </main>
 
-        <!-- SECCIÓN 3: MI EQUIPO -->
+        <!-- PESTAÑA 3: MI EQUIPO (3 NIVELES Y CÓDIGO ÚNICO) -->
         <main id="view-equipo" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
-            <h3 class="font-bold text-base text-green-400">⭐ Mi Red de Referidos</h3>
-            <div class="grid grid-cols-3 gap-2 text-center">
-                <div class="bg-gray-900 border border-gray-800 p-3 rounded-xl">
-                    <p class="text-xs text-gray-400">Nivel 1</p>
-                    <p class="text-lg font-bold text-white">0</p>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
+                <h3 class="font-bold text-sm text-green-400">🔗 Tu Código de Invitación Único</h3>
+                <p class="text-xs text-gray-400">Invita a tus familiares y amigos a unirse a tu red de inversión:</p>
+                <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
+                    <span id="my-referral-code" class="text-sm font-mono font-bold text-white">Cargando...</span>
+                    <button onclick="compartirWhatsApp()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">
+                        💬 Compartir en WhatsApp
+                    </button>
                 </div>
-                <div class="bg-gray-900 border border-gray-800 p-3 rounded-xl">
-                    <p class="text-xs text-gray-400">Nivel 2</p>
-                    <p class="text-lg font-bold text-white">0</p>
+            </div>
+
+            <h3 class="font-bold text-base text-green-400 pt-2">⭐ Mi Red de Referidos (3 Niveles)</h3>
+            <div class="space-y-3">
+                <!-- Nivel 1 -->
+                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-1">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-sm text-white">Nivel 1</span>
+                        <span class="text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded border border-green-500/30">30% Comisión</span>
+                    </div>
+                    <p class="text-xs text-gray-400">Tope máximo: 15 invitados directos</p>
+                    <p class="text-sm font-bold text-gray-200 mt-1">Registrados: <span id="count-n1">0</span> / 15</p>
                 </div>
-                <div class="bg-gray-900 border border-gray-800 p-3 rounded-xl">
-                    <p class="text-xs text-gray-400">Nivel 3</p>
-                    <p class="text-lg font-bold text-white">0</p>
+                <!-- Nivel 2 -->
+                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-1">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-sm text-white">Nivel 2</span>
+                        <span class="text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded border border-green-500/30">15% + 5% Indirecto</span>
+                    </div>
+                    <p class="text-xs text-gray-400">Invitados de tus referidos directos</p>
+                    <p class="text-sm font-bold text-gray-200 mt-1">Registrados: <span id="count-n2">0</span></p>
+                </div>
+                <!-- Nivel 3 -->
+                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-1">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-sm text-white">Nivel 3</span>
+                        <span class="text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded border border-green-500/30">10% + 5% Indirecto</span>
+                    </div>
+                    <p class="text-xs text-gray-400">Red ampliada de tercera generación</p>
+                    <p class="text-sm font-bold text-gray-200 mt-1">Registrados: <span id="count-n3">0</span></p>
                 </div>
             </div>
         </main>
 
-        <!-- SECCIÓN 4: MI PERFIL Y FINANZAS -->
+        <!-- PESTAÑA 4: FINANZAS (HISTORIAL, CVU OFICIAL Y AVISO DE $15.000) -->
+        <main id="view-finanzas" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
+                <h3 class="font-bold text-sm text-gray-200">Datos para Carga de Saldo (CVU Oficial)</h3>
+                <p class="text-xs text-gray-400">Copia este CVU para transferir tu depósito a la plataforma:</p>
+                <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
+                    <span id="cvu-text" class="text-xs font-mono text-gray-300">0000267900000002996367</span>
+                    <button onclick="copiarCvu()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Copiar CVU</button>
+                </div>
+                <div class="bg-amber-900/30 border border-amber-500/30 rounded-lg p-2.5 text-center">
+                    <p class="text-xs text-amber-300 font-semibold">⚠️ Mínimo de carga / depósito permitido: $15.000 ARS</p>
+                </div>
+            </div>
+
+            <!-- Historial de Movimientos -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
+                <h3 class="font-bold text-sm text-green-400">📜 Historial de Movimientos</h3>
+                <div id="history-list" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                    <div class="flex justify-between items-center bg-gray-800/60 p-2.5 rounded-lg text-xs">
+                        <div>
+                            <p class="font-semibold text-white">Bono de Registro (Única vez)</p>
+                            <p class="text-[10px] text-gray-400">Al crear la cuenta</p>
+                        </div>
+                        <span class="text-green-400 font-bold">+ARS 5,000</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- PESTAÑA 5: PERFIL (DATOS BANCARIOS Y CERRAR SESIÓN) -->
         <main id="view-perfil" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-4">
                 <div class="flex items-center justify-between border-b border-gray-800 pb-3">
@@ -172,32 +315,34 @@
                     <span class="bg-green-900/50 text-green-400 text-xs px-2.5 py-1 rounded-full border border-green-500/30">Activo</span>
                 </div>
 
-                <div class="bg-gray-800 p-4 rounded-xl space-y-2">
-                    <p class="text-xs text-gray-400">Capital Disponible</p>
-                    <p class="text-2xl font-bold text-green-400">ARS <span id="profile-balance">5000</span></p>
-                    <p class="text-[10px] text-gray-400 font-mono">* Depósito mínimo aceptado: ARS 15.000</p>
-                    <div class="flex space-x-2 pt-2">
-                        <button onclick="solicitarDeposito()" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-lg text-xs transition">Recargar Saldo</button>
-                        <button onclick="solicitarRetiro()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded-lg text-xs transition">Retirar Fondos</button>
+                <!-- Formulario Obligatorio de Datos Bancarios -->
+                <div class="space-y-3">
+                    <h4 class="font-bold text-xs text-gray-300">Datos Bancarios para Cobros / Retiros</h4>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Titular de la Cuenta Bancaria <span class="text-green-400">*Obligatorio</span></label>
+                        <input type="text" id="user-holder" placeholder="Nombre completo del titular" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
                     </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">CBU / CVU <span class="text-green-400">*Obligatorio</span></label>
+                        <input type="text" id="user-cbu" placeholder="22 dígitos de tu CBU o CVU" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Alias Bancario <span class="text-green-400">*Obligatorio</span></label>
+                        <input type="text" id="user-alias" placeholder="Ej: mi.alias.mp" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                    </div>
+                    <button onclick="guardarDatosBancarios()" class="w-full bg-green-500 hover:bg-green-400 text-gray-950 font-bold py-2.5 rounded-lg text-xs transition shadow">Guardar Datos de Cobro</button>
                 </div>
 
-                <div class="space-y-3 pt-2">
-                    <h4 class="font-bold text-xs text-gray-300">Datos para Cobro / Retiro</h4>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">CBU / CVU de Destino</label>
-                        <input type="text" id="user-cbu" placeholder="Ingresa tu CBU o CVU para cobros" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">Alias MP / Banco</label>
-                        <input type="text" id="user-alias" placeholder="Ingresa tu Alias" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
-                    </div>
-                    <button onclick="guardarDatosBancarios()" class="w-full bg-gray-800 hover:bg-gray-700 text-green-400 font-semibold py-2 rounded-lg text-xs border border-green-500/30 transition">Guardar Datos de Retiro</button>
+                <!-- Botón de Cerrar Sesión -->
+                <div class="pt-4 border-t border-gray-800">
+                    <button onclick="cerrarSesion()" class="w-full bg-red-900/40 hover:bg-red-800/60 text-red-300 font-semibold py-2.5 rounded-lg text-xs border border-red-500/30 transition flex items-center justify-center space-x-2">
+                        <span>🚪 Cerrar Sesión</span>
+                    </button>
                 </div>
             </div>
         </main>
 
-        <!-- Barra de Navegación Inferior Funcional -->
+        <!-- BARRA DE NAVEGACIÓN INFERIOR DE 5 PESTAÑAS FIJAS -->
         <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex justify-around py-2.5 z-10">
             <button onclick="navTo('inicio')" id="nav-btn-inicio" class="text-green-400 text-xs flex flex-col items-center space-y-1">
                 <span class="text-base">🏠</span>
@@ -211,22 +356,29 @@
                 <span class="text-base">⭐</span>
                 <span>Mi Equipo</span>
             </button>
+            <button onclick="navTo('finanzas')" id="nav-btn-finanzas" class="text-gray-400 text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">💰</span>
+                <span>Finanzas</span>
+            </button>
             <button onclick="navTo('perfil')" id="nav-btn-perfil" class="text-gray-400 text-xs flex flex-col items-center space-y-1">
                 <span class="text-base">👤</span>
                 <span>Perfil</span>
             </button>
-            <button onclick="cerrarSesion()" class="text-red-400 text-xs flex flex-col items-center space-y-1">
-                <span class="text-base">🚪</span>
-                <span>Salir</span>
-            </button>
         </nav>
     </div>
 
-    <!-- POPUP DE LANZAMIENTO -->
+    <!-- POPUP DE BIENVENIDA CON HORARIOS Y REGLAS DE PLATAFORMA -->
     <div id="modal-lanzamiento" class="fixed inset-0 bg-black/80 flex justify-center items-center p-4 z-50">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
-            <h3 class="text-xl font-bold text-green-400">🚀 ¡Gran Lanzamiento Aura!</h3>
-            <p class="text-xs text-gray-300">¡Bienvenidos a la plataforma de inversión en movilidad sostenible! Estamos oficialmente en marcha.</p>
+            <h3 class="text-xl font-bold text-green-400">🚀 ¡Bienvenido a AURA!</h3>
+            
+            <div class="text-xs text-gray-300 space-y-2 text-left bg-gray-800/70 p-3 rounded-lg border border-gray-700">
+                <p>🕒 <strong>Horario de Atención:</strong> Lunes a Viernes de 09:00 a 21:00 hs.</p>
+                <p>💸 <strong>Retiros:</strong> Máximo 1 retiro por día.</p>
+                <p>💳 <strong>Mínimo de Carga:</strong> $15.000 ARS.</p>
+                <p>👥 <strong>Invita y Gana:</strong> Ve a <em>Mi Equipo</em> para invitar a tus amigos y familiares.</p>
+            </div>
+
             <a href="https://chat.whatsapp.com" target="_blank" class="block w-full bg-green-600 hover:bg-green-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">
                 Unirme al Grupo de WhatsApp
             </a>
@@ -236,9 +388,9 @@
         </div>
     </div>
 
-    <!-- SCRIPT Y LÓGICA -->
+    <!-- SCRIPT DE LÓGICA COMPLETA Y FUNCIONALIDADES -->
     <script>
-        let mode = 'login';
+        let mode = 'register';
         let currentUserData = null;
 
         function switchTab(selectedMode) {
@@ -257,7 +409,7 @@
                 btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white";
                 btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400";
                 registerFields.classList.remove('hidden');
-                submitBtn.innerText = "Registrarse ($5.000 Regalo)";
+                submitBtn.innerText = "Registrarse ($5.000 Regalo por única vez)";
             }
         }
 
@@ -268,10 +420,22 @@
 
             if (mode === 'register') {
                 const uniqueCode = "AURA-" + phone.replace(/\D/g, '').slice(-4) + Math.floor(100 + Math.random() * 900);
-                const userObj = { phone: phone, password: password, referral_code: uniqueCode, balance: 5000, cbu: "", alias: "" };
+                
+                const userObj = {
+                    phone: phone,
+                    password: password,
+                    referral_code: uniqueCode,
+                    balance: 5000,
+                    last_checkin_timestamp: null,
+                    holder: "",
+                    cbu: "",
+                    alias: "",
+                    products: [],
+                    history: [{ title: "Bono de Registro (Única vez)", amount: 5000, type: "bonus", date: new Date().toLocaleTimeString() }]
+                };
                 localStorage.setItem('aura_user_data_' + phone, JSON.stringify(userObj));
                 localStorage.setItem('aura_user', phone);
-                alert("¡Registro exitoso! Tu código personal es: " + uniqueCode);
+                alert("¡Registro exitoso! Recibiste $5.000 ARS de regalo por única vez. Tu código es: " + uniqueCode);
             } else {
                 localStorage.setItem('aura_user', phone);
             }
@@ -283,31 +447,39 @@
             const storedUser = localStorage.getItem('aura_user_data_' + phone);
             let code = "AURA-" + phone.replace(/\D/g, '').slice(-4) + "926";
             let balance = 5000;
-            let cbu = "", alias = "";
+            let holder = "", cbu = "", alias = "";
+            let history = [];
+            let products = [];
 
             if (storedUser) {
                 const parsed = JSON.parse(storedUser);
                 if (parsed.referral_code) code = parsed.referral_code;
                 if (parsed.balance) balance = parsed.balance;
+                if (parsed.holder) holder = parsed.holder;
                 if (parsed.cbu) cbu = parsed.cbu;
                 if (parsed.alias) alias = parsed.alias;
+                if (parsed.history) history = parsed.history;
+                if (parsed.products) products = parsed.products;
             }
 
-            currentUserData = { phone: phone, referral_code: code, balance: balance, cbu: cbu, alias: alias };
+            currentUserData = { phone: phone, referral_code: code, balance: balance, holder: holder, cbu: cbu, alias: alias, history: history, products: products };
 
             document.getElementById('my-referral-code').innerText = code;
             document.getElementById('user-balance').innerText = balance;
-            document.getElementById('profile-balance').innerText = balance;
             document.getElementById('profile-phone').innerText = phone;
+            document.getElementById('user-holder').value = holder;
             document.getElementById('user-cbu').value = cbu;
             document.getElementById('user-alias').value = alias;
+
+            renderHistorial();
+            renderProductosActivos();
 
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
         }
 
         function navTo(screen) {
-            const views = ['inicio', 'productos', 'equipo', 'perfil'];
+            const views = ['inicio', 'productos', 'equipo', 'finanzas', 'perfil'];
             views.forEach(v => {
                 document.getElementById('view-' + v).classList.add('hidden');
                 document.getElementById('nav-btn-' + v).className = "text-gray-400 text-xs flex flex-col items-center space-y-1";
@@ -317,37 +489,110 @@
             document.getElementById('nav-btn-' + screen).className = "text-green-400 text-xs flex flex-col items-center space-y-1";
         }
 
+        function reclamarBonoDiario() {
+            const ahora = new Date().getTime();
+            const tiempoEspera = 24 * 60 * 60 * 1000;
+
+            const storedUser = localStorage.getItem('aura_user_data_' + currentUserData.phone);
+            let userObj = storedUser ? JSON.parse(storedUser) : currentUserData;
+
+            if (userObj.last_checkin_timestamp && (ahora - userObj.last_checkin_timestamp) < tiempoEspera) {
+                const tiempoRestanteMs = tiempoEspera - (ahora - userObj.last_checkin_timestamp);
+                const horasRestantes = Math.floor(tiempoRestanteMs / (1000 * 60 * 60));
+                const minutosRestantes = Math.floor((tiempoRestanteMs % (1000 * 60 * 60)) / (1000 * 60));
+                
+                alert(`Debes esperar 24 hs entre cada reclamo. Vuelve en ${horasRestantes}h y ${minutosRestantes}m.`);
+                return;
+            }
+
+            userObj.balance += 500;
+            userObj.last_checkin_timestamp = ahora;
+            userObj.history.unshift({ title: "Bono Diario Check-in", amount: 500, type: "bonus", date: new Date().toLocaleTimeString() });
+
+            localStorage.setItem('aura_user_data_' + currentUserData.phone, JSON.stringify(userObj));
+            currentUserData.balance = userObj.balance;
+            currentUserData.history = userObj.history;
+
+            document.getElementById('user-balance').innerText = currentUserData.balance;
+            renderHistorial();
+            alert("¡Bono acreditado! Has reclamado $500 ARS. Tu próximo reclamo estará disponible en 24 horas.");
+        }
+
+        function renderProductosActivos() {
+            const container = document.getElementById('my-products-list');
+            if (!currentUserData.products || currentUserData.products.length === 0) {
+                container.innerHTML = `<div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center"><p class="text-sm text-gray-400">Aún no tienes productos activos produciendo ingresos.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = currentUserData.products.map(p => `
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-sm text-green-400">${p.nombre}</h4>
+                        <p class="text-xs text-gray-400">Ganancia diaria: ARS ${p.daily}</p>
+                        <p class="text-[10px] text-gray-500">Adquirido: ${p.date}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] text-gray-400 block">Próxima acreditación:</span>
+                        <span class="text-xs font-mono font-bold text-green-400 border border-green-500/30 px-2 py-1 rounded bg-green-900/30">23h 59m 50s</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function comprarProducto(nombre, precio, daily) {
+            if (currentUserData.balance < precio) {
+                alert("Saldo insuficiente. El depósito mínimo aceptado es de $15.000 ARS. Ve a Finanzas para copiar el CVU.");
+                return;
+            }
+
+            currentUserData.balance -= precio;
+            currentUserData.products.push({ nombre: nombre, daily: daily, date: new Date().toLocaleDateString() });
+            currentUserData.history.unshift({ title: "Compra: " + nombre, amount: -precio, type: "purchase", date: new Date().toLocaleTimeString() });
+
+            localStorage.setItem('aura_user_data_' + currentUserData.phone, JSON.stringify(currentUserData));
+            document.getElementById('user-balance').innerText = currentUserData.balance;
+            renderHistorial();
+            renderProductosActivos();
+            alert("¡Felicitaciones! Has adquirido " + nombre + ". Revisa la sección 'Mi Producto' para ver tu temporizador.");
+        }
+
         function guardarDatosBancarios() {
+            const holder = document.getElementById('user-holder').value.trim();
             const cbu = document.getElementById('user-cbu').value.trim();
             const alias = document.getElementById('user-alias').value.trim();
-            if (currentUserData) {
-                currentUserData.cbu = cbu;
-                currentUserData.alias = alias;
-                localStorage.setItem('aura_user_data_' + currentUserData.phone, JSON.stringify(currentUserData));
-                alert("¡Datos de cobro guardados correctamente!");
+
+            if (!holder || !cbu || !alias) {
+                alert("Por favor completa los 3 campos obligatorios de datos bancarios.");
+                return;
             }
+
+            currentUserData.holder = holder;
+            currentUserData.cbu = cbu;
+            currentUserData.alias = alias;
+
+            localStorage.setItem('aura_user_data_' + currentUserData.phone, JSON.stringify(currentUserData));
+            alert("¡Datos bancarios de cobro guardados correctamente!");
         }
 
-        function solicitarRetiro() {
-            alert("Para solicitar un retiro, asegúrate de tener tu CBU/Alias cargado.");
-        }
-
-        function solicitarDeposito() {
-            alert("El depósito mínimo es de ARS 15.000. Copia el CVU oficial en la sección de Inicio para transferir.");
-        }
-
-        function comprarProducto(nombre, precio) {
-            if (currentUserData.balance < precio) {
-                alert("Saldo insuficiente para comprar este producto. El monto mínimo de recarga es de ARS 15.000.");
-            } else {
-                alert("Has seleccionado adquirir " + nombre + ". Revisa los datos de transferencia.");
-            }
+        function renderHistorial() {
+            const container = document.getElementById('history-list');
+            if (!currentUserData.history) return;
+            container.innerHTML = currentUserData.history.map(item => `
+                <div class="flex justify-between items-center bg-gray-800/60 p-2.5 rounded-lg text-xs">
+                    <div>
+                        <p class="font-semibold text-white">${item.title}</p>
+                        <p class="text-[10px] text-gray-400">${item.date}</p>
+                    </div>
+                    <span class="${item.amount < 0 ? 'text-red-400' : 'text-green-400'} font-bold">${item.amount < 0 ? '' : '+'}${item.amount.toLocaleString()} ARS</span>
+                </div>
+            `).join('');
         }
 
         function compartirWhatsApp() {
             const codigo = currentUserData && currentUserData.referral_code ? currentUserData.referral_code : "AURA-2026";
             const inviteUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(codigo)}`;
-            const mensaje = `¡Hola! Únete a AURA ⚡. Regístrate con mi enlace directo y gana $5.000 de regalo 🚀: ${inviteUrl}`;
+            const mensaje = `¡Hola! Únete a AURA, movilidad sostenible ⚡. Regístrate con mi enlace directo y gana $5.000 de regalo 🚀: ${inviteUrl}`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
@@ -361,8 +606,11 @@
         }
 
         function copiarCvu() {
-            navigator.clipboard.writeText(document.getElementById('cvu-text').innerText).then(() => {
+            const cvuText = document.getElementById('cvu-text').innerText;
+            navigator.clipboard.writeText(cvuText).then(() => {
                 alert('¡CVU copiado al portapapeles!');
+            }).catch(err => {
+                console.error('Error al copiar CVU: ', err);
             });
         }
 
