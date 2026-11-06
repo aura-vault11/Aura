@@ -31,7 +31,7 @@
             <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Teléfono (+54 obligatorio)</label>
-                    <input type="text" id="phone" placeholder="9341564778" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    <input type="text" id="phone" placeholder="Ej: 341564778" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                 </div>
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Contraseña</label>
@@ -40,6 +40,10 @@
                 
                 <!-- Campos exclusivos de registro -->
                 <div id="register-fields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Confirmar Contraseña</label>
+                        <input type="password" id="confirm-password" placeholder="••••••••" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Código de Invitación <span class="text-green-400">*Obligatorio</span></label>
                         <input type="text" id="invite-code" placeholder="Ingresa el código de quien te invitó" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
@@ -72,7 +76,7 @@
                 <h3 class="font-bold text-sm text-green-400">🔗 Tu Código de Invitación Único</h3>
                 <p class="text-xs text-gray-400">Comparte este código con tus invitados para que puedan unirse a tu red:</p>
                 <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
-                    <span id="my-referral-code" class="text-sm font-mono font-bold text-white">Cargando...</span>
+                    <span id="my-referral-code" class="text-sm font-mono font-bold text-white">Generando...</span>
                     <button onclick="compartirWhatsApp()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition flex items-center space-x-1">
                         <span>💬 Compartir WhatsApp</span>
                     </button>
@@ -180,18 +184,21 @@
             const registerFields = document.getElementById('register-fields');
             const submitBtn = document.getElementById('submit-btn');
             const inviteInput = document.getElementById('invite-code');
+            const confirmPassInput = document.getElementById('confirm-password');
 
             if (mode === 'login') {
                 btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white";
                 btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400";
                 registerFields.classList.add('hidden');
                 inviteInput.removeAttribute('required');
+                confirmPassInput.removeAttribute('required');
                 submitBtn.innerText = "Iniciar Sesión";
             } else {
                 btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white";
                 btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400";
                 registerFields.classList.remove('hidden');
                 inviteInput.setAttribute('required', 'true');
+                confirmPassInput.setAttribute('required', 'true');
                 submitBtn.innerText = "Registrarse ($5.000 Regalo)";
             }
         }
@@ -206,9 +213,23 @@
 
             try {
                 if (mode === 'register') {
+                    const confirmPassword = document.getElementById('confirm-password').value.trim();
                     const inviteCode = document.getElementById('invite-code').value.trim();
+
+                    if (password !== confirmPassword) {
+                        alert("Las contraseñas no coinciden.");
+                        return;
+                    }
+
                     if (!inviteCode) {
-                        alert("El código de invitación es obligatorio para registrarse.");
+                        alert("El código de invitación es obligatorio.");
+                        return;
+                    }
+
+                    // Validar que el código de invitación exista en la base de datos
+                    const querySnapshot = await db.collection('users').where('referral_code', '==', inviteCode).get();
+                    if (querySnapshot.empty) {
+                        alert("El código de invitación no es válido o no existe.");
                         return;
                     }
 
@@ -219,7 +240,6 @@
                         return;
                     }
 
-                    // Generar código único para este nuevo usuario (ej: AURA-últimos 4 dígitos + aleatorio)
                     const uniqueReferralCode = "AURA-" + userId.slice(-4) + Math.floor(100 + Math.random() * 900);
 
                     await userRef.set({
@@ -261,10 +281,20 @@
 
         async function cargarDatosUsuario(userId) {
             try {
-                const doc = await db.collection('users').doc(userId).get();
+                const userRef = db.collection('users').doc(userId);
+                let doc = await userRef.get();
+                
                 if (doc.exists) {
                     currentUserData = doc.data();
-                    document.getElementById('my-referral-code').innerText = currentUserData.referral_code || "AURA-2026";
+                    
+                    // Si el usuario antiguo no tiene código de referido, se lo creamos automáticamente ahora mismo
+                    if (!currentUserData.referral_code) {
+                        const generatedCode = "AURA-" + userId.slice(-4) + Math.floor(100 + Math.random() * 900);
+                        await userRef.update({ referral_code: generatedCode });
+                        currentUserData.referral_code = generatedCode;
+                    }
+
+                    document.getElementById('my-referral-code').innerText = currentUserData.referral_code;
                     document.getElementById('user-balance').innerText = currentUserData.balance || 5000;
                 }
             } catch (e) {
@@ -276,7 +306,7 @@
         }
 
         function compartirWhatsApp() {
-            const codigo = currentUserData ? currentUserData.referral_code : "AURA-2026";
+            const codigo = currentUserData && currentUserData.referral_code ? currentUserData.referral_code : "AURA-2026";
             const mensaje = `¡Hola! Únete a AURA, la plataforma de inversión en movilidad sostenible ⚡. Regístrate con mi código de invitación obligatorio: *${codigo}* y llévate $5.000 de regalo 🚀. Entra aquí: ${window.location.origin}`;
             const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
