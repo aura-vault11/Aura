@@ -38,7 +38,7 @@
                 </div>
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Contraseña</label>
-                    <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                 </div>
                 
                 <!-- Campos exclusivos de registro -->
@@ -210,7 +210,10 @@
             event.preventDefault();
             const phoneInput = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value.trim();
-            const userId = "+54" + phoneInput.replace(/^\+?54/, '');
+            
+            // Limpieza robusta del teléfono para evitar errores con espacios o símbolos
+            const cleanPhone = phoneInput.replace(/\D/g, '');
+            const userId = "+54" + cleanPhone;
 
             const userRef = db.collection('users').doc(userId);
 
@@ -236,7 +239,7 @@
                         return;
                     }
 
-                    const uniqueReferralCode = "AURA-" + userId.slice(-4) + Math.floor(100 + Math.random() * 900);
+                    const uniqueReferralCode = "AURA-" + cleanPhone.slice(-4) + Math.floor(100 + Math.random() * 900);
 
                     await userRef.set({
                         phone: userId,
