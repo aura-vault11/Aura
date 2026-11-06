@@ -6,10 +6,14 @@
     <title>AURA - Flota de Movilidad Sostenible</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDK (v9 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-950 text-white font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- PANTALLA DE AUTENTICACIÓN (REGISTRO POR DEFECTO / LOGIN) -->
+    <!-- PANTALLA DE AUTENTICACIÓN -->
     <div id="auth-screen" class="flex-1 flex flex-col justify-center items-center p-4 max-w-md mx-auto w-full">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full shadow-2xl">
             <div class="text-center mb-6">
@@ -18,32 +22,29 @@
                 <p class="text-xs text-gray-400 mt-1">Flota de Movilidad Sostenible</p>
             </div>
 
-            <!-- Pestañas de Navegación -->
             <div class="flex bg-gray-800 rounded-lg p-1 mb-6">
                 <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white">¿Sos nuevo?</button>
                 <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400">Ya estoy registrado</button>
             </div>
 
-            <!-- Formulario de Autenticación -->
             <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4" autocomplete="off">
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Teléfono</label>
-                    <input type="text" id="phone" placeholder="Ej: 341564778" required autocomplete="none" name="user_phone_clean" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    <input type="text" id="phone" placeholder="Ej: 341564778" required autocomplete="none" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                 </div>
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Contraseña</label>
-                    <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password" name="user_pass_clean" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                 </div>
                 
-                <!-- Campos exclusivos de registro -->
                 <div id="register-fields" class="space-y-4">
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Confirmar Contraseña</label>
-                        <input type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password" name="user_confirm_pass_clean" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                        <input type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Código de Invitación <span class="text-green-400">*Obligatorio</span></label>
-                        <input type="text" id="invite-code" placeholder="Ingresa el código de quien te invitó" autocomplete="off" name="user_invite_clean" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                        <input type="text" id="invite-code" placeholder="Código de quien te invitó" autocomplete="off" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                     </div>
                 </div>
 
@@ -54,7 +55,6 @@
 
     <!-- PANEL PRINCIPAL CON 5 PESTAÑAS -->
     <div id="app-screen" class="hidden flex-1 flex flex-col pb-20">
-        <!-- Header Fijo Superior -->
         <header class="bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center sticky top-0 z-10">
             <div class="flex items-center space-x-2">
                 <img src="logo.png" alt="Aura" class="w-8 h-8 object-contain" onerror="this.src='logo.PNG'">
@@ -65,9 +65,8 @@
             </div>
         </header>
 
-        <!-- PESTAÑA 1: INICIO (CHECK-IN Y CATÁLOGO DE 10 PRODUCTOS) -->
+        <!-- PESTAÑA 1: INICIO -->
         <main id="view-inicio" class="p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
-            <!-- Bloque de Bono Diario -->
             <div class="bg-gradient-to-r from-green-900/60 to-gray-900 border border-green-500/30 rounded-xl p-4 flex justify-between items-center shadow">
                 <div>
                     <h3 class="font-bold text-sm text-green-400">🎁 Bono Diario de Check-in</h3>
@@ -76,9 +75,8 @@
                 <button onclick="reclamarBonoDiario()" id="btn-checkin" class="bg-green-500 hover:bg-green-400 text-gray-950 font-bold px-3.5 py-2 rounded-lg text-xs transition shadow">Reclamar $500</button>
             </div>
 
-            <!-- Lista Completa de 10 Productos -->
+            <!-- Catálogo de 10 Productos -->
             <div class="space-y-4">
-                <!-- Estrella 1 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella1.png" alt="Estrella 1" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella1.PNG'">
                     <div class="flex-1">
@@ -92,7 +90,6 @@
                     </div>
                 </div>
 
-                <!-- Estrella 2 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella2.png" alt="Estrella 2" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella2.PNG'">
                     <div class="flex-1">
@@ -106,7 +103,6 @@
                     </div>
                 </div>
 
-                <!-- Estrella 3 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella3.png" alt="Estrella 3" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella3.PNG'">
                     <div class="flex-1">
@@ -120,7 +116,6 @@
                     </div>
                 </div>
 
-                <!-- Estrella 4 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella4.png" alt="Estrella 4" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella4.PNG'">
                     <div class="flex-1">
@@ -134,7 +129,6 @@
                     </div>
                 </div>
 
-                <!-- Estrella 5 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella5.png" alt="Estrella 5" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella5.PNG'">
                     <div class="flex-1">
@@ -148,7 +142,6 @@
                     </div>
                 </div>
 
-                <!-- Estrella 6 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella6.png" alt="Estrella 6" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella6.PNG'">
                     <div class="flex-1">
@@ -162,7 +155,6 @@
                     </div>
                 </div>
 
-                <!-- Estrella 7 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella7.png" alt="Estrella 7" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella7.PNG'">
                     <div class="flex-1">
@@ -176,7 +168,6 @@
                     </div>
                 </div>
 
-                <!-- Estrella 8 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella8.png" alt="Estrella 8" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella8.PNG'">
                     <div class="flex-1">
@@ -190,7 +181,6 @@
                     </div>
                 </div>
 
-                <!-- Estrella 9 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella9.png" alt="Estrella 9" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella9.PNG'">
                     <div class="flex-1">
@@ -204,7 +194,6 @@
                     </div>
                 </div>
 
-                <!-- Estrella 10 -->
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella10.png" alt="Estrella 10" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella10.PNG'">
                     <div class="flex-1">
@@ -220,7 +209,7 @@
             </div>
         </main>
 
-        <!-- PESTAÑA 2: MI PRODUCTO (CON TEMPORIZADOR DE 24 HS) -->
+        <!-- PESTAÑA 2: MI PRODUCTO -->
         <main id="view-productos" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             <h3 class="font-bold text-base text-green-400">📦 Mis Inversiones Activas</h3>
             <div id="my-products-list" class="space-y-3">
@@ -230,7 +219,7 @@
             </div>
         </main>
 
-        <!-- PESTAÑA 3: MI EQUIPO (3 NIVELES Y CÓDIGO ÚNICO) -->
+        <!-- PESTAÑA 3: MI EQUIPO -->
         <main id="view-equipo" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <h3 class="font-bold text-sm text-green-400">🔗 Tu Código de Invitación Único</h3>
@@ -245,7 +234,6 @@
 
             <h3 class="font-bold text-base text-green-400 pt-2">⭐ Mi Red de Referidos por Cargas</h3>
             <div class="space-y-3">
-                <!-- Nivel 1 -->
                 <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-1">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-sm text-white">Nivel 1</span>
@@ -254,7 +242,7 @@
                     <p class="text-xs text-gray-400">Obtienes el 30% de cada recarga de tus invitados directos (Tope: 15 invitados).</p>
                     <p class="text-sm font-bold text-gray-200 mt-1">Registrados: <span id="count-n1">0</span> / 15</p>
                 </div>
-                <!-- Nivel 2 -->
+
                 <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-1">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-sm text-white">Nivel 2</span>
@@ -263,7 +251,7 @@
                     <p class="text-xs text-gray-400">Obtienes comisión por cargas de los invitados de tus referidos (Tope: 50 invitados).</p>
                     <p class="text-sm font-bold text-gray-200 mt-1">Registrados: <span id="count-n2">0</span> / 50</p>
                 </div>
-                <!-- Nivel 3 -->
+
                 <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-1">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-sm text-white">Nivel 3</span>
@@ -275,9 +263,8 @@
             </div>
         </main>
 
-        <!-- PESTAÑA 4: FINANZAS (CARGA, SOLICITUD DE RETIRO Y HISTORIAL) -->
+        <!-- PESTAÑA 4: FINANZAS -->
         <main id="view-finanzas" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
-            <!-- Bloque de Carga (CVU Oficial) -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <h3 class="font-bold text-sm text-gray-200">Datos para Carga de Saldo (CVU Oficial)</h3>
                 <p class="text-xs text-gray-400">Copia este CVU para transferir tu depósito a la plataforma:</p>
@@ -290,7 +277,6 @@
                 </div>
             </div>
 
-            <!-- SOLICITUD DE RETIRO DE FONDOS -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <div class="flex justify-between items-center">
                     <h3 class="font-bold text-sm text-green-400">💸 Solicitud de Retiro</h3>
@@ -306,22 +292,13 @@
                 </div>
             </div>
 
-            <!-- Historial de Movimientos -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <h3 class="font-bold text-sm text-green-400">📜 Historial de Movimientos</h3>
-                <div id="history-list" class="space-y-2 max-h-56 overflow-y-auto pr-1">
-                    <div class="flex justify-between items-center bg-gray-800/60 p-2.5 rounded-lg text-xs">
-                        <div>
-                            <p class="font-semibold text-white">Bono de Registro (Única vez)</p>
-                            <p class="text-[10px] text-gray-400">Al crear la cuenta</p>
-                        </div>
-                        <span class="text-green-400 font-bold">+ARS 5,000</span>
-                    </div>
-                </div>
+                <div id="history-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
             </div>
         </main>
 
-        <!-- PESTAÑA 5: PERFIL (DATOS BANCARIOS Y CERRAR SESIÓN) -->
+        <!-- PESTAÑA 5: PERFIL -->
         <main id="view-perfil" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-4">
                 <div class="flex items-center justify-between border-b border-gray-800 pb-3">
@@ -332,7 +309,6 @@
                     <span class="bg-green-900/50 text-green-400 text-xs px-2.5 py-1 rounded-full border border-green-500/30">Activo</span>
                 </div>
 
-                <!-- Formulario Obligatorio de Datos Bancarios -->
                 <div class="space-y-3">
                     <h4 class="font-bold text-xs text-gray-300">Datos Bancarios para Cobros / Retiros</h4>
                     <div>
@@ -350,7 +326,6 @@
                     <button onclick="guardarDatosBancarios()" class="w-full bg-green-500 hover:bg-green-400 text-gray-950 font-bold py-2.5 rounded-lg text-xs transition shadow">Guardar Datos de Cobro</button>
                 </div>
 
-                <!-- Botón de Cerrar Sesión -->
                 <div class="pt-4 border-t border-gray-800">
                     <button onclick="cerrarSesion()" class="w-full bg-red-900/40 hover:bg-red-800/60 text-red-300 font-semibold py-2.5 rounded-lg text-xs border border-red-500/30 transition flex items-center justify-center space-x-2">
                         <span>🚪 Cerrar Sesión</span>
@@ -359,7 +334,7 @@
             </div>
         </main>
 
-        <!-- BARRA DE NAVEGACIÓN INFERIOR DE 5 PESTAÑAS FIJAS -->
+        <!-- NAVEGACIÓN INFERIOR FIJA -->
         <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex justify-around py-2.5 z-10">
             <button onclick="navTo('inicio')" id="nav-btn-inicio" class="text-green-400 text-xs flex flex-col items-center space-y-1">
                 <span class="text-base">🏠</span>
@@ -384,7 +359,7 @@
         </nav>
     </div>
 
-    <!-- POPUP DE BIENVENIDA CON HORARIOS Y REGLAS DE PLATAFORMA -->
+    <!-- POPUP DE BIENVENIDA -->
     <div id="modal-lanzamiento" class="fixed inset-0 bg-black/80 flex justify-center items-center p-4 z-50">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
             <h3 class="text-xl font-bold text-green-400">🚀 ¡Bienvenido a AURA!</h3>
@@ -405,9 +380,24 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE LÓGICA COMPLETA Y FUNCIONALIDADES -->
+    <!-- SCRIPT FIREBASE CONECTADO A AURA-7CA44 -->
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhQ8tC7IFzzXygkIQLZqeNINzZqXAtZps",
+            authDomain: "aura-7ca44.firebaseapp.com",
+            projectId: "aura-7ca44",
+            storageBucket: "aura-7ca44.firebasestorage.app",
+            messagingSenderId: "999235368894",
+            appId: "1:999235368894:web:fb73a165567fd045a6abef",
+            measurementId: "G-T8FSE583EG"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         let mode = 'register';
+        let currentUserPhone = null;
         let currentUserData = null;
 
         function switchTab(selectedMode) {
@@ -430,82 +420,293 @@
             }
         }
 
-        function handleAuth(event) {
+        async function handleAuth(event) {
             event.preventDefault();
-            const phone = document.getElementById('phone').value.trim();
+            let phone = document.getElementById('phone').value.trim();
+            if (!phone.startsWith('+')) {
+                phone = '+549' + phone.replace(/\D/g, '');
+            }
             const password = document.getElementById('password').value.trim();
+            const inviteCode = document.getElementById('invite-code').value.trim();
+
+            const userRef = db.collection('users').doc(phone);
+            const doc = await userRef.get();
 
             if (mode === 'register') {
-                const uniqueCode = "AURA-" + phone.replace(/\D/g, '').slice(-4) + Math.floor(100 + Math.random() * 900);
+                if (doc.exists) {
+                    alert("Este número ya se encuentra registrado. Inicia sesión.");
+                    return;
+                }
+
+                const uniqueCode = "MW" + Math.random().toString(36).substr(2, 6).toUpperCase();
                 
-                const userObj = {
+                const newUserObj = {
                     phone: phone,
                     password: password,
                     referral_code: uniqueCode,
+                    invited_by: inviteCode,
                     balance: 5000,
-                    last_checkin_timestamp: null,
-                    last_withdraw_timestamp: null,
-                    holder: "",
-                    cbu: "",
+                    has_active_product: false,
                     alias: "",
-                    products: [],
-                    history: [{ title: "Bono de Registro (Única vez)", amount: 5000, type: "bonus", date: new Date().toLocaleTimeString() }]
+                    cbu: "",
+                    fullname: "",
+                    investments: [],
+                    withdrawals: [],
+                    history: [{ title: "Bono de Registro (Única vez)", amount: 5000, type: "bonus", date: new Date().toLocaleTimeString() }],
+                    created_at: firebase.firestore.FieldValue.serverTimestamp()
                 };
-                localStorage.setItem('aura_user_data_' + phone, JSON.stringify(userObj));
-                localStorage.setItem('aura_user', phone);
-                alert("¡Registro exitoso! Recibiste $5.000 ARS de regalo por única vez. Tu código es: " + uniqueCode);
-            } else {
-                localStorage.setItem('aura_user', phone);
-            }
 
-            cargarDatosUsuario(phone);
+                await userRef.set(newUserObj);
+                localStorage.setItem('aura_user_phone', phone);
+                alert("¡Registro exitoso! Acreditamos $5.000 ARS en tu cuenta.");
+                escucharUsuario(phone);
+            } else {
+                if (!doc.exists || doc.data().password !== password) {
+                    alert("Teléfono o contraseña incorrectos.");
+                    return;
+                }
+                localStorage.setItem('aura_user_phone', phone);
+                escucharUsuario(phone);
+            }
         }
 
-        function cargarDatosUsuario(phone) {
-            const storedUser = localStorage.getItem('aura_user_data_' + phone);
-            let code = "AURA-" + phone.replace(/\D/g, '').slice(-4) + "926";
-            let balance = 5000;
-            let holder = "", cbu = "", alias = "";
-            let history = [];
-            let products = [];
-            let last_withdraw_timestamp = null;
-
-            if (storedUser) {
-                const parsed = JSON.parse(storedUser);
-                if (parsed.referral_code) code = parsed.referral_code;
-                if (parsed.balance !== undefined) balance = parsed.balance;
-                if (parsed.holder) holder = parsed.holder;
-                if (parsed.cbu) cbu = parsed.cbu;
-                if (parsed.alias) alias = parsed.alias;
-                if (parsed.history) history = parsed.history;
-                if (parsed.products) products = parsed.products;
-                if (parsed.last_withdraw_timestamp) last_withdraw_timestamp = parsed.last_withdraw_timestamp;
-            }
-
-            currentUserData = { 
-                phone: phone, 
-                referral_code: code, 
-                balance: balance, 
-                holder: holder, 
-                cbu: cbu, 
-                alias: alias, 
-                history: history, 
-                products: products,
-                last_withdraw_timestamp: last_withdraw_timestamp 
-            };
-
-            document.getElementById('my-referral-code').innerText = code;
-            document.getElementById('user-balance').innerText = balance;
-            document.getElementById('profile-phone').innerText = phone;
-            document.getElementById('user-holder').value = holder;
-            document.getElementById('user-cbu').value = cbu;
-            document.getElementById('user-alias').value = alias;
-
-            renderHistorial();
-            renderProductosActivos();
+        // ESCUCHADOR EN TIEMPO REAL CON FIRESTORE
+        function escucharUsuario(phone) {
+            currentUserPhone = phone;
+            db.collection('users').doc(phone).onSnapshot(doc => {
+                if (doc.exists) {
+                    currentUserData = doc.data();
+                    actualizarInterfazUI();
+                    contarReferidos();
+                }
+            });
 
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
+        }
+
+        function actualizarInterfazUI() {
+            if (!currentUserData) return;
+
+            document.getElementById('user-balance').innerText = currentUserData.balance ? currentUserData.balance.toLocaleString() : "0";
+            document.getElementById('profile-phone').innerText = currentUserData.phone;
+            document.getElementById('my-referral-code').innerText = currentUserData.referral_code || "Sin código";
+            
+            document.getElementById('user-holder').value = currentUserData.fullname || "";
+            document.getElementById('user-cbu').value = currentUserData.cbu || "";
+            document.getElementById('user-alias').value = currentUserData.alias || "";
+
+            renderHistorial();
+            renderProductosActivos();
+        }
+
+        // CONTAR Y CLASIFICAR REFERIDOS EN FIRESTORE (NIVEL 1, 2 Y 3)
+        async function contarReferidos() {
+            if (!currentUserData || !currentUserData.referral_code) return;
+
+            const n1Snapshot = await db.collection('users').where('invited_by', '==', currentUserData.referral_code).get();
+            let countN1 = n1Snapshot.size;
+
+            let countN2 = 0;
+            let countN3 = 0;
+
+            let n1Codes = [];
+            n1Snapshot.forEach(doc => {
+                n1Codes.push(doc.data().referral_code);
+            });
+
+            if (n1Codes.length > 0) {
+                const n2Snapshot = await db.collection('users').where('invited_by', 'in', n1Codes.slice(0, 10)).get();
+                countN2 = n2Snapshot.size;
+
+                let n2Codes = [];
+                n2Snapshot.forEach(doc => {
+                    n2Codes.push(doc.data().referral_code);
+                });
+
+                if (n2Codes.length > 0) {
+                    const n3Snapshot = await db.collection('users').where('invited_by', 'in', n2Codes.slice(0, 10)).get();
+                    countN3 = n3Snapshot.size;
+                }
+            }
+
+            let finalN2 = countN2;
+            let finalN3 = countN3;
+
+            if (countN2 > 50) {
+                finalN3 += (countN2 - 50);
+                finalN2 = 50;
+            }
+
+            document.getElementById('count-n1').innerText = countN1;
+            document.getElementById('count-n2').innerText = finalN2;
+            document.getElementById('count-n3').innerText = finalN3;
+        }
+
+        // RECLAMAR BONO DIARIO EN FIRESTORE
+        async function reclamarBonoDiario() {
+            const ahora = new Date().getTime();
+            const tiempoEspera = 24 * 60 * 60 * 1000;
+
+            if (currentUserData.last_checkin_timestamp && (ahora - currentUserData.last_checkin_timestamp) < tiempoEspera) {
+                const tiempoRestanteMs = tiempoEspera - (ahora - currentUserData.last_checkin_timestamp);
+                const horasRestantes = Math.floor(tiempoRestanteMs / (1000 * 60 * 60));
+                const minutosRestantes = Math.floor((tiempoRestanteMs % (1000 * 60 * 60)) / (1000 * 60));
+                
+                alert(`Debes esperar 24 hs entre cada reclamo. Vuelve en ${horasRestantes}h y ${minutosRestantes}m.`);
+                return;
+            }
+
+            const nuevoHistorial = currentUserData.history || [];
+            nuevoHistorial.unshift({ title: "Bono Diario Check-in", amount: 500, type: "bonus", date: new Date().toLocaleTimeString() });
+
+            await db.collection('users').doc(currentUserPhone).update({
+                balance: firebase.firestore.FieldValue.increment(500),
+                last_checkin_timestamp: ahora,
+                history: nuevoHistorial
+            });
+
+            alert("¡Bono acreditado en Firestore! Se sumaron $500 ARS a tu balance.");
+        }
+
+        // SOLICITUD DE RETIRO EN FIRESTORE
+        async function procesarSolicitudRetiro() {
+            const withdrawInput = document.getElementById('withdraw-amount');
+            const monto = parseFloat(withdrawInput.value);
+
+            if (!monto || monto <= 0) {
+                alert("Por favor ingresa un monto válido.");
+                return;
+            }
+
+            if (!currentUserData.has_active_product && (!currentUserData.investments || currentUserData.investments.length === 0)) {
+                alert("Para solicitar un retiro debes tener al menos 1 producto de inversión activo.");
+                navTo('inicio');
+                return;
+            }
+
+            if (!currentUserData.fullname || !currentUserData.cbu || !currentUserData.alias) {
+                alert("Completa tus datos bancarios en Perfil antes de solicitar un retiro.");
+                navTo('perfil');
+                return;
+            }
+
+            if (monto > 1000000) {
+                alert("El tope máximo por solicitud de retiro es de $1.000.000 ARS.");
+                return;
+            }
+
+            if (monto > currentUserData.balance) {
+                alert("Saldo insuficiente para retirar.");
+                return;
+            }
+
+            const ahora = new Date().getTime();
+            const tiempoEspera = 24 * 60 * 60 * 1000;
+
+            if (currentUserData.last_withdraw_timestamp && (ahora - currentUserData.last_withdraw_timestamp) < tiempoEspera) {
+                const tiempoRestanteMs = tiempoEspera - (ahora - currentUserData.last_withdraw_timestamp);
+                const horasRestantes = Math.floor(tiempoRestanteMs / (1000 * 60 * 60));
+                const minutosRestantes = Math.floor((tiempoRestanteMs % (1000 * 60 * 60)) / (1000 * 60));
+
+                alert(`Solo podés retirar 1 vez por día. Podrás retirar nuevamente en ${horasRestantes}h y ${minutosRestantes}m.`);
+                return;
+            }
+
+            const nuevoHistorial = currentUserData.history || [];
+            nuevoHistorial.unshift({ title: "Solicitud de Retiro", amount: -monto, type: "withdraw", date: new Date().toLocaleTimeString() });
+
+            const nuevosRetiros = currentUserData.withdrawals || [];
+            nuevosRetiros.unshift({ amount: monto, date: new Date().toLocaleDateString(), status: "pending" });
+
+            await db.collection('users').doc(currentUserPhone).update({
+                balance: firebase.firestore.FieldValue.increment(-monto),
+                last_withdraw_timestamp: ahora,
+                history: nuevoHistorial,
+                withdrawals: nuevosRetiros
+            });
+
+            withdrawInput.value = '';
+            alert(`¡Solicitud enviada! Descontamos $${monto.toLocaleString()} ARS de tu cuenta en Firebase.`);
+        }
+
+        // COMPRAR PRODUCTO DE INVERSIÓN
+        async function comprarProducto(nombre, precio, daily) {
+            if (currentUserData.balance < precio) {
+                alert("Saldo insuficiente. El depósito mínimo aceptado es de $15.000 ARS. Copia el CVU en Finanzas.");
+                return;
+            }
+
+            const nuevoHistorial = currentUserData.history || [];
+            nuevoHistorial.unshift({ title: "Compra: " + nombre, amount: -precio, type: "purchase", date: new Date().toLocaleTimeString() });
+
+            const nuevasInversiones = currentUserData.investments || [];
+            nuevasInversiones.push({ nombre: nombre, daily: daily, date: new Date().toLocaleDateString() });
+
+            await db.collection('users').doc(currentUserPhone).update({
+                balance: firebase.firestore.FieldValue.increment(-precio),
+                has_active_product: true,
+                history: nuevoHistorial,
+                investments: nuevasInversiones
+            });
+
+            alert(`¡Has adquirido ${nombre}! Tu inversión y estado activo quedaron registrados en Firebase.`);
+        }
+
+        // GUARDAR DATOS BANCARIOS EN FIRESTORE
+        async function guardarDatosBancarios() {
+            const holder = document.getElementById('user-holder').value.trim();
+            const cbu = document.getElementById('user-cbu').value.trim();
+            const alias = document.getElementById('user-alias').value.trim();
+
+            if (!holder || !cbu || !alias) {
+                alert("Completa todos los datos bancarios obligatorios.");
+                return;
+            }
+
+            await db.collection('users').doc(currentUserPhone).update({
+                fullname: holder,
+                cbu: cbu,
+                alias: alias
+            });
+
+            alert("¡Datos bancarios guardados en Firestore correctamente!");
+        }
+
+        function renderHistorial() {
+            const container = document.getElementById('history-list');
+            if (!currentUserData || !currentUserData.history) return;
+            container.innerHTML = currentUserData.history.map(item => `
+                <div class="flex justify-between items-center bg-gray-800/60 p-2.5 rounded-lg text-xs">
+                    <div>
+                        <p class="font-semibold text-white">${item.title}</p>
+                        <p class="text-[10px] text-gray-400">${item.date}</p>
+                    </div>
+                    <span class="${item.amount < 0 ? 'text-red-400' : 'text-green-400'} font-bold">${item.amount < 0 ? '' : '+'}${item.amount.toLocaleString()} ARS</span>
+                </div>
+            `).join('');
+        }
+
+        function renderProductosActivos() {
+            const container = document.getElementById('my-products-list');
+            if (!currentUserData || !currentUserData.investments || currentUserData.investments.length === 0) {
+                container.innerHTML = `<div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center"><p class="text-sm text-gray-400">Aún no tienes productos activos produciendo ingresos.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = currentUserData.investments.map(p => `
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-sm text-green-400">${p.nombre}</h4>
+                        <p class="text-xs text-gray-400">Ganancia diaria: ARS ${p.daily.toLocaleString()}</p>
+                        <p class="text-[10px] text-gray-500">Adquirido: ${p.date}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] text-gray-400 block">Próxima acreditación:</span>
+                        <span class="text-xs font-mono font-bold text-green-400 border border-green-500/30 px-2 py-1 rounded bg-green-900/30">23h 59m 50s</span>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function navTo(screen) {
@@ -519,171 +720,8 @@
             document.getElementById('nav-btn-' + screen).className = "text-green-400 text-xs flex flex-col items-center space-y-1";
         }
 
-        function reclamarBonoDiario() {
-            const ahora = new Date().getTime();
-            const tiempoEspera = 24 * 60 * 60 * 1000;
-
-            const storedUser = localStorage.getItem('aura_user_data_' + currentUserData.phone);
-            let userObj = storedUser ? JSON.parse(storedUser) : currentUserData;
-
-            if (userObj.last_checkin_timestamp && (ahora - userObj.last_checkin_timestamp) < tiempoEspera) {
-                const tiempoRestanteMs = tiempoEspera - (ahora - userObj.last_checkin_timestamp);
-                const horasRestantes = Math.floor(tiempoRestanteMs / (1000 * 60 * 60));
-                const minutosRestantes = Math.floor((tiempoRestanteMs % (1000 * 60 * 60)) / (1000 * 60));
-                
-                alert(`Debes esperar 24 hs entre cada reclamo. Vuelve en ${horasRestantes}h y ${minutosRestantes}m.`);
-                return;
-            }
-
-            userObj.balance += 500;
-            userObj.last_checkin_timestamp = ahora;
-            userObj.history.unshift({ title: "Bono Diario Check-in", amount: 500, type: "bonus", date: new Date().toLocaleTimeString() });
-
-            localStorage.setItem('aura_user_data_' + currentUserData.phone, JSON.stringify(userObj));
-            currentUserData.balance = userObj.balance;
-            currentUserData.history = userObj.history;
-
-            document.getElementById('user-balance').innerText = currentUserData.balance;
-            renderHistorial();
-            alert("¡Bono acreditado! Has reclamado $500 ARS. Tu próximo reclamo estará disponible en 24 horas.");
-        }
-
-        // SOLICITUD DE RETIRO (PRODUCTO ACTIVO REQUERIDO + MÁX 1/DÍA + TOPE $1.000.000)
-        function procesarSolicitudRetiro() {
-            const withdrawInput = document.getElementById('withdraw-amount');
-            const monto = parseFloat(withdrawInput.value);
-
-            if (!monto || monto <= 0) {
-                alert("Por favor ingresa un monto válido a retirar.");
-                return;
-            }
-
-            // REQUISITO DE PRODUCTO ACTIVO OBLIGATORIO
-            if (!currentUserData.products || currentUserData.products.length === 0) {
-                alert("Para solicitar un retiro debes tener al menos 1 producto de inversión activo en tu cuenta.");
-                navTo('inicio');
-                return;
-            }
-
-            if (!currentUserData.holder || !currentUserData.cbu || !currentUserData.alias) {
-                alert("Debes completar tus datos bancarios (Titular, CBU/CVU y Alias) en la pestaña Perfil antes de retirar.");
-                navTo('perfil');
-                return;
-            }
-
-            if (monto > 1000000) {
-                alert("El tope máximo por solicitud de retiro es de $1.000.000 ARS.");
-                return;
-            }
-
-            if (monto > currentUserData.balance) {
-                alert("Saldo insuficiente para realizar este retiro.");
-                return;
-            }
-
-            const ahora = new Date().getTime();
-            const tiempoEspera = 24 * 60 * 60 * 1000;
-
-            const storedUser = localStorage.getItem('aura_user_data_' + currentUserData.phone);
-            let userObj = storedUser ? JSON.parse(storedUser) : currentUserData;
-
-            if (userObj.last_withdraw_timestamp && (ahora - userObj.last_withdraw_timestamp) < tiempoEspera) {
-                const tiempoRestanteMs = tiempoEspera - (ahora - userObj.last_withdraw_timestamp);
-                const horasRestantes = Math.floor(tiempoRestanteMs / (1000 * 60 * 60));
-                const minutosRestantes = Math.floor((tiempoRestanteMs % (1000 * 60 * 60)) / (1000 * 60));
-
-                alert(`Solo se permite 1 retiro por día. Podrás realizar tu próximo retiro en ${horasRestantes}h y ${minutosRestantes}m.`);
-                return;
-            }
-
-            userObj.balance -= monto;
-            userObj.last_withdraw_timestamp = ahora;
-            userObj.history.unshift({ title: "Solicitud de Retiro", amount: -monto, type: "withdraw", date: new Date().toLocaleTimeString() });
-
-            localStorage.setItem('aura_user_data_' + currentUserData.phone, JSON.stringify(userObj));
-            currentUserData.balance = userObj.balance;
-            currentUserData.history = userObj.history;
-            currentUserData.last_withdraw_timestamp = ahora;
-
-            document.getElementById('user-balance').innerText = currentUserData.balance;
-            withdrawInput.value = '';
-            renderHistorial();
-            alert(`¡Solicitud enviada con éxito! Se ha procesado el retiro por $${monto.toLocaleString()} ARS a tu cuenta declarada.`);
-        }
-
-        function renderProductosActivos() {
-            const container = document.getElementById('my-products-list');
-            if (!currentUserData.products || currentUserData.products.length === 0) {
-                container.innerHTML = `<div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center"><p class="text-sm text-gray-400">Aún no tienes productos activos produciendo ingresos.</p></div>`;
-                return;
-            }
-
-            container.innerHTML = currentUserData.products.map(p => `
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex justify-between items-center">
-                    <div>
-                        <h4 class="font-bold text-sm text-green-400">${p.nombre}</h4>
-                        <p class="text-xs text-gray-400">Ganancia diaria: ARS ${p.daily}</p>
-                        <p class="text-[10px] text-gray-500">Adquirido: ${p.date}</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-[10px] text-gray-400 block">Próxima acreditación:</span>
-                        <span class="text-xs font-mono font-bold text-green-400 border border-green-500/30 px-2 py-1 rounded bg-green-900/30">23h 59m 50s</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function comprarProducto(nombre, precio, daily) {
-            if (currentUserData.balance < precio) {
-                alert("Saldo insuficiente. El depósito mínimo aceptado es de $15.000 ARS. Ve a Finanzas para copiar el CVU.");
-                return;
-            }
-
-            currentUserData.balance -= precio;
-            currentUserData.products.push({ nombre: nombre, daily: daily, date: new Date().toLocaleDateString() });
-            currentUserData.history.unshift({ title: "Compra: " + nombre, amount: -precio, type: "purchase", date: new Date().toLocaleTimeString() });
-
-            localStorage.setItem('aura_user_data_' + currentUserData.phone, JSON.stringify(currentUserData));
-            document.getElementById('user-balance').innerText = currentUserData.balance;
-            renderHistorial();
-            renderProductosActivos();
-            alert("¡Felicitaciones! Has adquirido " + nombre + ". Revisa la sección 'Mi Producto' para ver tu temporizador.");
-        }
-
-        function guardarDatosBancarios() {
-            const holder = document.getElementById('user-holder').value.trim();
-            const cbu = document.getElementById('user-cbu').value.trim();
-            const alias = document.getElementById('user-alias').value.trim();
-
-            if (!holder || !cbu || !alias) {
-                alert("Por favor completa los 3 campos obligatorios de datos bancarios.");
-                return;
-            }
-
-            currentUserData.holder = holder;
-            currentUserData.cbu = cbu;
-            currentUserData.alias = alias;
-
-            localStorage.setItem('aura_user_data_' + currentUserData.phone, JSON.stringify(currentUserData));
-            alert("¡Datos bancarios de cobro guardados correctamente!");
-        }
-
-        function renderHistorial() {
-            const container = document.getElementById('history-list');
-            if (!currentUserData.history) return;
-            container.innerHTML = currentUserData.history.map(item => `
-                <div class="flex justify-between items-center bg-gray-800/60 p-2.5 rounded-lg text-xs">
-                    <div>
-                        <p class="font-semibold text-white">${item.title}</p>
-                        <p class="text-[10px] text-gray-400">${item.date}</p>
-                    </div>
-                    <span class="${item.amount < 0 ? 'text-red-400' : 'text-green-400'} font-bold">${item.amount < 0 ? '' : '+'}${item.amount.toLocaleString()} ARS</span>
-                </div>
-            `).join('');
-        }
-
         function compartirWhatsApp() {
-            const codigo = currentUserData && currentUserData.referral_code ? currentUserData.referral_code : "AURA-2026";
+            const codigo = currentUserData && currentUserData.referral_code ? currentUserData.referral_code : "";
             const inviteUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(codigo)}`;
             const mensaje = `¡Hola! Únete a AURA, movilidad sostenible ⚡. Regístrate con mi enlace directo y gana $5.000 de regalo 🚀: ${inviteUrl}`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
@@ -694,7 +732,7 @@
         }
 
         function cerrarSesion() {
-            localStorage.removeItem('aura_user');
+            localStorage.removeItem('aura_user_phone');
             location.reload();
         }
 
@@ -702,8 +740,6 @@
             const cvuText = document.getElementById('cvu-text').innerText;
             navigator.clipboard.writeText(cvuText).then(() => {
                 alert('¡CVU copiado al portapapeles!');
-            }).catch(err => {
-                console.error('Error al copiar CVU: ', err);
             });
         }
 
@@ -716,8 +752,8 @@
                 document.getElementById('invite-code').value = refCode;
             }
 
-            const savedUser = localStorage.getItem('aura_user');
-            if (savedUser) cargarDatosUsuario(savedUser);
+            const savedPhone = localStorage.getItem('aura_user_phone');
+            if (savedPhone) escucharUsuario(savedPhone);
         };
     </script>
 </body>
