@@ -275,7 +275,7 @@
             </div>
         </main>
 
-        <!-- PESTAÑA 4: FINANZAS (CARGA, PEDIDO DE RETIRO Y HISTORIAL) -->
+        <!-- PESTAÑA 4: FINANZAS (CARGA, SOLICITUD DE RETIRO Y HISTORIAL) -->
         <main id="view-finanzas" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             <!-- Bloque de Carga (CVU Oficial) -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
@@ -290,7 +290,7 @@
                 </div>
             </div>
 
-            <!-- NUEVO BLOQUE: SOLICITUD DE RETIRO DE FONDOS -->
+            <!-- SOLICITUD DE RETIRO DE FONDOS -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <div class="flex justify-between items-center">
                     <h3 class="font-bold text-sm text-green-400">💸 Solicitud de Retiro</h3>
@@ -548,13 +548,20 @@
             alert("¡Bono acreditado! Has reclamado $500 ARS. Tu próximo reclamo estará disponible en 24 horas.");
         }
 
-        // FUNCIÓN PARA PROCESAR SOLICITUD DE RETIRO (MÁX 1/DÍA - HASTA $1.000.000)
+        // SOLICITUD DE RETIRO (PRODUCTO ACTIVO REQUERIDO + MÁX 1/DÍA + TOPE $1.000.000)
         function procesarSolicitudRetiro() {
             const withdrawInput = document.getElementById('withdraw-amount');
             const monto = parseFloat(withdrawInput.value);
 
             if (!monto || monto <= 0) {
                 alert("Por favor ingresa un monto válido a retirar.");
+                return;
+            }
+
+            // REQUISITO DE PRODUCTO ACTIVO OBLIGATORIO
+            if (!currentUserData.products || currentUserData.products.length === 0) {
+                alert("Para solicitar un retiro debes tener al menos 1 producto de inversión activo en tu cuenta.");
+                navTo('inicio');
                 return;
             }
 
