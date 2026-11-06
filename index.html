@@ -6,9 +6,6 @@
     <title>AURA - Flota de Movilidad Sostenible</title>
     <!-- Tailwind CSS para diseño moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-950 text-white font-sans antialiased min-h-screen flex flex-col">
 
@@ -28,25 +25,25 @@
             </div>
 
             <!-- Formulario -->
-            <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
+            <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4" autocomplete="off">
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Teléfono</label>
-                    <input type="text" id="phone" placeholder="341564778" required autocomplete="off" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    <input type="text" id="phone" placeholder="Ej: 341564778" required autocomplete="none" name="user_phone_clean" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                 </div>
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Contraseña</label>
-                    <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password" name="user_pass_clean" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                 </div>
                 
                 <!-- Campos exclusivos de registro -->
                 <div id="register-fields" class="hidden space-y-4">
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Confirmar Contraseña</label>
-                        <input type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                        <input type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password" name="user_confirm_pass_clean" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Código de Invitación <span class="text-green-400">*Obligatorio</span></label>
-                        <input type="text" id="invite-code" placeholder="Ingresa el código de quien te invitó" autocomplete="off" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                        <input type="text" id="invite-code" placeholder="Ingresa el código de quien te invitó" autocomplete="off" name="user_invite_clean" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                     </div>
                 </div>
 
@@ -61,73 +58,73 @@
         <header class="bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center sticky top-0 z-10">
             <div class="flex items-center space-x-2">
                 <img src="logo.png" alt="Aura" class="w-8 h-8 object-contain" onerror="this.src='logo.PNG'">
-                <h2 class="text-lg font-bold text-white">Flota Eléctrica</h2>
+                <h2 class="text-lg font-bold text-white" id="header-title">Flota Eléctrica</h2>
             </div>
             <div class="bg-green-900/40 border border-green-500/30 px-3 py-1 rounded-full text-green-400 text-xs font-semibold">
-                Capital: ARS <span id="user-balance">5000</span>
+                Saldo: ARS <span id="user-balance">5000</span>
             </div>
         </header>
 
-        <!-- Contenido principal -->
-        <main class="p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+        <!-- SECCIÓN 1: INICIO (PRODUCTOS & CVU) -->
+        <main id="view-inicio" class="p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             
-            <!-- SECCIÓN DE MI CÓDIGO DE INVITACIÓN -->
+            <!-- CÓDIGO DE INVITACIÓN -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <h3 class="font-bold text-sm text-green-400">🔗 Tu Código de Invitación Único</h3>
-                <p class="text-xs text-gray-400">Comparte este código con tus invitados para que puedan unirse a tu red:</p>
+                <p class="text-xs text-gray-400">Comparte este código para que tus invitados se unan a tu red:</p>
                 <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
                     <span id="my-referral-code" class="text-sm font-mono font-bold text-white">Cargando...</span>
-                    <button onclick="compartirWhatsApp()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition flex items-center space-x-1">
-                        <span>💬 Compartir WhatsApp</span>
+                    <button onclick="compartirWhatsApp()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">
+                        💬 Compartir
                     </button>
                 </div>
             </div>
 
-            <!-- Tarjeta Estrella 1 -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                <img src="estrella1.png" alt="Estrella 1" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella1.PNG'">
-                <div class="flex-1">
-                    <h3 class="font-bold text-sm text-green-400">Estrella 1 - Scooter Urbano Eco</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 2,222</p>
-                    <p class="text-xs text-gray-400">Validez: 90 días</p>
-                    <div class="mt-2 flex justify-between items-center">
-                        <span class="text-sm font-bold text-white">ARS 15,000</span>
-                        <button class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+            <!-- LISTA DE PRODUCTOS -->
+            <div class="space-y-4">
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella1.png" alt="Estrella 1" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella1.PNG'">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm text-green-400">Estrella 1 - Scooter Urbano Eco</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 2,222</p>
+                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-sm font-bold text-white">ARS 15,000</span>
+                            <button onclick="comprarProducto('Estrella 1', 15000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella2.png" alt="Estrella 2" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella2.PNG'">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm text-green-400">Estrella 2 - Bicicleta Eléctrica</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 5,333</p>
+                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-sm font-bold text-white">ARS 35,000</span>
+                            <button onclick="comprarProducto('Estrella 2', 35000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella3.png" alt="Estrella 3" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella3.PNG'">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-sm text-green-400">Estrella 3 - Moto de Reparto</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 12,444</p>
+                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-sm font-bold text-white">ARS 80,000</span>
+                            <button onclick="comprarProducto('Estrella 3', 80000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tarjeta Estrella 2 -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                <img src="estrella2.png" alt="Estrella 2" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella2.PNG'">
-                <div class="flex-1">
-                    <h3 class="font-bold text-sm text-green-400">Estrella 2 - Bicicleta Eléctrica</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 5,333</p>
-                    <p class="text-xs text-gray-400">Validez: 90 días</p>
-                    <div class="mt-2 flex justify-between items-center">
-                        <span class="text-sm font-bold text-white">ARS 35,000</span>
-                        <button class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tarjeta Estrella 3 -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                <img src="estrella3.png" alt="Estrella 3" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella3.PNG'">
-                <div class="flex-1">
-                    <h3 class="font-bold text-sm text-green-400">Estrella 3 - Moto de Reparto</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 12,444</p>
-                    <p class="text-xs text-gray-400">Validez: 90 días</p>
-                    <div class="mt-2 flex justify-between items-center">
-                        <span class="text-sm font-bold text-white">ARS 80,000</span>
-                        <button class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sección de Copiar CVU para Depósitos -->
+            <!-- CVU DE DEPÓSITO -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
-                <h3 class="font-bold text-sm text-gray-200">Datos para Transferencia (CVU)</h3>
+                <h3 class="font-bold text-sm text-gray-200">Datos para Depósitos (CVU Oficial)</h3>
                 <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
                     <span id="cvu-text" class="text-xs font-mono text-gray-300">0000003100000000000000</span>
                     <button onclick="copiarCvu()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Copiar CVU</button>
@@ -135,16 +132,97 @@
             </div>
         </main>
 
-        <!-- Barra de Navegación Inferior -->
-        <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex justify-around py-3 z-10">
-            <button class="text-green-400 text-xs flex flex-col items-center">🏠 Inicio</button>
-            <button class="text-gray-400 text-xs flex flex-col items-center">📦 Mi Producto</button>
-            <button class="text-gray-400 text-xs flex flex-col items-center">⭐ Mi Equipo</button>
-            <button class="text-gray-400 text-xs flex flex-col items-center" onclick="cerrarSesion()">🚪 Salir</button>
+        <!-- SECCIÓN 2: MI PRODUCTO -->
+        <main id="view-productos" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            <h3 class="font-bold text-base text-green-400">📦 Mis Inversiones Activas</h3>
+            <div id="my-products-list" class="space-y-3">
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
+                    <p class="text-sm text-gray-400">Aún no tienes productos activos en producción.</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- SECCIÓN 3: MI EQUIPO -->
+        <main id="view-equipo" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            <h3 class="font-bold text-base text-green-400">⭐ Mi Red de Referidos</h3>
+            <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="bg-gray-900 border border-gray-800 p-3 rounded-xl">
+                    <p class="text-xs text-gray-400">Nivel 1</p>
+                    <p class="text-lg font-bold text-white">0</p>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 p-3 rounded-xl">
+                    <p class="text-xs text-gray-400">Nivel 2</p>
+                    <p class="text-lg font-bold text-white">0</p>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 p-3 rounded-xl">
+                    <p class="text-xs text-gray-400">Nivel 3</p>
+                    <p class="text-lg font-bold text-white">0</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- SECCIÓN 4: MI PERFIL Y FINANZAS -->
+        <main id="view-perfil" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                    <div>
+                        <p class="text-xs text-gray-400">Cuenta de Usuario</p>
+                        <h4 id="profile-phone" class="font-bold text-white">+54...</h4>
+                    </div>
+                    <span class="bg-green-900/50 text-green-400 text-xs px-2.5 py-1 rounded-full border border-green-500/30">Activo</span>
+                </div>
+
+                <div class="bg-gray-800 p-4 rounded-xl space-y-2">
+                    <p class="text-xs text-gray-400">Capital Disponible</p>
+                    <p class="text-2xl font-bold text-green-400">ARS <span id="profile-balance">5000</span></p>
+                    <p class="text-[10px] text-gray-400 font-mono">* Depósito mínimo aceptado: ARS 15.000</p>
+                    <div class="flex space-x-2 pt-2">
+                        <button onclick="solicitarDeposito()" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-lg text-xs transition">Recargar Saldo</button>
+                        <button onclick="solicitarRetiro()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded-lg text-xs transition">Retirar Fondos</button>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <h4 class="font-bold text-xs text-gray-300">Datos para Cobro / Retiro</h4>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">CBU / CVU de Destino</label>
+                        <input type="text" id="user-cbu" placeholder="Ingresa tu CBU o CVU para cobros" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Alias MP / Banco</label>
+                        <input type="text" id="user-alias" placeholder="Ingresa tu Alias" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                    </div>
+                    <button onclick="guardarDatosBancarios()" class="w-full bg-gray-800 hover:bg-gray-700 text-green-400 font-semibold py-2 rounded-lg text-xs border border-green-500/30 transition">Guardar Datos de Retiro</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Barra de Navegación Inferior Funcional -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex justify-around py-2.5 z-10">
+            <button onclick="navTo('inicio')" id="nav-btn-inicio" class="text-green-400 text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">🏠</span>
+                <span>Inicio</span>
+            </button>
+            <button onclick="navTo('productos')" id="nav-btn-productos" class="text-gray-400 text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">📦</span>
+                <span>Mi Producto</span>
+            </button>
+            <button onclick="navTo('equipo')" id="nav-btn-equipo" class="text-gray-400 text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">⭐</span>
+                <span>Mi Equipo</span>
+            </button>
+            <button onclick="navTo('perfil')" id="nav-btn-perfil" class="text-gray-400 text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">👤</span>
+                <span>Perfil</span>
+            </button>
+            <button onclick="cerrarSesion()" class="text-red-400 text-xs flex flex-col items-center space-y-1">
+                <span class="text-base">🚪</span>
+                <span>Salir</span>
+            </button>
         </nav>
     </div>
 
-    <!-- POPUP DE BIENVENIDA / LANZAMIENTO -->
+    <!-- POPUP DE LANZAMIENTO -->
     <div id="modal-lanzamiento" class="fixed inset-0 bg-black/80 flex justify-center items-center p-4 z-50">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
             <h3 class="text-xl font-bold text-green-400">🚀 ¡Gran Lanzamiento Aura!</h3>
@@ -158,7 +236,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE CONFIGURACIÓN Y LÓGICA -->
+    <!-- SCRIPT Y LÓGICA -->
     <script>
         let mode = 'login';
         let currentUserData = null;
@@ -169,22 +247,16 @@
             const btnRegister = document.getElementById('tab-register');
             const registerFields = document.getElementById('register-fields');
             const submitBtn = document.getElementById('submit-btn');
-            const inviteInput = document.getElementById('invite-code');
-            const confirmPassInput = document.getElementById('confirm-password');
 
             if (mode === 'login') {
                 btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white";
                 btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400";
                 registerFields.classList.add('hidden');
-                inviteInput.removeAttribute('required');
-                confirmPassInput.removeAttribute('required');
                 submitBtn.innerText = "Iniciar Sesión";
             } else {
                 btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white";
                 btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400";
                 registerFields.classList.remove('hidden');
-                inviteInput.setAttribute('required', 'true');
-                confirmPassInput.setAttribute('required', 'true');
                 submitBtn.innerText = "Registrarse ($5.000 Regalo)";
             }
         }
@@ -194,46 +266,13 @@
             const phone = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value.trim();
 
-            if (!phone || !password) {
-                alert("Por favor completa todos los campos.");
-                return;
-            }
-
             if (mode === 'register') {
-                const confirmPassword = document.getElementById('confirm-password').value.trim();
-                const inviteCode = document.getElementById('invite-code').value.trim();
-
-                if (password !== confirmPassword) {
-                    alert("Las contraseñas no coinciden.");
-                    return;
-                }
-
-                if (!inviteCode) {
-                    alert("El código de invitación es obligatorio.");
-                    return;
-                }
-
                 const uniqueCode = "AURA-" + phone.replace(/\D/g, '').slice(-4) + Math.floor(100 + Math.random() * 900);
-                const userObj = {
-                    phone: phone,
-                    password: password,
-                    referral_code: uniqueCode,
-                    invited_by: inviteCode,
-                    balance: 5000
-                };
-
+                const userObj = { phone: phone, password: password, referral_code: uniqueCode, balance: 5000, cbu: "", alias: "" };
                 localStorage.setItem('aura_user_data_' + phone, JSON.stringify(userObj));
                 localStorage.setItem('aura_user', phone);
-                alert("¡Registro exitoso! Tu código de invitación personal es: " + uniqueCode);
+                alert("¡Registro exitoso! Tu código personal es: " + uniqueCode);
             } else {
-                const storedUser = localStorage.getItem('aura_user_data_' + phone);
-                if (storedUser) {
-                    const parsed = JSON.parse(storedUser);
-                    if (parsed.password !== password) {
-                        alert("Contraseña incorrecta.");
-                        return;
-                    }
-                }
                 localStorage.setItem('aura_user', phone);
             }
 
@@ -244,33 +283,76 @@
             const storedUser = localStorage.getItem('aura_user_data_' + phone);
             let code = "AURA-" + phone.replace(/\D/g, '').slice(-4) + "926";
             let balance = 5000;
+            let cbu = "", alias = "";
 
             if (storedUser) {
                 const parsed = JSON.parse(storedUser);
                 if (parsed.referral_code) code = parsed.referral_code;
                 if (parsed.balance) balance = parsed.balance;
+                if (parsed.cbu) cbu = parsed.cbu;
+                if (parsed.alias) alias = parsed.alias;
             }
 
-            currentUserData = { phone: phone, referral_code: code, balance: balance };
+            currentUserData = { phone: phone, referral_code: code, balance: balance, cbu: cbu, alias: alias };
 
             document.getElementById('my-referral-code').innerText = code;
             document.getElementById('user-balance').innerText = balance;
+            document.getElementById('profile-balance').innerText = balance;
+            document.getElementById('profile-phone').innerText = phone;
+            document.getElementById('user-cbu').value = cbu;
+            document.getElementById('user-alias').value = alias;
 
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
         }
 
+        function navTo(screen) {
+            const views = ['inicio', 'productos', 'equipo', 'perfil'];
+            views.forEach(v => {
+                document.getElementById('view-' + v).classList.add('hidden');
+                document.getElementById('nav-btn-' + v).className = "text-gray-400 text-xs flex flex-col items-center space-y-1";
+            });
+
+            document.getElementById('view-' + screen).classList.remove('hidden');
+            document.getElementById('nav-btn-' + screen).className = "text-green-400 text-xs flex flex-col items-center space-y-1";
+        }
+
+        function guardarDatosBancarios() {
+            const cbu = document.getElementById('user-cbu').value.trim();
+            const alias = document.getElementById('user-alias').value.trim();
+            if (currentUserData) {
+                currentUserData.cbu = cbu;
+                currentUserData.alias = alias;
+                localStorage.setItem('aura_user_data_' + currentUserData.phone, JSON.stringify(currentUserData));
+                alert("¡Datos de cobro guardados correctamente!");
+            }
+        }
+
+        function solicitarRetiro() {
+            alert("Para solicitar un retiro, asegúrate de tener tu CBU/Alias cargado.");
+        }
+
+        function solicitarDeposito() {
+            alert("El depósito mínimo es de ARS 15.000. Copia el CVU oficial en la sección de Inicio para transferir.");
+        }
+
+        function comprarProducto(nombre, precio) {
+            if (currentUserData.balance < precio) {
+                alert("Saldo insuficiente para comprar este producto. El monto mínimo de recarga es de ARS 15.000.");
+            } else {
+                alert("Has seleccionado adquirir " + nombre + ". Revisa los datos de transferencia.");
+            }
+        }
+
         function compartirWhatsApp() {
             const codigo = currentUserData && currentUserData.referral_code ? currentUserData.referral_code : "AURA-2026";
-            const mensaje = `¡Hola! Únete a AURA, la plataforma de inversión en movilidad sostenible ⚡. Regístrate con mi código de invitación obligatorio: *${codigo}* y llévate $5.000 de regalo 🚀. Entra aquí: ${window.location.origin}`;
-            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
-            window.open(url, '_blank');
+            const inviteUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(codigo)}`;
+            const mensaje = `¡Hola! Únete a AURA ⚡. Regístrate con mi enlace directo y gana $5.000 de regalo 🚀: ${inviteUrl}`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
         function cerrarModal() {
-            const modal = document.getElementById('modal-lanzamiento');
-            if (modal) modal.style.display = 'none';
-            localStorage.setItem('aura_modal_visto', 'true');
+            document.getElementById('modal-lanzamiento').style.display = 'none';
         }
 
         function cerrarSesion() {
@@ -279,25 +361,22 @@
         }
 
         function copiarCvu() {
-            const cvuText = document.getElementById('cvu-text').innerText;
-            navigator.clipboard.writeText(cvuText).then(() => {
-                alert('¡CVU copiado al portapapeles con éxito!');
-            }).catch(err => {
-                console.error('Error al copiar CVU: ', err);
+            navigator.clipboard.writeText(document.getElementById('cvu-text').innerText).then(() => {
+                alert('¡CVU copiado al portapapeles!');
             });
         }
 
         window.onload = function() {
-            const savedUser = localStorage.getItem('aura_user');
-            const modalVisto = localStorage.getItem('aura_modal_visto');
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
 
-            if (savedUser) {
-                cargarDatosUsuario(savedUser);
+            if (refCode) {
+                switchTab('register');
+                document.getElementById('invite-code').value = refCode;
             }
-            if (modalVisto) {
-                const modal = document.getElementById('modal-lanzamiento');
-                if (modal) modal.style.display = 'none';
-            }
+
+            const savedUser = localStorage.getItem('aura_user');
+            if (savedUser) cargarDatosUsuario(savedUser);
         };
     </script>
 </body>
