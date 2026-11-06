@@ -30,23 +30,26 @@
             <!-- Formulario -->
             <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Teléfono (+54 obligatorio)</label>
-                    <input type="text" id="phone" placeholder="Ej: 341564778" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    <label class="block text-xs text-gray-400 mb-1">Teléfono</label>
+                    <div class="flex rounded-lg overflow-hidden border border-gray-700 bg-gray-800 focus-within:border-green-500">
+                        <span class="bg-gray-700 text-gray-300 px-3 py-3 text-sm font-semibold flex items-center border-r border-gray-600">+54</span>
+                        <input type="text" id="phone" placeholder="341564778" required autocomplete="off" class="w-full bg-transparent px-4 py-3 text-white focus:outline-none">
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Contraseña</label>
-                    <input type="password" id="password" placeholder="••••••••" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                 </div>
                 
                 <!-- Campos exclusivos de registro -->
                 <div id="register-fields" class="hidden space-y-4">
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Confirmar Contraseña</label>
-                        <input type="password" id="confirm-password" placeholder="••••••••" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                        <input type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Código de Invitación <span class="text-green-400">*Obligatorio</span></label>
-                        <input type="text" id="invite-code" placeholder="Ingresa el código de quien te invitó" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                        <input type="text" id="invite-code" placeholder="Ingresa el código de quien te invitó" autocomplete="off" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                     </div>
                 </div>
 
@@ -205,9 +208,9 @@
 
         async function handleAuth(event) {
             event.preventDefault();
-            const phone = document.getElementById('phone').value.trim();
+            const phoneInput = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value.trim();
-            const userId = "+54" + phone.replace(/^\+?54/, '');
+            const userId = "+54" + phoneInput.replace(/^\+?54/, '');
 
             const userRef = db.collection('users').doc(userId);
 
@@ -251,7 +254,6 @@
                     });
                     alert("¡Registro exitoso! Tu código personal es: " + uniqueReferralCode);
                 } else {
-                    // Inicio de sesión directo y seguro sin consultas complejas que fallen
                     const doc = await userRef.get();
                     if (!doc.exists) {
                         alert("Usuario no encontrado. Regístrate primero.");
@@ -281,7 +283,6 @@
                 if (doc.exists) {
                     currentUserData = doc.data();
                     
-                    // Si el usuario no tiene código asignado, se le genera al entrar
                     if (!currentUserData.referral_code) {
                         const generatedCode = "AURA-" + userId.slice(-4) + Math.floor(100 + Math.random() * 900);
                         await userRef.update({ referral_code: generatedCode });
