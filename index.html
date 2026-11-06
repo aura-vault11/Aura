@@ -15,10 +15,10 @@
         .view.active { display: block; }
         .hidden { display: none; }
 
-        /* Estilos del Popup de Bienvenida */
+        /* Estilos del Popup de Bienvenida (Se muestra dentro de la app) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center;
             z-index: 1000; padding: 20px;
         }
         .modal-content {
@@ -91,7 +91,7 @@
 </head>
 <body>
 
-    <!-- POPUP DE BIENVENIDA Y LANZAMIENTO -->
+    <!-- POPUP DE BIENVENIDA Y LANZAMIENTO (Se activa al ingresar a la app) -->
     <div id="welcome-modal" class="modal-overlay">
         <div class="modal-content">
             <h2>🚀 ¡Gran Lanzamiento Aura!</h2>
@@ -112,7 +112,7 @@
         <div class="auth-container">
             <div class="logo-container">
                 <img src="img/logo.png" alt="Logo Aura" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
-                <div id="fallback-logo" class="logo-placeholder">LOGO</div>
+                <div id="fallback-logo" class="logo-placeholder" style="display:none;">LOGO</div>
             </div>
 
             <h1>AURA</h1>
@@ -238,10 +238,17 @@
         </nav>
     </div>
 
+    <!-- SCRIPT DE CONEXIÓN Y LÓGICA -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvdtxrjppufv.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZXJjhaovfvdtxrjppufvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzQ2OTgsImV4cCI6MjEwOTExMDY5OH0.b0yVpCRGVUNGv9B-F9XT2rZxpXau9iU1l3J-fDI3MAE';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
+
+        let db = null;
+        try {
+            db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch (e) {
+            console.error('Error inicializando Supabase', e);
+        }
 
         let currentUser = null;
 
@@ -291,7 +298,7 @@
             const refCode = generateRandomCode();
             
             try {
-                const { data, error } = await supabaseClient.from('users').insert([
+                const { data, error } = await db.from('users').insert([
                     { phone: phone, password: password, balance: 5000.00, referral_code: refCode }
                 ]).select();
 
@@ -315,7 +322,7 @@
             const password = document.getElementById('login-password').value;
 
             try {
-                const { data, error } = await supabaseClient.from('users').select('*').eq('phone', phone).eq('password', password).single();
+                const { data, error } = await db.from('users').select('*').eq('phone', phone).eq('password', password).single();
 
                 if (error || !data) { alert("Teléfono o contraseña incorrectos."); }
                 else { currentUser = data; initAppSession(); }
@@ -327,6 +334,10 @@
         function initAppSession() {
             document.getElementById('auth-screen').classList.remove('active');
             document.getElementById('app-screen').classList.add('active');
+            
+            // Mostrar el popup de bienvenida al entrar a la app con éxito
+            document.getElementById('welcome-modal').style.display = 'flex';
+
             document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
             document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
             
@@ -363,7 +374,7 @@
             let investments = currentUser.investments || [];
             investments.push({ starId, date: new Date().toISOString() });
 
-            const { error } = await supabaseClient.from('users').update({
+            const { error } = await db.from('users').update({
                 balance: newBalance,
                 investments: investments,
                 has_active_product: true
@@ -397,7 +408,7 @@
             const cbu = document.getElementById('profile-cbu').value;
             const alias = document.getElementById('profile-alias').value;
 
-            const { error } = await supabaseClient.from('users').update({ fuliname, cbu, alias }).eq('id', currentUser.id);
+            const { error } = await db.from('users').update({ fuliname, cbu, alias }).eq('id', currentUser.id);
             if (error) alert("Error al guardar: " + error.message);
             else alert("¡Datos guardados correctamente!");
         }
@@ -417,7 +428,7 @@
             });
 
             const newBalance = currentUser.balance - amount;
-            const { error } = await supabaseClient.from('users').update({
+            const { error } = await db.from('users').update({
                 balance: newBalance,
                 withdrawals: withdrawals
             }).eq('id', currentUser.id);
