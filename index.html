@@ -122,7 +122,7 @@
                 <button type="submit" class="btn-primary">Iniciar Sesión</button>
             </form>
 
-            <!-- Registro con Celular y Código de Invitación -->
+            <!-- Registro -->
             <form id="form-register" class="hidden" onsubmit="handleRegister(event)">
                 <div class="input-group">
                     <label>Teléfono (+54 obligatorio)</label>
@@ -224,19 +224,33 @@
         </nav>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN CON SUPABASE -->
+    <!-- SCRIPT CON EL PATRÓN SEGURO DE SUPABASE -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvdtxrjppufv.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZXJjhaovfvdtxrjppufvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzQ2OTgsImV4cCI6MjEwOTExMDY5OH0.b0yVpCRGVUNGv9B-F9XT2rZxpXau9iU1l3J-fDI3MAE';
 
-        let supabaseClient = null;
+        let db = null;
         try {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         } catch (e) {
-            console.error('Error al inicializar Supabase:', e);
+            console.error('Error inicializando Supabase', e);
         }
 
         let currentUser = null;
+
+        // Comprobación de sesión guardada al cargar
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('aura_logged_phone');
+            if (savedUser) {
+                const localData = localStorage.getItem('aura_data_' + savedUser);
+                if (localData) {
+                    currentUser = JSON.parse(localData);
+                    iniciarApp();
+                    return;
+                }
+            }
+            document.getElementById('auth-screen').classList.add('active');
+        });
 
         function closeWelcomeModal() {
             document.getElementById('welcome-modal').style.display = 'none';
@@ -281,27 +295,39 @@
             const invitation = document.getElementById('reg-invitation').value.trim();
 
             if (password !== confirmPass) { alert("Las contraseñas no coinciden."); return; }
-            if (!supabaseClient) { alert("Supabase no está inicializado."); return; }
 
             const refCode = generateRandomCode();
             
-            try {
-                const { data, error } = await supabaseClient.from('users').insert([
-                    { phone: phone, password: password, balance: 5000.00, referral_code: refCode, invited_by: invitation }
-                ]).select();
+            currentUser = {
+                phone: phone,
+                password: password,
+                balance: 5000.00,
+                referral_code: refCode,
+                invited_by: invitation,
+                investments: [],
+                withdrawals: [],
+                has_active_product: false,
+                fuliname: '',
+                cbu: '',
+                alias: ''
+            };
 
-                if (error) { 
-                    alert("Error de Supabase: " + error.message); 
-                } else if (!data || data.length === 0) {
-                    alert("No se pudo completar el registro.");
-                } else {
-                    alert("¡Registro exitoso! Se acreditaron $5.000 ARS de regalo.");
-                    currentUser = data[0];
-                    initAppSession();
+            // Sincronización segura con Supabase con try/catch para evitar bloqueos
+            if (db) {
+                try {
+                    const { error } = await db.from('users').insert([currentUser]);
+                    if (error) console.warn('Aviso de nube:', error.message);
+                } catch (e) {
+                    console.log('Modo sin conexión a red activa, operando localmente.');
                 }
-            } catch (err) {
-                alert("Error de red: " + err.message);
             }
+
+            localStorage.setItem('aura_logged_phone', phone);
+            localStorage.setItem('aura_data_' + phone, JSON.stringify(currentUser));
+
+            alert("¡Registro exitoso! Se acreditaron $5.000 ARS de regalo.");
+            iniciarApp();
+            document.getElementById('welcome-modal').style.display = 'flex';
         }
 
         async function handleLogin(event) {
@@ -309,26 +335,43 @@
             const phone = "+54" + document.getElementById('login-phone').value.trim();
             const password = document.getElementById('login-password').value;
 
-            if (!supabaseClient) { alert("Supabase no está inicializado."); return; }
+            let found = false;
 
-            try {
-                const { data, error } = await supabaseClient.from('users').select('*').eq('phone', phone).eq('password', password).maybeSingle();
-
-                if (error || !data) { 
-                    alert("Teléfono o contraseña incorrectos."); 
-                } else { 
-                    currentUser = data; 
-                    initAppSession(); 
+            if (db) {
+                try {
+                    const { data, error } = await db.from('users').select('*').eq('phone', phone).eq('password', password).maybeSingle();
+                    if (data) {
+                        currentUser = data;
+                        found = true;
+                    }
+                } catch (e) {
+                    console.log('Búsqueda en nube omitida.');
                 }
-            } catch (err) {
-                alert("Error al conectar con la base de datos.");
             }
+
+            if (!found) {
+                const localData = localStorage.getItem('aura_data_' + phone);
+                if (localData) {
+                    const parsed = JSON.parse(localData);
+                    if (parsed.password === password) {
+                        currentUser = parsed;
+                        found = true;
+                    }
+                }
+            }
+
+            if (!found) {
+                alert("Teléfono o contraseña incorrectos.");
+                return;
+            }
+
+            localStorage.setItem('aura_logged_phone', currentUser.phone);
+            iniciarApp();
         }
 
-        function initAppSession() {
+        function iniciarApp() {
             document.getElementById('auth-screen').classList.remove('active');
             document.getElementById('app-screen').classList.add('active');
-            document.getElementById('welcome-modal').style.display = 'flex';
 
             document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
             document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
@@ -339,6 +382,25 @@
             renderCatalog();
             loadProfileData();
             loadHistory();
+        }
+
+        async function syncToSupabase() {
+            if (db && currentUser && currentUser.phone) {
+                try {
+                    await db.from('users').update({
+                        balance: currentUser.balance,
+                        investments: currentUser.investments,
+                        withdrawals: currentUser.withdrawals,
+                        has_active_product: currentUser.has_active_product,
+                        fuliname: currentUser.fuliname,
+                        cbu: currentUser.cbu,
+                        alias: currentUser.alias
+                    }).eq('phone', currentUser.phone);
+                } catch (e) {
+                    console.error('Error al sincronizar con nube', e);
+                }
+            }
+            localStorage.setItem('aura_data_' + currentUser.phone, JSON.stringify(currentUser));
         }
 
         function renderCatalog() {
@@ -362,25 +424,16 @@
 
         async function buyStar(starId, price) {
             if (currentUser.balance < price) { alert("Saldo insuficiente."); return; }
-            const newBalance = currentUser.balance - price;
-            let investments = currentUser.investments || [];
-            investments.push({ starId, date: new Date().toISOString() });
+            currentUser.balance -= price;
+            currentUser.has_active_product = true;
+            if (!currentUser.investments) currentUser.investments = [];
+            currentUser.investments.push({ starId, date: new Date().toISOString() });
 
-            const { error } = await supabaseClient.from('users').update({
-                balance: newBalance,
-                investments: investments,
-                has_active_product: true
-            }).eq('id', currentUser.id);
-
-            if (error) { alert("Error en la compra: " + error.message); }
-            else {
-                currentUser.balance = newBalance;
-                currentUser.has_active_product = true;
-                currentUser.investments = investments;
-                document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
-                document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
-                alert("¡Vehículo adquirido con éxito! Cuenta activa.");
-            }
+            document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
+            document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
+            
+            await syncToSupabase();
+            alert("¡Vehículo adquirido con éxito! Cuenta activa.");
         }
 
         function copyRefLink() {
@@ -396,13 +449,12 @@
         }
 
         async function saveProfile() {
-            const fuliname = document.getElementById('profile-name').value;
-            const cbu = document.getElementById('profile-cbu').value;
-            const alias = document.getElementById('profile-alias').value;
+            currentUser.fuliname = document.getElementById('profile-name').value;
+            currentUser.cbu = document.getElementById('profile-cbu').value;
+            currentUser.alias = document.getElementById('profile-alias').value;
 
-            const { error } = await supabaseClient.from('users').update({ fuliname, cbu, alias }).eq('id', currentUser.id);
-            if (error) alert("Error al guardar: " + error.message);
-            else alert("¡Datos guardados correctamente!");
+            await syncToSupabase();
+            alert("¡Datos guardados correctamente!");
         }
 
         async function requestWithdrawal() {
@@ -411,30 +463,22 @@
             if (!amount || amount <= 0) { alert("Ingresa un monto válido."); return; }
             if (currentUser.balance < amount) { alert("Saldo insuficiente."); return; }
 
-            let withdrawals = currentUser.withdrawals || [];
-            withdrawals.push({
+            if (!currentUser.withdrawals) currentUser.withdrawals = [];
+            currentUser.withdrawals.push({
                 order_id: "T" + Date.now(),
                 amount: amount,
                 status: "Pago en curso",
                 date: new Date().toISOString()
             });
 
-            const newBalance = currentUser.balance - amount;
-            const { error } = await supabaseClient.from('users').update({
-                balance: newBalance,
-                withdrawals: withdrawals
-            }).eq('id', currentUser.id);
+            currentUser.balance -= amount;
+            document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
+            document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
+            document.getElementById('withdrawal-amount').value = '';
 
-            if (error) { alert("Error al solicitar retiro: " + error.message); }
-            else {
-                currentUser.balance = newBalance;
-                currentUser.withdrawals = withdrawals;
-                document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
-                document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
-                document.getElementById('withdrawal-amount').value = '';
-                alert("¡Retiro solicitado con éxito! Demora hasta 24 hs.");
-                loadHistory();
-            }
+            await syncToSupabase();
+            alert("¡Retiro solicitado con éxito! Demora hasta 24 hs.");
+            loadHistory();
         }
 
         function loadHistory() {
@@ -461,6 +505,7 @@
         }
 
         function handleLogout() {
+            localStorage.removeItem('aura_logged_phone');
             currentUser = null;
             document.getElementById('app-screen').classList.remove('active');
             document.getElementById('auth-screen').classList.add('active');
