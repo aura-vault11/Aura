@@ -30,11 +30,8 @@
             <!-- Formulario -->
             <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Teléfono</label>
-                    <div class="flex rounded-lg overflow-hidden border border-gray-700 bg-gray-800 focus-within:border-green-500">
-                        <span class="bg-gray-700 text-gray-300 px-3 py-3 text-sm font-semibold flex items-center border-r border-gray-600">+54</span>
-                        <input type="text" id="phone" placeholder="341564778" required autocomplete="off" class="w-full bg-transparent px-4 py-3 text-white focus:outline-none">
-                    </div>
+                    <label class="block text-xs text-gray-400 mb-1">Teléfono (ej: +54341564778)</label>
+                    <input type="text" id="phone" placeholder="+54341564778" required autocomplete="off" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
                 </div>
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Contraseña</label>
@@ -79,7 +76,7 @@
                 <h3 class="font-bold text-sm text-green-400">🔗 Tu Código de Invitación Único</h3>
                 <p class="text-xs text-gray-400">Comparte este código con tus invitados para que puedan unirse a tu red:</p>
                 <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
-                    <span id="my-referral-code" class="text-sm font-mono font-bold text-white">AURA-2026</span>
+                    <span id="my-referral-code" class="text-sm font-mono font-bold text-white">Cargando...</span>
                     <button onclick="compartirWhatsApp()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition flex items-center space-x-1">
                         <span>💬 Compartir WhatsApp</span>
                     </button>
@@ -208,12 +205,8 @@
 
         async function handleAuth(event) {
             event.preventDefault();
-            const phoneInput = document.getElementById('phone').value.trim();
+            const userId = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value.trim();
-            
-            // Limpieza robusta del teléfono para evitar errores con espacios o símbolos
-            const cleanPhone = phoneInput.replace(/\D/g, '');
-            const userId = "+54" + cleanPhone;
 
             const userRef = db.collection('users').doc(userId);
 
@@ -232,6 +225,13 @@
                         return;
                     }
 
+                    // --- LECTURA Y VALIDACIÓN DEL CÓDIGO DE INVITACIÓN EN FIRESTORE ---
+                    const inviteCheck = await db.collection('users').where('referral_code', '==', inviteCode).get();
+                    if (inviteCheck.empty) {
+                        alert("El código de invitación ingresado no existe o no es válido.");
+                        return;
+                    }
+
                     const doc = await userRef.get();
                     if (doc.exists) {
                         alert("Este número ya está registrado. Inicia sesión.");
@@ -239,7 +239,7 @@
                         return;
                     }
 
-                    const uniqueReferralCode = "AURA-" + cleanPhone.slice(-4) + Math.floor(100 + Math.random() * 900);
+                    const uniqueReferralCode = "AURA-" + userId.replace(/\D/g, '').slice(-4) + Math.floor(100 + Math.random() * 900);
 
                     await userRef.set({
                         phone: userId,
@@ -274,7 +274,7 @@
 
             } catch (error) {
                 console.error("Error en autenticación: ", error);
-                alert("Ocurrió un error de conexión con la base de datos.");
+                alert("Ocurrió un error al verificar los datos. Revisa la conexión o intenta nuevamente.");
             }
         }
 
@@ -287,7 +287,7 @@
                     currentUserData = doc.data();
                     
                     if (!currentUserData.referral_code) {
-                        const generatedCode = "AURA-" + userId.slice(-4) + Math.floor(100 + Math.random() * 900);
+                        const generatedCode = "AURA-" + userId.replace(/\D/g, '').slice(-4) + Math.floor(100 + Math.random() * 900);
                         await userRef.update({ referral_code: generatedCode });
                         currentUserData.referral_code = generatedCode;
                     }
