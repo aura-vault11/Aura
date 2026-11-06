@@ -3,475 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aura - Flota de Movilidad Sostenible</title>
-    <!-- Firebase App y Firestore SDK oficiales -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: #121212; color: #e0e0e0; }
-        .screen { display: none; padding-bottom: 80px; }
-        .screen.active { display: block; }
-        .view { display: none; padding: 20px; }
-        .view.active { display: block; }
-        .hidden { display: none; }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center;
-            z-index: 1000; padding: 20px;
-        }
-        .modal-content {
-            background: #1e1e1e; border: 1px solid #333; border-radius: 12px;
-            max-width: 400px; width: 100%; padding: 25px; text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.7);
-        }
-        .modal-content h2 { color: #4ade80; margin-bottom: 10px; font-size: 22px; }
-        .modal-content p { color: #ccc; font-size: 14px; margin-bottom: 15px; line-height: 1.5; }
-        .modal-whatsapp-btn {
-            display: block; background: #25d366; color: white; text-decoration: none;
-            padding: 12px; border-radius: 6px; font-weight: bold; margin-bottom: 15px;
-        }
-        .modal-close-btn {
-            background: #333; color: white; border: none; padding: 10px 20px;
-            border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%;
-        }
-
-        .logo-container { text-align: center; margin-bottom: 15px; }
-        .logo-container img { max-width: 120px; max-height: 60px; object-fit: contain; }
-
-        .auth-container { max-width: 400px; margin: 40px auto; background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: center; border: 1px solid #333; }
-        .auth-container h1 { color: #fff; margin-bottom: 5px; }
-        .auth-container p { color: #aaa; margin-bottom: 20px; }
-        .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #333; }
-        .auth-tabs button { flex: 1; padding: 10px; background: none; border: none; font-weight: bold; cursor: pointer; color: #888; }
-        .auth-tabs button.active { border-bottom: 2px solid #28a745; color: #28a745; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { display: block; font-size: 13px; margin-bottom: 5px; color: #bbb; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid #444; background: #2a2a2a; color: #fff; border-radius: 6px; }
-        .btn-primary { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .btn-primary:active { background: #218838; }
-
-        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: #fff; }
-        .wallet-pill { background: #1e3a1e; color: #4ade80; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; border: 1px solid #2e7d32; }
-        .vip-grid { display: flex; flex-direction: column; gap: 15px; }
-        .vip-card { background: #1e1e1e; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); border-left: 5px solid #28a745; border: 1px solid #333; }
-        .vip-card img { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; }
-        .vip-card h3 { margin-bottom: 8px; color: #fff; font-size: 18px; }
-        .vip-card p { font-size: 14px; margin-bottom: 4px; color: #aaa; }
-        .vip-price { font-size: 18px; font-weight: bold; color: #fff; margin: 10px 0; }
-        .btn-buy { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; }
-
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #181818; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; box-shadow: 0 -2px 5px rgba(0,0,0,0.5); }
-        .nav-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; font-size: 20px; cursor: pointer; color: #888; }
-        .nav-item span { font-size: 11px; margin-top: 2px; }
-        .nav-item.active { color: #4ade80; }
-
-        .balance-card-large { background: #1e3a1e; border: 1px solid #2e7d32; color: #fff; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
-        .deposit-info-box { background: #1a2e1a; border: 1px solid #2e7d32; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #a3e635; }
-        .referral-box { background: #1e1e1e; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 15px; color: #ccc; }
-        .ref-link-container { display: flex; gap: 5px; margin: 10px 0; }
-        .ref-link-container input { flex: 1; padding: 8px; border: 1px solid #444; background: #2a2a2a; color: #fff; border-radius: 4px; }
-        .ref-link-container button, .btn-whatsapp { background: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
-        .btn-whatsapp { background: #25d366; margin-top: 5px; }
-        .team-stats { display: flex; gap: 10px; }
-        .stat-card { background: #1e1e1e; border: 1px solid #333; flex: 1; padding: 12px; border-radius: 8px; text-align: center; color: #ccc; }
-        .btn-logout { background: #dc3545; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; margin-top: 15px; cursor: pointer; font-weight: bold; }
-    </style>
+    <title>AURA - Flota de Movilidad Sostenible</title>
+    <!-- Tailwind CSS para diseño moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
-<body>
+<body class="bg-gray-950 text-white font-sans antialiased min-h-screen flex flex-col">
 
-    <!-- POPUP DE BIENVENIDA -->
-    <div id="welcome-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2>🚀 ¡Gran Lanzamiento Aura!</h2>
-            <p>¡Bienvenidos a la plataforma de inversión en movilidad sostenible! Estamos oficialmente en marcha.</p>
-            <p>⏰ <strong>Horario de atención y soporte:</strong><br>Lunes a Sábados de 09:00 a 21:00 hs.</p>
-            <p>👥 ¡Invita a más personas a formar tu equipo, comparte tu enlace y potencia tus ganancias diarias!</p>
-            <a href="https://chat.whatsapp.com/Cw5yYW0BOsqJ0UrgjCUe44?s=cl&p=a&iam=2" target="_blank" class="modal-whatsapp-btn">
-                💬 Unirme al Grupo de WhatsApp
-            </a>
-            <button class="modal-close-btn" onclick="closeWelcomeModal()">Entendido, ¡Empezar!</button>
+    <!-- PANTALLA DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
+    <div id="auth-screen" class="flex-1 flex flex-col justify-center items-center p-4 max-w-md mx-auto w-full">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full shadow-2xl">
+            <div class="text-center mb-6">
+                <img src="logo.png" alt="Logo Aura" class="w-24 h-auto mx-auto mb-3 object-contain">
+                <h1 class="text-2xl font-bold text-green-400 tracking-wider">AURA</h1>
+                <p class="text-xs text-gray-400 mt-1">Flota de Movilidad Sostenible</p>
+            </div>
+
+            <!-- Pestañas de Navegación Login / Registro -->
+            <div class="flex bg-gray-800 rounded-lg p-1 mb-6">
+                <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white">Ya estoy registrado</button>
+                <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400">¿Sos nuevo?</button>
+            </div>
+
+            <!-- Formulario -->
+            <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Teléfono (+54 obligatorio)</label>
+                    <input type="text" id="phone" placeholder="9341564778" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" required class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                </div>
+                
+                <!-- Campos exclusivos de registro -->
+                <div id="register-fields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Código de Invitación <span class="text-green-400">*Obligatorio</span></label>
+                        <input type="text" id="invite-code" placeholder="Ingresa el código de quien te invitó" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full bg-green-500 hover:bg-green-600 text-gray-950 font-bold py-3 rounded-lg transition shadow-lg">Iniciar Sesión</button>
+            </form>
         </div>
     </div>
 
-    <!-- PANTALLA DE ACCESO -->
-    <div id="auth-screen" class="screen active">
-        <div class="auth-container">
-            <div class="logo-container">
-                <img src="logo.png" alt="Logo Aura" onerror="this.style.display='none'">
+    <!-- PANEL PRINCIPAL (OCULTO HASTA INICIAR SESIÓN) -->
+    <div id="app-screen" class="hidden flex-1 flex flex-col pb-20">
+        <!-- Header -->
+        <header class="bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center sticky top-0 z-10">
+            <div class="flex items-center space-x-2">
+                <img src="logo.png" alt="Aura" class="w-8 h-8 object-contain">
+                <h2 class="text-lg font-bold text-white">Flota Eléctrica</h2>
             </div>
+            <div class="bg-green-900/40 border border-green-500/30 px-3 py-1 rounded-full text-green-400 text-xs font-semibold">
+                Capital: ARS <span id="user-balance">5000</span>
+            </div>
+        </header>
 
-            <h1>AURA</h1>
-            <p>Flota de Movilidad Sostenible</p>
+        <!-- Contenido principal -->
+        <main class="p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             
-            <div class="auth-tabs">
-                <button id="tab-login" class="active" onclick="switchAuthTab('login')">Ya estoy registrado</button>
-                <button id="tab-register" onclick="switchAuthTab('register')">¿Sos nuevo?</button>
+            <!-- SECCIÓN DE MI CÓDIGO DE INVITACIÓN -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
+                <h3 class="font-bold text-sm text-green-400">🔗 Tu Código de Invitación Único</h3>
+                <p class="text-xs text-gray-400">Comparte este código con tus invitados para que puedan unirse a tu red:</p>
+                <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
+                    <span id="my-referral-code" class="text-sm font-mono font-bold text-white">Cargando...</span>
+                    <button onclick="compartirWhatsApp()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition flex items-center space-x-1">
+                        <span>💬 Compartir WhatsApp</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Login -->
-            <form id="form-login" onsubmit="handleLogin(event)">
-                <div class="input-group">
-                    <label>Teléfono (+54)</label>
-                    <input type="text" id="login-phone" placeholder="911XXXXXXXX" required>
+            <!-- Tarjeta Estrella 1 -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                <img src="estrella1.png" alt="Estrella 1" class="w-20 h-20 object-cover rounded-lg border border-gray-700">
+                <div class="flex-1">
+                    <h3 class="font-bold text-sm text-green-400">Estrella 1 - Scooter Urbano Eco</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 2,222</p>
+                    <p class="text-xs text-gray-400">Validez: 90 días</p>
+                    <div class="mt-2 flex justify-between items-center">
+                        <span class="text-sm font-bold text-white">ARS 15,000</span>
+                        <button class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="login-password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-primary">Iniciar Sesión</button>
-            </form>
-
-            <!-- Registro -->
-            <form id="form-register" class="hidden" onsubmit="handleRegister(event)">
-                <div class="input-group">
-                    <label>Teléfono (+54 obligatorio)</label>
-                    <input type="text" id="reg-phone" placeholder="911XXXXXXXX" required>
-                </div>
-                <div class="input-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="reg-password" placeholder="••••••••" required>
-                </div>
-                <div class="input-group">
-                    <label>Confirmar Contraseña</label>
-                    <input type="password" id="reg-password-confirm" placeholder="••••••••" required>
-                </div>
-                <div class="input-group">
-                    <label>Código de Invitación</label>
-                    <input type="text" id="reg-invitation" placeholder="Código de tu invitado">
-                </div>
-                <button type="submit" class="btn-primary">Registrarse ($5.000 Regalo)</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- APLICACIÓN PRINCIPAL -->
-    <div id="app-screen" class="screen">
-        <div id="view-inicio" class="view active">
-            <header class="app-header">
-                <h2>Flota Eléctrica</h2>
-                <div class="wallet-pill">Capital: <span id="header-balance">ARS 0</span></div>
-            </header>
-            <div class="vip-grid" id="vip-catalog"></div>
-        </div>
-
-        <div id="view-mi-producto" class="view">
-            <h2>Mis Vehículos Activos</h2>
-            <div id="active-investments-list"><p>Aquí verás tus vehículos adquiridos.</p></div>
-        </div>
-
-        <div id="view-mi-equipo" class="view">
-            <h2>Mi Equipo y Referidos</h2>
-            <div class="referral-box">
-                <p>Tu enlace de invitación único:</p>
-                <div class="ref-link-container">
-                    <input type="text" id="user-ref-link" readonly>
-                    <button onclick="copyRefLink()">Copiar</button>
-                </div>
-                <button class="btn-whatsapp" onclick="shareWhatsApp()">Compartir en WhatsApp</button>
-            </div>
-            <div class="team-stats">
-                <div class="stat-card"><h3>Nivel 1</h3><p id="team-lvl1">0 activos</p></div>
-                <div class="stat-card"><h3>Nivel 2</h3><p id="team-lvl2">0 usuarios</p></div>
-                <div class="stat-card"><h3>Nivel 3</h3><p id="team-lvl3">0 (Permanente)</p></div>
-            </div>
-        </div>
-
-        <div id="view-finanzas" class="view">
-            <h2>Finanzas y Depósitos</h2>
-            <div class="balance-card-large">
-                <p>Capital Disponible</p>
-                <h1 id="finance-balance">ARS 0</h1>
             </div>
 
-            <div class="deposit-info-box">
-                <p><strong>Datos para Depositar (CBU):</strong></p>
-                <p style="font-size: 16px; font-weight: bold; margin-top: 4px; user-select: all;">0000267900000002996367</p>
-                <p style="font-size: 12px; margin-top: 4px;">Realiza tu transferencia y adquiere tu vehículo eléctrico para activar tu cuenta.</p>
-            </div>
-
-            <div class="withdrawal-form" style="background: #1e1e1e; border: 1px solid #333; padding: 15px; border-radius: 8px;">
-                <h3 style="color: #fff;">Solicitar Retiro (1 por día)</h3>
-                <div class="input-group" style="margin-top: 10px;">
-                    <input type="number" id="withdrawal-amount" placeholder="Monto a retirar">
+            <!-- Tarjeta Estrella 2 -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                <img src="estrella2.png" alt="Estrella 2" class="w-20 h-20 object-cover rounded-lg border border-gray-700">
+                <div class="flex-1">
+                    <h3 class="font-bold text-sm text-green-400">Estrella 2 - Bicicleta Eléctrica</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 5,333</p>
+                    <p class="text-xs text-gray-400">Validez: 90 días</p>
+                    <div class="mt-2 flex justify-between items-center">
+                        <span class="text-sm font-bold text-white">ARS 35,000</span>
+                        <button class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                    </div>
                 </div>
-                <button class="btn-primary" onclick="requestWithdrawal()">Solicitar Retiro</button>
-                <p style="font-size: 12px; color: #aaa; margin-top: 8px;">Demora hasta 24 hs. Requiere un vehículo activo.</p>
             </div>
-            <div class="history-section" style="margin-top: 20px;">
-                <h3 style="color: #fff;">Historial de Movimientos y Retiros</h3>
-                <div id="withdrawal-history" style="margin-top: 10px;"></div>
-            </div>
-        </div>
 
-        <div id="view-mio" class="view">
-            <h2>Mi Perfil</h2>
-            <div class="profile-form" style="margin-top: 15px;">
-                <div class="input-group"><label>Nombre Completo / Titular</label><input type="text" id="profile-name"></div>
-                <div class="input-group"><label>CBU Bancario</label><input type="text" id="profile-cbu"></div>
-                <div class="input-group"><label>Alias CBU</label><input type="text" id="profile-alias"></div>
-                <button class="btn-primary" onclick="saveProfile()">Guardar Datos Bancarios</button>
-                <button class="btn-logout" onclick="handleLogout()">Cerrar Sesión</button>
+            <!-- Tarjeta Estrella 3 -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
+                <img src="estrella3.png" alt="Estrella 3" class="w-20 h-20 object-cover rounded-lg border border-gray-700">
+                <div class="flex-1">
+                    <h3 class="font-bold text-sm text-green-400">Estrella 3 - Moto de Reparto</h3>
+                    <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 12,444</p>
+                    <p class="text-xs text-gray-400">Validez: 90 días</p>
+                    <div class="mt-2 flex justify-between items-center">
+                        <span class="text-sm font-bold text-white">ARS 80,000</span>
+                        <button class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <nav class="bottom-nav">
-            <button class="nav-item active" onclick="switchView('inicio')">🏠<span>Inicio</span></button>
-            <button class="nav-item" onclick="switchView('mi-producto')">📦<span>Mi Producto</span></button>
-            <button class="nav-item" onclick="switchView('mi-equipo')">⭐<span>Mi Equipo</span></button>
-            <button class="nav-item" onclick="switchView('finanzas')">💰<span>Finanzas</span></button>
-            <button class="nav-item" onclick="switchView('mio')">👤<span>Mío</span></button>
+            <!-- Sección de Copiar CVU para Depósitos -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
+                <h3 class="font-bold text-sm text-gray-200">Datos para Transferencia (CVU)</h3>
+                <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
+                    <span id="cvu-text" class="text-xs font-mono text-gray-300">0000003100000000000000</span>
+                    <button onclick="copiarCvu()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Copiar CVU</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Barra de Navegación Inferior -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex justify-around py-3 z-10">
+            <button class="text-green-400 text-xs flex flex-col items-center">🏠 Inicio</button>
+            <button class="text-gray-400 text-xs flex flex-col items-center">📦 Mi Producto</button>
+            <button class="text-gray-400 text-xs flex flex-col items-center">⭐ Mi Equipo</button>
+            <button class="text-gray-400 text-xs flex flex-col items-center" onclick="cerrarSesion()">🚪 Salir</button>
         </nav>
     </div>
 
-    <!-- SCRIPT CONFIGURADO CON TU FIREBASE -->
+    <!-- POPUP DE BIENVENIDA / LANZAMIENTO -->
+    <div id="modal-lanzamiento" class="fixed inset-0 bg-black/80 flex justify-center items-center p-4 z-50">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
+            <h3 class="text-xl font-bold text-green-400">🚀 ¡Gran Lanzamiento Aura!</h3>
+            <p class="text-xs text-gray-300">¡Bienvenidos a la plataforma de inversión en movilidad sostenible! Estamos oficialmente en marcha.</p>
+            <a href="https://chat.whatsapp.com" target="_blank" class="block w-full bg-green-600 hover:bg-green-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">
+                Unirme al Grupo de WhatsApp
+            </a>
+            <button onclick="cerrarModal()" class="w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-2.5 rounded-lg text-sm transition">
+                Entendido, ¡Empezar!
+            </button>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE CONFIGURACIÓN Y LÓGICA -->
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyBhQ8tC7IFzzXygkIQLZqeNINzZqXAtZps",
-            authDomain: "aura-7ca44.firebaseapp.com",
-            projectId: "aura-7ca44",
-            storageBucket: "aura-7ca44.firebasestorage.app",
-            messagingSenderId: "999235368894",
-            appId: "1:999235368894:web:fb73a165567fd045a6abef",
-            measurementId: "G-T8FSE583EG"
+            apiKey: "AIzaSyDummyKeyForAura2026",
+            authDomain: "aura-app-2026.firebaseapp.com",
+            projectId: "aura-app-2026",
+            storageBucket: "aura-app-2026.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456:web:abcd"
         };
-
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.firestore();
 
-        let currentUser = null;
+        let mode = 'login';
+        let currentUserData = null;
 
-        const vipsCatalog = [
-            { id: 1, name: "Estrella 1 - Scooter Urbano Eco", price: 15000, daily: 2222, total: 200000, days: 90, img: "estrella1.jpg" },
-            { id: 2, name: "Estrella 2 - Bicicleta Eléctrica", price: 35000, daily: 5333, total: 480000, days: 90, img: "estrella2.jpg" },
-            { id: 3, name: "Estrella 3 - Moto de Reparto", price: 80000, daily: 12444, total: 1120000, days: 90, img: "estrella3.jpg" },
-            { id: 4, name: "Estrella 4 - Triciclo Logística", price: 160000, daily: 25555, total: 2300000, days: 90, img: "estrella4.jpg" },
-            { id: 5, name: "Estrella 5 - Auto Compacto Fleet", price: 320000, daily: 52222, total: 4700000, days: 90, img: "estrella5.jpg" },
-            { id: 6, name: "Estrella 6 - Sedán Ejecutivo", price: 650000, daily: 108888, total: 9800000, days: 90, img: "estrella6.jpg" },
-            { id: 7, name: "Estrella 7 - SUV Encomiendas", price: 1300000, daily: 222222, total: 20000000, days: 90, img: "estrella7.jpg" },
-            { id: 8, name: "Estrella 8 - Furgón Mediano", price: 2800000, daily: 488888, total: 44000000, days: 90, img: "estrella8.jpg" },
-            { id: 9, name: "Estrella 9 - Camión Reparto Pesado", price: 5500000, daily: 977777, total: 88000000, days: 90, img: "estrella9.jpg" },
-            { id: 10, name: "Estrella 10 - Flota Autónoma Tráiler", price: 11000000, daily: 2000000, total: 180000000, days: 90, img: "estrella10.jpg" }
-        ];
+        function switchTab(selectedMode) {
+            mode = selectedMode;
+            const btnLogin = document.getElementById('tab-login');
+            const btnRegister = document.getElementById('tab-register');
+            const registerFields = document.getElementById('register-fields');
+            const submitBtn = document.getElementById('submit-btn');
+            const inviteInput = document.getElementById('invite-code');
 
-        function switchAuthTab(tab) {
-            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-            document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-            document.getElementById('form-login').classList.toggle('hidden', tab !== 'login');
-            document.getElementById('form-register').classList.toggle('hidden', tab !== 'register');
-        }
-
-        function switchView(viewName) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(`view-${viewName}`).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        function generateRandomCode() {
-            return Math.random().toString(36).substring(2, 8).toUpperCase();
-        }
-
-        async function handleRegister(event) {
-            event.preventDefault();
-            const phone = "+54" + document.getElementById('reg-phone').value.trim();
-            const password = document.getElementById('reg-password').value;
-            const confirmPass = document.getElementById('reg-password-confirm').value;
-            const invitation = document.getElementById('reg-invitation').value.trim();
-
-            if (password !== confirmPass) { alert("Las contraseñas no coinciden."); return; }
-
-            const refCode = generateRandomCode();
-            
-            const newUser = {
-                phone: phone,
-                password: password,
-                balance: 5000.00,
-                referral_code: refCode,
-                invited_by: invitation,
-                investments: [],
-                withdrawals: [],
-                has_active_product: false,
-                fuliname: '',
-                cbu: '',
-                alias: ''
-            };
-
-            try {
-                await db.collection('users').doc(phone).set(newUser);
-                currentUser = newUser;
-                alert("¡Registro exitoso! Se acreditaron $5.000 ARS de regalo.");
-                iniciarApp();
-                document.getElementById('welcome-modal').style.display = 'flex';
-            } catch (err) {
-                alert("Error al registrar: " + err.message);
+            if (mode === 'login') {
+                btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white";
+                btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400";
+                registerFields.classList.add('hidden');
+                inviteInput.removeAttribute('required');
+                submitBtn.innerText = "Iniciar Sesión";
+            } else {
+                btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white";
+                btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400";
+                registerFields.classList.remove('hidden');
+                inviteInput.setAttribute('required', 'true');
+                submitBtn.innerText = "Registrarse ($5.000 Regalo)";
             }
         }
 
-        async function handleLogin(event) {
+        async function handleAuth(event) {
             event.preventDefault();
-            const phone = "+54" + document.getElementById('login-phone').value.trim();
-            const password = document.getElementById('login-password').value;
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const userId = "+54" + phone.replace(/^\+?54/, '');
+
+            const userRef = db.collection('users').doc(userId);
 
             try {
-                const docRef = await db.collection('users').doc(phone).get();
-                if (!docRef.exists) {
-                    alert("Teléfono no encontrado.");
-                    return;
-                }
-                const userData = docRef.data();
-                if (userData.password !== password) {
-                    alert("Contraseña incorrecta.");
-                    return;
-                }
-                currentUser = userData;
-                iniciarApp();
-            } catch (err) {
-                alert("Error al iniciar sesión: " + err.message);
-            }
-        }
+                if (mode === 'register') {
+                    const inviteCode = document.getElementById('invite-code').value.trim();
+                    if (!inviteCode) {
+                        alert("El código de invitación es obligatorio para registrarse.");
+                        return;
+                    }
 
-        function iniciarApp() {
-            document.getElementById('auth-screen').classList.remove('active');
-            document.getElementById('app-screen').classList.add('active');
+                    const doc = await userRef.get();
+                    if (doc.exists) {
+                        alert("Este número ya está registrado. Inicia sesión.");
+                        switchTab('login');
+                        return;
+                    }
 
-            document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
-            document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
-            
-            const refLink = `${window.location.origin}${window.location.pathname}?ref=${currentUser.referral_code}`;
-            document.getElementById('user-ref-link').value = refLink;
+                    // Generar código único para este nuevo usuario (ej: AURA-últimos 4 dígitos + aleatorio)
+                    const uniqueReferralCode = "AURA-" + userId.slice(-4) + Math.floor(100 + Math.random() * 900);
 
-            renderCatalog();
-            loadProfileData();
-            loadHistory();
-        }
-
-        async function syncToFirebase() {
-            if (currentUser && currentUser.phone) {
-                try {
-                    await db.collection('users').doc(currentUser.phone).update({
-                        balance: currentUser.balance,
-                        investments: currentUser.investments,
-                        withdrawals: currentUser.withdrawals,
-                        has_active_product: currentUser.has_active_product,
-                        fuliname: currentUser.fuliname || '',
-                        cbu: currentUser.cbu || '',
-                        alias: currentUser.alias || ''
+                    await userRef.set({
+                        phone: userId,
+                        password: password,
+                        referral_code: uniqueReferralCode,
+                        invited_by: inviteCode,
+                        balance: 5000,
+                        alias: "",
+                        cbu: "",
+                        fuliname: "",
+                        has_active_product: false,
+                        investments: [],
+                        withdrawals: [],
+                        created_at: new Date().toISOString()
                     });
-                } catch (e) {
-                    console.error('Error al sincronizar datos', e);
+                    alert("¡Registro exitoso! Tu código personal es: " + uniqueReferralCode);
+                } else {
+                    const doc = await userRef.get();
+                    if (!doc.exists) {
+                        alert("Usuario no encontrado. Regístrate primero.");
+                        return;
+                    }
+                    const data = doc.data();
+                    if (data.password !== password) {
+                        alert("Contraseña incorrecta.");
+                        return;
+                    }
                 }
+
+                localStorage.setItem('aura_user', userId);
+                cargarDatosUsuario(userId);
+
+            } catch (error) {
+                console.error("Error en autenticación: ", error);
+                alert("Ocurrió un error de conexión con la base de datos.");
             }
         }
 
-        function renderCatalog() {
-            const container = document.getElementById('vip-catalog');
-            container.innerHTML = '';
-            vipsCatalog.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'vip-card';
-                card.innerHTML = `
-                    <img src="${item.img}" alt="${item.name}" onerror="this.style.display='none'">
-                    <h3>${item.name}</h3>
-                    <p><strong>Ingresos diarios:</strong> ARS ${item.daily.toLocaleString()}</p>
-                    <p><strong>Ingresos totales:</strong> ARS ${item.total.toLocaleString()}</p>
-                    <p><strong>Validez:</strong> ${item.days} días</p>
-                    <div class="vip-price">ARS ${item.price.toLocaleString()}</div>
-                    <button class="btn-buy" onclick="buyStar(${item.id}, ${item.price})">Comprar</button>
-                `;
-                container.appendChild(card);
+        async function cargarDatosUsuario(userId) {
+            try {
+                const doc = await db.collection('users').doc(userId).get();
+                if (doc.exists) {
+                    currentUserData = doc.data();
+                    document.getElementById('my-referral-code').innerText = currentUserData.referral_code || "AURA-2026";
+                    document.getElementById('user-balance').innerText = currentUserData.balance || 5000;
+                }
+            } catch (e) {
+                console.error("Error cargando datos: ", e);
+            }
+
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+        }
+
+        function compartirWhatsApp() {
+            const codigo = currentUserData ? currentUserData.referral_code : "AURA-2026";
+            const mensaje = `¡Hola! Únete a AURA, la plataforma de inversión en movilidad sostenible ⚡. Regístrate con mi código de invitación obligatorio: *${codigo}* y llévate $5.000 de regalo 🚀. Entra aquí: ${window.location.origin}`;
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById('modal-lanzamiento');
+            if (modal) modal.style.display = 'none';
+            localStorage.setItem('aura_modal_visto', 'true');
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('aura_user');
+            location.reload();
+        }
+
+        function copiarCvu() {
+            const cvuText = document.getElementById('cvu-text').innerText;
+            navigator.clipboard.writeText(cvuText).then(() => {
+                alert('¡CVU copiado al portapapeles con éxito!');
+            }).catch(err => {
+                console.error('Error al copiar CVU: ', err);
             });
         }
 
-        async function buyStar(starId, price) {
-            if (currentUser.balance < price) { alert("Saldo insuficiente."); return; }
-            currentUser.balance -= price;
-            currentUser.has_active_product = true;
-            if (!currentUser.investments) currentUser.investments = [];
-            currentUser.investments.push({ starId, date: new Date().toISOString() });
+        window.onload = function() {
+            const savedUser = localStorage.getItem('aura_user');
+            const modalVisto = localStorage.getItem('aura_modal_visto');
 
-            document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
-            document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
-            
-            await syncToFirebase();
-            alert("¡Vehículo adquirido con éxito! Cuenta activa.");
-        }
-
-        function copyRefLink() {
-            const input = document.getElementById('user-ref-link');
-            input.select();
-            document.execCommand('copy');
-            alert("¡Enlace copiado!");
-        }
-
-        function shareWhatsApp() {
-            const link = document.getElementById('user-ref-link').value;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(link)}`, '_blank');
-        }
-
-        async function saveProfile() {
-            currentUser.fuliname = document.getElementById('profile-name').value;
-            currentUser.cbu = document.getElementById('profile-cbu').value;
-            currentUser.alias = document.getElementById('profile-alias').value;
-
-            await syncToFirebase();
-            alert("¡Datos guardados correctamente!");
-        }
-
-        async function requestWithdrawal() {
-            if (!currentUser.has_active_product) { alert("Necesitas al menos un vehículo activo para retirar."); return; }
-            const amount = parseFloat(document.getElementById('withdrawal-amount').value);
-            if (!amount || amount <= 0) { alert("Ingresa un monto válido."); return; }
-            if (currentUser.balance < amount) { alert("Saldo insuficiente."); return; }
-
-            if (!currentUser.withdrawals) currentUser.withdrawals = [];
-            currentUser.withdrawals.push({
-                order_id: "T" + Date.now(),
-                amount: amount,
-                status: "Pago en curso",
-                date: new Date().toISOString()
-            });
-
-            currentUser.balance -= amount;
-            document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
-            document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
-            document.getElementById('withdrawal-amount').value = '';
-
-            await syncToFirebase();
-            alert("¡Retiro solicitado con éxito! Demora hasta 24 hs.");
-            loadHistory();
-        }
-
-        function loadHistory() {
-            const container = document.getElementById('withdrawal-history');
-            const withdrawals = currentUser.withdrawals || [];
-            if (withdrawals.length === 0) { container.innerHTML = '<p style="color:#888;">No hay retiros registrados.</p>'; return; }
-
-            container.innerHTML = '';
-            withdrawals.slice().reverse().forEach(item => {
-                container.innerHTML += `
-                    <div style="background:#2a2a2a; border:1px solid #333; padding:10px; border-radius:6px; margin-bottom:8px; font-size:13px; color:#ddd;">
-                        <p><strong>Monto:</strong> ARS ${item.amount}</p>
-                        <p><strong>Estado:</strong> <span style="color:#fbbf24; font-weight:bold;">${item.status}</span></p>
-                        <p><strong>Fecha:</strong> ${new Date(item.date).toLocaleString()}</p>
-                    </div>
-                `;
-            });
-        }
-
-        function loadProfileData() {
-            if (currentUser.fuliname) document.getElementById('profile-name').value = currentUser.fuliname;
-            if (currentUser.cbu) document.getElementById('profile-cbu').value = currentUser.cbu;
-            if (currentUser.alias) document.getElementById('profile-alias').value = currentUser.alias;
-        }
-
-        function handleLogout() {
-            currentUser = null;
-            document.getElementById('app-screen').classList.remove('active');
-            document.getElementById('auth-screen').classList.add('active');
-        }
+            if (savedUser) {
+                cargarDatosUsuario(savedUser);
+            }
+            if (modalVisto) {
+                const modal = document.getElementById('modal-lanzamiento');
+                if (modal) modal.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html>
