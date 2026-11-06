@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura - Flota de Movilidad Sostenible</title>
-    <!-- Supabase JS Client Oficial -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
         body { background-color: #121212; color: #e0e0e0; }
@@ -224,17 +222,10 @@
         </nav>
     </div>
 
-    <!-- SCRIPT CON URL DE DATA API CORREGIDA -->
+    <!-- SCRIPT DE CONEXIÓN HTTP REST DIRECTA -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvtxrjpput.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZXJjhaovfvdtxrjppufvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzQ2OTgsImV4cCI6MjEwOTExMDY5OH0.b0yVpCRGVUNGv9B-F9XT2rZxpXau9iU1l3J-fDI3MAE';
-
-        let db = null;
-        try {
-            db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        } catch (e) {
-            console.error('Error inicializando Supabase', e);
-        }
 
         let currentUser = null;
 
@@ -277,7 +268,6 @@
             const invitation = document.getElementById('reg-invitation').value.trim();
 
             if (password !== confirmPass) { alert("Las contraseñas no coinciden."); return; }
-            if (!db) { alert("Supabase no está conectado."); return; }
 
             const refCode = generateRandomCode();
             
@@ -295,15 +285,32 @@
                 alias: ''
             };
 
-            const { data, error } = await db.from('users').insert([newUser]).select();
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(newUser)
+                });
 
-            if (error) {
-                alert("Error al registrar en Supabase: " + error.message);
-            } else {
-                alert("¡Registro exitoso! Se acreditaron $5.000 ARS de regalo.");
-                currentUser = data[0];
-                iniciarApp();
-                document.getElementById('welcome-modal').style.display = 'flex';
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert("Error Supabase: " + (data.message || JSON.stringify(data)));
+                } else if (!data || data.length === 0) {
+                    alert("No se pudo completar el registro.");
+                } else {
+                    alert("¡Registro exitoso! Se acreditaron $5.000 ARS de regalo.");
+                    currentUser = data[0];
+                    iniciarApp();
+                    document.getElementById('welcome-modal').style.display = 'flex';
+                }
+            } catch (err) {
+                alert("Error de red: " + err.message);
             }
         }
 
@@ -312,15 +319,25 @@
             const phone = "+54" + document.getElementById('login-phone').value.trim();
             const password = document.getElementById('login-password').value;
 
-            if (!db) { alert("Supabase no está conectado."); return; }
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?phone=eq.${encodeURIComponent(phone)}&password=eq.${encodeURIComponent(password)}`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
 
-            const { data, error } = await db.from('users').select('*').eq('phone', phone).eq('password', password).maybeSingle();
+                const data = await response.json();
 
-            if (error || !data) {
-                alert("Teléfono o contraseña incorrectos.");
-            } else {
-                currentUser = data;
-                iniciarApp();
+                if (!response.ok || !data || data.length === 0) {
+                    alert("Teléfono o contraseña incorrectos.");
+                } else {
+                    currentUser = data[0];
+                    iniciarApp();
+                }
+            } catch (err) {
+                alert("Error al conectar con la base de datos.");
             }
         }
 
@@ -340,16 +357,28 @@
         }
 
         async function syncToSupabase() {
-            if (db && currentUser) {
-                await db.from('users').update({
-                    balance: currentUser.balance,
-                    investments: currentUser.investments,
-                    withdrawals: currentUser.withdrawals,
-                    has_active_product: currentUser.has_active_product,
-                    fuliname: currentUser.fuliname,
-                    cbu: currentUser.cbu,
-                    alias: currentUser.alias
-                }).eq('id', currentUser.id);
+            if (currentUser && currentUser.id) {
+                try {
+                    await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${currentUser.id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            balance: currentUser.balance,
+                            investments: currentUser.investments,
+                            withdrawals: currentUser.withdrawals,
+                            has_active_product: currentUser.has_active_product,
+                            fuliname: currentUser.fuliname,
+                            cbu: currentUser.cbu,
+                            alias: currentUser.alias
+                        })
+                    });
+                } catch (e) {
+                    console.error('Error al sincronizar', e);
+                }
             }
         }
 
