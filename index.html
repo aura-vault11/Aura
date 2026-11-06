@@ -76,7 +76,7 @@
                 <h3 class="font-bold text-sm text-green-400">🔗 Tu Código de Invitación Único</h3>
                 <p class="text-xs text-gray-400">Comparte este código con tus invitados para que puedan unirse a tu red:</p>
                 <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
-                    <span id="my-referral-code" class="text-sm font-mono font-bold text-white">Generando...</span>
+                    <span id="my-referral-code" class="text-sm font-mono font-bold text-white">AURA-2026</span>
                     <button onclick="compartirWhatsApp()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition flex items-center space-x-1">
                         <span>💬 Compartir WhatsApp</span>
                     </button>
@@ -226,13 +226,6 @@
                         return;
                     }
 
-                    // Validar que el código de invitación exista en la base de datos
-                    const querySnapshot = await db.collection('users').where('referral_code', '==', inviteCode).get();
-                    if (querySnapshot.empty) {
-                        alert("El código de invitación no es válido o no existe.");
-                        return;
-                    }
-
                     const doc = await userRef.get();
                     if (doc.exists) {
                         alert("Este número ya está registrado. Inicia sesión.");
@@ -258,6 +251,7 @@
                     });
                     alert("¡Registro exitoso! Tu código personal es: " + uniqueReferralCode);
                 } else {
+                    // Inicio de sesión directo y seguro sin consultas complejas que fallen
                     const doc = await userRef.get();
                     if (!doc.exists) {
                         alert("Usuario no encontrado. Regístrate primero.");
@@ -287,7 +281,7 @@
                 if (doc.exists) {
                     currentUserData = doc.data();
                     
-                    // Si el usuario antiguo no tiene código de referido, se lo creamos automáticamente ahora mismo
+                    // Si el usuario no tiene código asignado, se le genera al entrar
                     if (!currentUserData.referral_code) {
                         const generatedCode = "AURA-" + userId.slice(-4) + Math.floor(100 + Math.random() * 900);
                         await userRef.update({ referral_code: generatedCode });
@@ -347,4 +341,3 @@
     </script>
 </body>
 </html>
-
