@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aura - Flota de Movilidad Sostenible</title>
+    <!-- Supabase JS Client Oficial -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
         body { background-color: #121212; color: #e0e0e0; }
@@ -13,7 +15,6 @@
         .view.active { display: block; }
         .hidden { display: none; }
 
-        /* Popup de Bienvenida */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center;
@@ -35,11 +36,9 @@
             border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%;
         }
 
-        /* Logo */
         .logo-container { text-align: center; margin-bottom: 15px; }
         .logo-container img { max-width: 120px; max-height: 60px; object-fit: contain; }
 
-        /* Auth Modo Oscuro */
         .auth-container { max-width: 400px; margin: 40px auto; background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: center; border: 1px solid #333; }
         .auth-container h1 { color: #fff; margin-bottom: 5px; }
         .auth-container p { color: #aaa; margin-bottom: 20px; }
@@ -52,7 +51,6 @@
         .btn-primary { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .btn-primary:active { background: #218838; }
 
-        /* Estrellas / Grilla de Inicio */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: #fff; }
         .wallet-pill { background: #1e3a1e; color: #4ade80; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; border: 1px solid #2e7d32; }
         .vip-grid { display: flex; flex-direction: column; gap: 15px; }
@@ -63,13 +61,11 @@
         .vip-price { font-size: 18px; font-weight: bold; color: #fff; margin: 10px 0; }
         .btn-buy { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; }
 
-        /* Barra de Navegación */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #181818; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; box-shadow: 0 -2px 5px rgba(0,0,0,0.5); }
         .nav-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; font-size: 20px; cursor: pointer; color: #888; }
         .nav-item span { font-size: 11px; margin-top: 2px; }
         .nav-item.active { color: #4ade80; }
 
-        /* Finanzas y Perfil */
         .balance-card-large { background: #1e3a1e; border: 1px solid #2e7d32; color: #fff; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
         .deposit-info-box { background: #1a2e1a; border: 1px solid #2e7d32; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #a3e635; }
         .referral-box { background: #1e1e1e; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 15px; color: #ccc; }
@@ -84,7 +80,6 @@
 </head>
 <body>
 
-    <!-- POPUP DE BIENVENIDA -->
     <div id="welcome-modal" class="modal-overlay">
         <div class="modal-content">
             <h2>🚀 ¡Gran Lanzamiento Aura!</h2>
@@ -98,7 +93,6 @@
         </div>
     </div>
 
-    <!-- PANTALLA DE ACCESO -->
     <div id="auth-screen" class="screen active">
         <div class="auth-container">
             <div class="logo-container">
@@ -113,7 +107,6 @@
                 <button id="tab-register" onclick="switchAuthTab('register')">¿Sos nuevo?</button>
             </div>
 
-            <!-- Login -->
             <form id="form-login" onsubmit="handleLogin(event)">
                 <div class="input-group">
                     <label>Teléfono (+54)</label>
@@ -126,7 +119,6 @@
                 <button type="submit" class="btn-primary">Iniciar Sesión</button>
             </form>
 
-            <!-- Registro -->
             <form id="form-register" class="hidden" onsubmit="handleRegister(event)">
                 <div class="input-group">
                     <label>Teléfono (+54 obligatorio)</label>
@@ -149,7 +141,6 @@
         </div>
     </div>
 
-    <!-- APLICACIÓN PRINCIPAL -->
     <div id="app-screen" class="screen">
         <div id="view-inicio" class="view active">
             <header class="app-header">
@@ -228,10 +219,17 @@
         </nav>
     </div>
 
-    <!-- SCRIPT DE CONEXIÓN HTTP DIRECTA (FETCH) -->
+    <!-- SCRIPT CON LA CLAVE ANON PÚBLICA CLÁSICA -->
     <script>
         const SUPABASE_URL = 'https://eferjhaovfvdtxrjppufv.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_qmT-quWaG-Qppi2huNhPiQ_4gtDvo9Z';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZXJjhaovfvdtxrjppufvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzQ2OTgsImV4cCI6MjEwOTExMDY5OH0.b0yVpCRGVUNGv9B-F9XT2rZxpXau9iU1l3J-fDI3MAE';
+
+        let supabaseClient = null;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.error('Error al inicializar Supabase:', e);
+        }
 
         let currentUser = null;
 
@@ -278,25 +276,17 @@
             const invitation = document.getElementById('reg-invitation').value.trim();
 
             if (password !== confirmPass) { alert("Las contraseñas no coinciden."); return; }
+            if (!supabaseClient) { alert("Supabase no está inicializado."); return; }
 
             const refCode = generateRandomCode();
             
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify({ phone: phone, password: password, balance: 5000.00, referral_code: refCode, invited_by: invitation })
-                });
+                const { data, error } = await supabaseClient.from('users').insert([
+                    { phone: phone, password: password, balance: 5000.00, referral_code: refCode, invited_by: invitation }
+                ]).select();
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    alert("Error de Supabase: " + (data.message || JSON.stringify(data)));
+                if (error) { 
+                    alert("Error de Supabase: " + error.message); 
                 } else if (!data || data.length === 0) {
                     alert("No se pudo completar el registro.");
                 } else {
@@ -314,22 +304,16 @@
             const phone = "+54" + document.getElementById('login-phone').value.trim();
             const password = document.getElementById('login-password').value;
 
+            if (!supabaseClient) { alert("Supabase no está inicializado."); return; }
+
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?phone=eq.${encodeURIComponent(phone)}&password=eq.${encodeURIComponent(password)}`, {
-                    method: 'GET',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`
-                    }
-                });
+                const { data, error } = await supabaseClient.from('users').select('*').eq('phone', phone).eq('password', password).maybeSingle();
 
-                const data = await response.json();
-
-                if (!response.ok || !data || data.length === 0) {
-                    alert("Teléfono o contraseña incorrectos.");
-                } else {
-                    currentUser = data[0];
-                    initAppSession();
+                if (error || !data) { 
+                    alert("Teléfono o contraseña incorrectos."); 
+                } else { 
+                    currentUser = data; 
+                    initAppSession(); 
                 }
             } catch (err) {
                 alert("Error al conectar con la base de datos.");
@@ -377,30 +361,20 @@
             let investments = currentUser.investments || [];
             investments.push({ starId, date: new Date().toISOString() });
 
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${currentUser.id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify({ balance: newBalance, investments: investments, has_active_product: true })
-                });
+            const { error } = await supabaseClient.from('users').update({
+                balance: newBalance,
+                investments: investments,
+                has_active_product: true
+            }).eq('id', currentUser.id);
 
-                if (!response.ok) {
-                    alert("Error en la compra.");
-                } else {
-                    currentUser.balance = newBalance;
-                    currentUser.has_active_product = true;
-                    currentUser.investments = investments;
-                    document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
-                    document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
-                    alert("¡Vehículo adquirido con éxito! Cuenta activa.");
-                }
-            } catch (err) {
-                alert("Error de red al comprar.");
+            if (error) { alert("Error en la compra: " + error.message); }
+            else {
+                currentUser.balance = newBalance;
+                currentUser.has_active_product = true;
+                currentUser.investments = investments;
+                document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
+                document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
+                alert("¡Vehículo adquirido con éxito! Cuenta activa.");
             }
         }
 
@@ -421,22 +395,9 @@
             const cbu = document.getElementById('profile-cbu').value;
             const alias = document.getElementById('profile-alias').value;
 
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${currentUser.id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ fuliname, cbu, alias })
-                });
-
-                if (!response.ok) alert("Error al guardar.");
-                else alert("¡Datos guardados correctamente!");
-            } catch (err) {
-                alert("Error de red.");
-            }
+            const { error } = await supabaseClient.from('users').update({ fuliname, cbu, alias }).eq('id', currentUser.id);
+            if (error) alert("Error al guardar: " + error.message);
+            else alert("¡Datos guardados correctamente!");
         }
 
         async function requestWithdrawal() {
@@ -454,31 +415,20 @@
             });
 
             const newBalance = currentUser.balance - amount;
+            const { error } = await supabaseClient.from('users').update({
+                balance: newBalance,
+                withdrawals: withdrawals
+            }).eq('id', currentUser.id);
 
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${currentUser.id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ balance: newBalance, withdrawals: withdrawals })
-                });
-
-                if (!response.ok) {
-                    alert("Error al solicitar retiro.");
-                } else {
-                    currentUser.balance = newBalance;
-                    currentUser.withdrawals = withdrawals;
-                    document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
-                    document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
-                    document.getElementById('withdrawal-amount').value = '';
-                    alert("¡Retiro solicitado con éxito! Demora hasta 24 hs.");
-                    loadHistory();
-                }
-            } catch (err) {
-                alert("Error de red.");
+            if (error) { alert("Error al solicitar retiro: " + error.message); }
+            else {
+                currentUser.balance = newBalance;
+                currentUser.withdrawals = withdrawals;
+                document.getElementById('header-balance').innerText = `ARS ${currentUser.balance}`;
+                document.getElementById('finance-balance').innerText = `ARS ${currentUser.balance}`;
+                document.getElementById('withdrawal-amount').value = '';
+                alert("¡Retiro solicitado con éxito! Demora hasta 24 hs.");
+                loadHistory();
             }
         }
 
