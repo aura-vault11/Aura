@@ -224,9 +224,9 @@
         </nav>
     </div>
 
-    <!-- SCRIPT CON EL PATRÓN SEGURO DE SUPABASE -->
+    <!-- SCRIPT CON URL DE DATA API CORREGIDA -->
     <script>
-        const SUPABASE_URL = 'https://eferjhaovfvdtxrjppufv.supabase.co';
+        const SUPABASE_URL = 'https://eferjhaovfvtxrjpput.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZXJjhaovfvdtxrjppufvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzQ2OTgsImV4cCI6MjEwOTExMDY5OH0.b0yVpCRGVUNGv9B-F9XT2rZxpXau9iU1l3J-fDI3MAE';
 
         let db = null;
@@ -238,35 +238,17 @@
 
         let currentUser = null;
 
-        // Comprobación de sesión guardada al cargar
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedUser = localStorage.getItem('aura_logged_phone');
-            if (savedUser) {
-                const localData = localStorage.getItem('aura_data_' + savedUser);
-                if (localData) {
-                    currentUser = JSON.parse(localData);
-                    iniciarApp();
-                    return;
-                }
-            }
-            document.getElementById('auth-screen').classList.add('active');
-        });
-
-        function closeWelcomeModal() {
-            document.getElementById('welcome-modal').style.display = 'none';
-        }
-
         const vipsCatalog = [
-            { id: 1, name: "Estrella 1 - Scooter Urbano Eco", price: 15000, daily: 2222, total: 200000, days: 90, img: "img/estrella1.jpg" },
-            { id: 2, name: "Estrella 2 - Bicicleta Eléctrica", price: 35000, daily: 5333, total: 480000, days: 90, img: "img/estrella2.jpg" },
-            { id: 3, name: "Estrella 3 - Moto de Reparto", price: 80000, daily: 12444, total: 1120000, days: 90, img: "img/estrella3.jpg" },
-            { id: 4, name: "Estrella 4 - Triciclo Logística", price: 160000, daily: 25555, total: 2300000, days: 90, img: "img/estrella4.jpg" },
-            { id: 5, name: "Estrella 5 - Auto Compacto Fleet", price: 320000, daily: 52222, total: 4700000, days: 90, img: "img/estrella5.jpg" },
-            { id: 6, name: "Estrella 6 - Sedán Ejecutivo", price: 650000, daily: 108888, total: 9800000, days: 90, img: "img/estrella6.jpg" },
-            { id: 7, name: "Estrella 7 - SUV Encomiendas", price: 1300000, daily: 222222, total: 20000000, days: 90, img: "img/estrella7.jpg" },
-            { id: 8, name: "Estrella 8 - Furgón Mediano", price: 2800000, daily: 488888, total: 44000000, days: 90, img: "img/estrella8.jpg" },
-            { id: 9, name: "Estrella 9 - Camión Reparto Pesado", price: 5500000, daily: 977777, total: 88000000, days: 90, img: "img/estrella9.jpg" },
-            { id: 10, name: "Estrella 10 - Flota Autónoma Tráiler", price: 11000000, daily: 2000000, total: 180000000, days: 90, img: "img/estrella10.jpg" }
+            { id: 1, name: "Estrella 1 - Scooter Urbano Eco", price: 15000, daily: 2222, total: 200000, days: 90, img: "estrella1.jpg" },
+            { id: 2, name: "Estrella 2 - Bicicleta Eléctrica", price: 35000, daily: 5333, total: 480000, days: 90, img: "estrella2.jpg" },
+            { id: 3, name: "Estrella 3 - Moto de Reparto", price: 80000, daily: 12444, total: 1120000, days: 90, img: "estrella3.jpg" },
+            { id: 4, name: "Estrella 4 - Triciclo Logística", price: 160000, daily: 25555, total: 2300000, days: 90, img: "estrella4.jpg" },
+            { id: 5, name: "Estrella 5 - Auto Compacto Fleet", price: 320000, daily: 52222, total: 4700000, days: 90, img: "estrella5.jpg" },
+            { id: 6, name: "Estrella 6 - Sedán Ejecutivo", price: 650000, daily: 108888, total: 9800000, days: 90, img: "estrella6.jpg" },
+            { id: 7, name: "Estrella 7 - SUV Encomiendas", price: 1300000, daily: 222222, total: 20000000, days: 90, img: "estrella7.jpg" },
+            { id: 8, name: "Estrella 8 - Furgón Mediano", price: 2800000, daily: 488888, total: 44000000, days: 90, img: "estrella8.jpg" },
+            { id: 9, name: "Estrella 9 - Camión Reparto Pesado", price: 5500000, daily: 977777, total: 88000000, days: 90, img: "estrella9.jpg" },
+            { id: 10, name: "Estrella 10 - Flota Autónoma Tráiler", price: 11000000, daily: 2000000, total: 180000000, days: 90, img: "estrella10.jpg" }
         ];
 
         function switchAuthTab(tab) {
@@ -295,10 +277,11 @@
             const invitation = document.getElementById('reg-invitation').value.trim();
 
             if (password !== confirmPass) { alert("Las contraseñas no coinciden."); return; }
+            if (!db) { alert("Supabase no está conectado."); return; }
 
             const refCode = generateRandomCode();
             
-            currentUser = {
+            const newUser = {
                 phone: phone,
                 password: password,
                 balance: 5000.00,
@@ -312,22 +295,16 @@
                 alias: ''
             };
 
-            // Sincronización segura con Supabase con try/catch para evitar bloqueos
-            if (db) {
-                try {
-                    const { error } = await db.from('users').insert([currentUser]);
-                    if (error) console.warn('Aviso de nube:', error.message);
-                } catch (e) {
-                    console.log('Modo sin conexión a red activa, operando localmente.');
-                }
+            const { data, error } = await db.from('users').insert([newUser]).select();
+
+            if (error) {
+                alert("Error al registrar en Supabase: " + error.message);
+            } else {
+                alert("¡Registro exitoso! Se acreditaron $5.000 ARS de regalo.");
+                currentUser = data[0];
+                iniciarApp();
+                document.getElementById('welcome-modal').style.display = 'flex';
             }
-
-            localStorage.setItem('aura_logged_phone', phone);
-            localStorage.setItem('aura_data_' + phone, JSON.stringify(currentUser));
-
-            alert("¡Registro exitoso! Se acreditaron $5.000 ARS de regalo.");
-            iniciarApp();
-            document.getElementById('welcome-modal').style.display = 'flex';
         }
 
         async function handleLogin(event) {
@@ -335,38 +312,16 @@
             const phone = "+54" + document.getElementById('login-phone').value.trim();
             const password = document.getElementById('login-password').value;
 
-            let found = false;
+            if (!db) { alert("Supabase no está conectado."); return; }
 
-            if (db) {
-                try {
-                    const { data, error } = await db.from('users').select('*').eq('phone', phone).eq('password', password).maybeSingle();
-                    if (data) {
-                        currentUser = data;
-                        found = true;
-                    }
-                } catch (e) {
-                    console.log('Búsqueda en nube omitida.');
-                }
-            }
+            const { data, error } = await db.from('users').select('*').eq('phone', phone).eq('password', password).maybeSingle();
 
-            if (!found) {
-                const localData = localStorage.getItem('aura_data_' + phone);
-                if (localData) {
-                    const parsed = JSON.parse(localData);
-                    if (parsed.password === password) {
-                        currentUser = parsed;
-                        found = true;
-                    }
-                }
-            }
-
-            if (!found) {
+            if (error || !data) {
                 alert("Teléfono o contraseña incorrectos.");
-                return;
+            } else {
+                currentUser = data;
+                iniciarApp();
             }
-
-            localStorage.setItem('aura_logged_phone', currentUser.phone);
-            iniciarApp();
         }
 
         function iniciarApp() {
@@ -385,22 +340,17 @@
         }
 
         async function syncToSupabase() {
-            if (db && currentUser && currentUser.phone) {
-                try {
-                    await db.from('users').update({
-                        balance: currentUser.balance,
-                        investments: currentUser.investments,
-                        withdrawals: currentUser.withdrawals,
-                        has_active_product: currentUser.has_active_product,
-                        fuliname: currentUser.fuliname,
-                        cbu: currentUser.cbu,
-                        alias: currentUser.alias
-                    }).eq('phone', currentUser.phone);
-                } catch (e) {
-                    console.error('Error al sincronizar con nube', e);
-                }
+            if (db && currentUser) {
+                await db.from('users').update({
+                    balance: currentUser.balance,
+                    investments: currentUser.investments,
+                    withdrawals: currentUser.withdrawals,
+                    has_active_product: currentUser.has_active_product,
+                    fuliname: currentUser.fuliname,
+                    cbu: currentUser.cbu,
+                    alias: currentUser.alias
+                }).eq('id', currentUser.id);
             }
-            localStorage.setItem('aura_data_' + currentUser.phone, JSON.stringify(currentUser));
         }
 
         function renderCatalog() {
@@ -505,7 +455,6 @@
         }
 
         function handleLogout() {
-            localStorage.removeItem('aura_logged_phone');
             currentUser = null;
             document.getElementById('app-screen').classList.remove('active');
             document.getElementById('auth-screen').classList.add('active');
