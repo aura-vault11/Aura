@@ -15,10 +15,35 @@
         .view.active { display: block; }
         .hidden { display: none; }
 
+        /* Espacio para el Logo */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .logo-container img {
+            max-width: 120px;
+            max-height: 60px;
+            object-fit: contain;
+        }
+        /* Si prefieres usar texto o un placeholder mientras subes la imagen del logo */
+        .logo-placeholder {
+            width: 80px;
+            height: 80px;
+            background: #2a2a2a;
+            border: 2px dashed #444;
+            border-radius: 50%;
+            margin: 0 auto 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #888;
+        }
+
         /* Auth Modo Oscuro */
         .auth-container { max-width: 400px; margin: 40px auto; background: #1e1e1e; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: center; border: 1px solid #333; }
-        .auth-container h1 { color: #fff; }
-        .auth-container p { color: #aaa; }
+        .auth-container h1 { color: #fff; margin-bottom: 5px; }
+        .auth-container p { color: #aaa; margin-bottom: 20px; }
         .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #333; }
         .auth-tabs button { flex: 1; padding: 10px; background: none; border: none; font-weight: bold; cursor: pointer; color: #888; }
         .auth-tabs button.active { border-bottom: 2px solid #28a745; color: #28a745; }
@@ -63,6 +88,12 @@
     <!-- PANTALLA DE ACCESO -->
     <div id="auth-screen" class="screen active">
         <div class="auth-container">
+            <!-- ESPACIO PARA EL LOGO (Reemplaza src con la ruta de tu logo, ej: img/logo.png) -->
+            <div class="logo-container">
+                <img src="img/logo.png" alt="Logo Aura" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
+                <div id="fallback-logo" class="logo-placeholder">LOGO</div>
+            </div>
+
             <h1>AURA</h1>
             <p>Flota de Movilidad Sostenible</p>
             
@@ -187,8 +218,8 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'Tus_Supabase_URL';
-        const SUPABASE_ANON_KEY = 'Tus_Supabase_Anon_Key';
+        const SUPABASE_URL = 'https://eferjhaovfvdtxrjppufv.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmZXJjhaovfvdtxrjppufvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzQ2OTgsImV4cCI6MjEwOTExMDY5OH0.b0yVpCRGVUNGv9B-F9XT2rZxpXau9iU1l3J-fDI3MAE';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUser = null;
