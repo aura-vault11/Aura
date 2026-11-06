@@ -230,7 +230,7 @@
             </div>
         </main>
 
-        <!-- PESTAÑA 3: MI EQUIPO (3 NIVELES Y CÓDIGO ÚNICO EXPLICATIVO) -->
+        <!-- PESTAÑA 3: MI EQUIPO (3 NIVELES Y CÓDIGO ÚNICO) -->
         <main id="view-equipo" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <h3 class="font-bold text-sm text-green-400">🔗 Tu Código de Invitación Único</h3>
@@ -275,8 +275,9 @@
             </div>
         </main>
 
-        <!-- PESTAÑA 4: FINANZAS (HISTORIAL, CVU OFICIAL Y AVISO DE $15.000) -->
+        <!-- PESTAÑA 4: FINANZAS (CARGA, PEDIDO DE RETIRO Y HISTORIAL) -->
         <main id="view-finanzas" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            <!-- Bloque de Carga (CVU Oficial) -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <h3 class="font-bold text-sm text-gray-200">Datos para Carga de Saldo (CVU Oficial)</h3>
                 <p class="text-xs text-gray-400">Copia este CVU para transferir tu depósito a la plataforma:</p>
@@ -286,6 +287,22 @@
                 </div>
                 <div class="bg-amber-900/30 border border-amber-500/30 rounded-lg p-2.5 text-center">
                     <p class="text-xs text-amber-300 font-semibold">⚠️ Mínimo de carga / depósito permitido: $15.000 ARS</p>
+                </div>
+            </div>
+
+            <!-- NUEVO BLOQUE: SOLICITUD DE RETIRO DE FONDOS -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-sm text-green-400">💸 Solicitud de Retiro</h3>
+                    <span class="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded border border-gray-700">Máx 1 por día</span>
+                </div>
+                <p class="text-xs text-gray-400">Ingresa el monto a retirar (Tope máximo: $1.000.000 ARS):</p>
+                <div class="space-y-2">
+                    <div class="relative">
+                        <span class="absolute left-3 top-2.5 text-xs text-gray-400 font-bold">$</span>
+                        <input type="number" id="withdraw-amount" placeholder="Ej: 20000" class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-7 pr-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                    </div>
+                    <button onclick="procesarSolicitudRetiro()" class="w-full bg-green-500 hover:bg-green-400 text-gray-950 font-bold py-2.5 rounded-lg text-xs transition shadow">Solicitar Retiro</button>
                 </div>
             </div>
 
@@ -374,7 +391,7 @@
             
             <div class="text-xs text-gray-300 space-y-2 text-left bg-gray-800/70 p-3 rounded-lg border border-gray-700">
                 <p>🕒 <strong>Horario de Atención:</strong> Lunes a Viernes de 09:00 a 21:00 hs.</p>
-                <p>💸 <strong>Retiros:</strong> Máximo 1 retiro por día.</p>
+                <p>💸 <strong>Retiros:</strong> Máximo 1 retiro por día (Tope: $1.000.000 ARS).</p>
                 <p>💳 <strong>Mínimo de Carga:</strong> $15.000 ARS.</p>
                 <p>👥 <strong>Invita y Gana:</strong> Ve a <em>Mi Equipo</em> para invitar a tus amigos y familiares.</p>
             </div>
@@ -427,6 +444,7 @@
                     referral_code: uniqueCode,
                     balance: 5000,
                     last_checkin_timestamp: null,
+                    last_withdraw_timestamp: null,
                     holder: "",
                     cbu: "",
                     alias: "",
@@ -450,19 +468,31 @@
             let holder = "", cbu = "", alias = "";
             let history = [];
             let products = [];
+            let last_withdraw_timestamp = null;
 
             if (storedUser) {
                 const parsed = JSON.parse(storedUser);
                 if (parsed.referral_code) code = parsed.referral_code;
-                if (parsed.balance) balance = parsed.balance;
+                if (parsed.balance !== undefined) balance = parsed.balance;
                 if (parsed.holder) holder = parsed.holder;
                 if (parsed.cbu) cbu = parsed.cbu;
                 if (parsed.alias) alias = parsed.alias;
                 if (parsed.history) history = parsed.history;
                 if (parsed.products) products = parsed.products;
+                if (parsed.last_withdraw_timestamp) last_withdraw_timestamp = parsed.last_withdraw_timestamp;
             }
 
-            currentUserData = { phone: phone, referral_code: code, balance: balance, holder: holder, cbu: cbu, alias: alias, history: history, products: products };
+            currentUserData = { 
+                phone: phone, 
+                referral_code: code, 
+                balance: balance, 
+                holder: holder, 
+                cbu: cbu, 
+                alias: alias, 
+                history: history, 
+                products: products,
+                last_withdraw_timestamp: last_withdraw_timestamp 
+            };
 
             document.getElementById('my-referral-code').innerText = code;
             document.getElementById('user-balance').innerText = balance;
@@ -516,6 +546,62 @@
             document.getElementById('user-balance').innerText = currentUserData.balance;
             renderHistorial();
             alert("¡Bono acreditado! Has reclamado $500 ARS. Tu próximo reclamo estará disponible en 24 horas.");
+        }
+
+        // FUNCIÓN PARA PROCESAR SOLICITUD DE RETIRO (MÁX 1/DÍA - HASTA $1.000.000)
+        function procesarSolicitudRetiro() {
+            const withdrawInput = document.getElementById('withdraw-amount');
+            const monto = parseFloat(withdrawInput.value);
+
+            if (!monto || monto <= 0) {
+                alert("Por favor ingresa un monto válido a retirar.");
+                return;
+            }
+
+            if (!currentUserData.holder || !currentUserData.cbu || !currentUserData.alias) {
+                alert("Debes completar tus datos bancarios (Titular, CBU/CVU y Alias) en la pestaña Perfil antes de retirar.");
+                navTo('perfil');
+                return;
+            }
+
+            if (monto > 1000000) {
+                alert("El tope máximo por solicitud de retiro es de $1.000.000 ARS.");
+                return;
+            }
+
+            if (monto > currentUserData.balance) {
+                alert("Saldo insuficiente para realizar este retiro.");
+                return;
+            }
+
+            const ahora = new Date().getTime();
+            const tiempoEspera = 24 * 60 * 60 * 1000;
+
+            const storedUser = localStorage.getItem('aura_user_data_' + currentUserData.phone);
+            let userObj = storedUser ? JSON.parse(storedUser) : currentUserData;
+
+            if (userObj.last_withdraw_timestamp && (ahora - userObj.last_withdraw_timestamp) < tiempoEspera) {
+                const tiempoRestanteMs = tiempoEspera - (ahora - userObj.last_withdraw_timestamp);
+                const horasRestantes = Math.floor(tiempoRestanteMs / (1000 * 60 * 60));
+                const minutosRestantes = Math.floor((tiempoRestanteMs % (1000 * 60 * 60)) / (1000 * 60));
+
+                alert(`Solo se permite 1 retiro por día. Podrás realizar tu próximo retiro en ${horasRestantes}h y ${minutosRestantes}m.`);
+                return;
+            }
+
+            userObj.balance -= monto;
+            userObj.last_withdraw_timestamp = ahora;
+            userObj.history.unshift({ title: "Solicitud de Retiro", amount: -monto, type: "withdraw", date: new Date().toLocaleTimeString() });
+
+            localStorage.setItem('aura_user_data_' + currentUserData.phone, JSON.stringify(userObj));
+            currentUserData.balance = userObj.balance;
+            currentUserData.history = userObj.history;
+            currentUserData.last_withdraw_timestamp = ahora;
+
+            document.getElementById('user-balance').innerText = currentUserData.balance;
+            withdrawInput.value = '';
+            renderHistorial();
+            alert(`¡Solicitud enviada con éxito! Se ha procesado el retiro por $${monto.toLocaleString()} ARS a tu cuenta declarada.`);
         }
 
         function renderProductosActivos() {
@@ -628,5 +714,4 @@
         };
     </script>
 </body>
-    </html>
-    
+</html>
