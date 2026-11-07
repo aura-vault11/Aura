@@ -232,33 +232,49 @@
                 </div>
             </div>
 
-            <h3 class="font-bold text-base text-green-400 pt-2">⭐ Mi Red de Referidos por Cargas</h3>
+            <div class="bg-green-900/30 border border-green-500/30 rounded-xl p-3 text-center">
+                <p class="text-xs text-green-300 font-semibold">⚡ Comisiones acreditadas de forma automática en tu saldo disponible ante cada carga de tu red.</p>
+            </div>
+
+            <h3 class="font-bold text-base text-green-400 pt-2">⭐ Mi Red de Referidos (Avance por Activos)</h3>
+            
             <div class="space-y-3">
-                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-1">
+                <!-- Nivel 1 -->
+                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-2">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-sm text-white">Nivel 1</span>
                         <span class="text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded border border-green-500/30">30% sobre Cargas</span>
                     </div>
-                    <p class="text-xs text-gray-400">Obtienes el 30% de cada recarga de tus invitados directos (Tope: 15 invitados).</p>
-                    <p class="text-sm font-bold text-gray-200 mt-1">Registrados: <span id="count-n1">0</span> / 15</p>
+                    <p class="text-xs text-gray-400">Comisión directa por cargas (Tope: 15 usuarios ACTIVOS).</p>
+                    <p class="text-sm font-bold text-gray-200">Activos con carga: <span id="count-n1">0</span> / 15</p>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-1">
+                <!-- Nivel 2 -->
+                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-2">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-sm text-white">Nivel 2</span>
                         <span class="text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded border border-green-500/30">15% + 5% sobre Cargas</span>
                     </div>
-                    <p class="text-xs text-gray-400">Obtienes comisión por cargas de los invitados de tus referidos (Tope: 50 invitados).</p>
-                    <p class="text-sm font-bold text-gray-200 mt-1">Registrados: <span id="count-n2">0</span> / 50</p>
+                    <p class="text-xs text-gray-400">Comisión al completar los 15 activos del Nivel 1 (Tope: 50 ACTIVOS).</p>
+                    <p class="text-sm font-bold text-gray-200">Activos con carga: <span id="count-n2">0</span> / 50</p>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-1">
+                <!-- Nivel 3 -->
+                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-2">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-sm text-white">Nivel 3</span>
                         <span class="text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded border border-green-500/30">10% + 5% sobre Cargas</span>
                     </div>
-                    <p class="text-xs text-gray-400">Red ampliada permanente: 10% por invitado directo y 5% por el invitado del invitado de tu invitado.</p>
-                    <p class="text-sm font-bold text-gray-200 mt-1">Registrados: <span id="count-n3">0</span></p>
+                    <p class="text-xs text-gray-400">Red ampliada permanente sin límite de cupo al completar los 50 activos del Nivel 2.</p>
+                    <p class="text-sm font-bold text-gray-200">Activos con carga: <span id="count-n3">0</span></p>
+                </div>
+            </div>
+
+            <!-- Listado Transparente de Invitados -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3 mt-4">
+                <h3 class="font-bold text-sm text-green-400">📋 Lista de Invitados de mi Red</h3>
+                <div id="referrals-list" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                    <p class="text-xs text-gray-400 text-center py-2">Cargando invitados...</p>
                 </div>
             </div>
         </main>
@@ -280,7 +296,7 @@
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <div class="flex justify-between items-center">
                     <h3 class="font-bold text-sm text-green-400">💸 Solicitud de Retiro</h3>
-                    <span class="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded border border-gray-700">Máx 1 por día</span>
+                    <span class="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded border border-gray-700">Lunes a Lunes</span>
                 </div>
                 <p class="text-xs text-gray-400">Ingresa el monto a retirar (Tope máximo: $1.000.000 ARS):</p>
                 <div class="space-y-2">
@@ -359,20 +375,20 @@
         </nav>
     </div>
 
-    <!-- POPUP DE BIENVENIDA -->
+    <!-- POPUP DE BIENVENIDA POR LANZAMIENTO -->
     <div id="modal-lanzamiento" class="fixed inset-0 bg-black/80 flex justify-center items-center p-4 z-50">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
             <h3 class="text-xl font-bold text-green-400">🚀 ¡Bienvenido a AURA!</h3>
             
             <div class="text-xs text-gray-300 space-y-2 text-left bg-gray-800/70 p-3 rounded-lg border border-gray-700">
-                <p>🕒 <strong>Horario de Atención:</strong> Lunes a Viernes de 09:00 a 21:00 hs.</p>
+                <p>🕒 <strong>Período de Lanzamiento:</strong> Retiros procesados de Lunes a Lunes (09:00 a 21:00 hs).</p>
                 <p>💸 <strong>Retiros:</strong> Máximo 1 retiro por día (Tope: $1.000.000 ARS).</p>
                 <p>💳 <strong>Mínimo de Carga:</strong> $15.000 ARS.</p>
-                <p>👥 <strong>Invita y Gana:</strong> Ve a <em>Mi Equipo</em> para invitar a tus amigos y familiares.</p>
+                <p>👥 <strong>Invita y Gana:</strong> Ve a <em>Mi Equipo</em> para invitar a tus amigos y ver tus comisiones automáticas.</p>
             </div>
 
             <a href="https://chat.whatsapp.com" target="_blank" class="block w-full bg-green-600 hover:bg-green-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">
-                Unirme al Grupo de WhatsApp
+                Unirme al Canal Oficial de WhatsApp
             </a>
             <button onclick="cerrarModal()" class="w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-2.5 rounded-lg text-sm transition">
                 Entendido, ¡Empezar!
@@ -380,7 +396,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE CONECTADO A AURA-7CA44 -->
+    <!-- SCRIPT FIREBASE Y LÓGICA COMPLETA CONECTADA A AURA-7CA44 -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBhQ8tC7IFzzXygkIQLZqeNINzZqXAtZps",
@@ -392,13 +408,13 @@
             measurementId: "G-T8FSE583EG"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
         let mode = 'register';
         let currentUserPhone = null;
         let currentUserData = null;
+        let timerInterval = null;
 
         function switchTab(selectedMode) {
             mode = selectedMode;
@@ -470,19 +486,22 @@
             }
         }
 
-        // ESCUCHADOR EN TIEMPO REAL CON FIRESTORE
         function escucharUsuario(phone) {
             currentUserPhone = phone;
             db.collection('users').doc(phone).onSnapshot(doc => {
                 if (doc.exists) {
                     currentUserData = doc.data();
                     actualizarInterfazUI();
-                    contarReferidos();
+                    contarReferidosYListar();
                 }
             });
 
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
+
+            if (!timerInterval) {
+                timerInterval = setInterval(actualizarTemporizadoresEnVivo, 1000);
+            }
         }
 
         function actualizarInterfazUI() {
@@ -500,50 +519,194 @@
             renderProductosActivos();
         }
 
-        // CONTAR Y CLASIFICAR REFERIDOS EN FIRESTORE (NIVEL 1, 2 Y 3)
-        async function contarReferidos() {
+        // RED DE REFERIDOS Y LISTA CON ETIQUETAS DE ESTADO (🟢 / 🟡)
+        async function contarReferidosYListar() {
             if (!currentUserData || !currentUserData.referral_code) return;
 
-            const n1Snapshot = await db.collection('users').where('invited_by', '==', currentUserData.referral_code).get();
-            let countN1 = n1Snapshot.size;
+            const snapshot = await db.collection('users').where('invited_by', '==', currentUserData.referral_code).get();
+            
+            let countActivosN1 = 0;
+            let countActivosN2 = 0;
+            let countActivosN3 = 0;
+            let htmlList = "";
 
-            let countN2 = 0;
-            let countN3 = 0;
+            if (snapshot.empty) {
+                document.getElementById('referrals-list').innerHTML = `<p class="text-xs text-gray-400 text-center py-2">Aún no tienes invitados en tu red.</p>`;
+                document.getElementById('count-n1').innerText = "0";
+                document.getElementById('count-n2').innerText = "0";
+                document.getElementById('count-n3').innerText = "0";
+                return;
+            }
 
-            let n1Codes = [];
-            n1Snapshot.forEach(doc => {
-                n1Codes.push(doc.data().referral_code);
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const esActivo = data.has_active_product || (data.investments && data.investments.length > 0);
+                
+                if (esActivo) {
+                    if (countActivosN1 < 15) {
+                        countActivosN1++;
+                    } else if (countActivosN2 < 50) {
+                        countActivosN2++;
+                    } else {
+                        countActivosN3++;
+                    }
+                }
+
+                const telOculto = data.phone ? data.phone.slice(0, 6) + '***' + data.phone.slice(-3) : 'Usuario';
+
+                htmlList += `
+                    <div class="flex justify-between items-center bg-gray-800/60 p-2.5 rounded-lg text-xs">
+                        <div>
+                            <p class="font-semibold text-white">${telOculto}</p>
+                            <p class="text-[10px] text-gray-400">Código: ${data.referral_code || 'N/A'}</p>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${esActivo ? 'bg-green-900/50 text-green-400 border border-green-500/30' : 'bg-amber-900/50 text-amber-400 border border-amber-500/30'}">
+                            ${esActivo ? '🟢 Activo / Depositó' : '🟡 Pendiente de Depósito'}
+                        </span>
+                    </div>
+                `;
             });
 
-            if (n1Codes.length > 0) {
-                const n2Snapshot = await db.collection('users').where('invited_by', 'in', n1Codes.slice(0, 10)).get();
-                countN2 = n2Snapshot.size;
+            document.getElementById('referrals-list').innerHTML = htmlList;
+            document.getElementById('count-n1').innerText = countActivosN1;
+            document.getElementById('count-n2').innerText = countActivosN2;
+            document.getElementById('count-n3').innerText = countActivosN3;
+        }
 
-                let n2Codes = [];
-                n2Snapshot.forEach(doc => {
-                    n2Codes.push(doc.data().referral_code);
-                });
+        // TEMPORIZADOR EN VIVO (24 HS) + CONTEO REGRESIVO DE 90 DÍAS
+        function renderProductosActivos() {
+            const container = document.getElementById('my-products-list');
+            if (!currentUserData || !currentUserData.investments || currentUserData.investments.length === 0) {
+                container.innerHTML = `<div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center"><p class="text-sm text-gray-400">Aún no tienes productos activos produciendo ingresos.</p></div>`;
+                return;
+            }
 
-                if (n2Codes.length > 0) {
-                    const n3Snapshot = await db.collection('users').where('invited_by', 'in', n2Codes.slice(0, 10)).get();
-                    countN3 = n3Snapshot.size;
+            container.innerHTML = currentUserData.investments.map((p, index) => {
+                const diasRestantes = p.days_left !== undefined ? p.days_left : 90;
+                return `
+                    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-bold text-sm text-green-400">${p.nombre}</h4>
+                            <span class="text-xs bg-green-900/40 border border-green-500/30 text-green-300 px-2 py-0.5 rounded-full">Días restantes: ${diasRestantes} / 90</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-gray-400">
+                            <span>Ganancia diaria: ARS ${p.daily.toLocaleString()}</span>
+                            <span>Adquirido: ${p.date}</span>
+                        </div>
+                        <div class="bg-gray-800/80 p-2.5 rounded-lg flex justify-between items-center mt-2 border border-gray-700">
+                            <span class="text-[11px] text-gray-300">Próxima acreditación en:</span>
+                            <span id="timer-${index}" class="text-xs font-mono font-bold text-green-400 bg-green-950 px-2.5 py-1 rounded border border-green-500/30">Cargando reloj...</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function actualizarTemporizadoresEnVivo() {
+            if (!currentUserData || !currentUserData.investments) return;
+
+            const ahora = new Date().getTime();
+            let huboAcreditacion = false;
+
+            for (let i = 0; i < currentUserData.investments.length; i++) {
+                const inv = currentUserData.investments[i];
+                const timerEl = document.getElementById(`timer-${i}`);
+                
+                const startTime = inv.last_payout_timestamp || inv.created_timestamp || ahora;
+                const nextPayout = startTime + (24 * 60 * 60 * 1000);
+                const diff = nextPayout - ahora;
+
+                if (diff <= 0) {
+                    // ACREDITACIÓN AUTOMÁTICA AL COMPLETAR 24 HS
+                    huboAcreditacion = true;
+                    inv.last_payout_timestamp = ahora;
+                    inv.days_left = (inv.days_left !== undefined ? inv.days_left : 90) - 1;
+
+                    currentUserData.balance = (currentUserData.balance || 0) + inv.daily;
+                    currentUserData.history.unshift({
+                        title: `Ganancia Diaria: ${inv.nombre}`,
+                        amount: inv.daily,
+                        type: "earning",
+                        date: new Date().toLocaleTimeString()
+                    });
+                } else if (timerEl) {
+                    const h = Math.floor(diff / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    const hh = h < 10 ? '0' + h : h;
+                    const mm = m < 10 ? '0' + m : m;
+                    const ss = s < 10 ? '0' + s : s;
+
+                    timerEl.innerText = `${hh}h ${mm}m ${ss}s`;
                 }
             }
 
-            let finalN2 = countN2;
-            let finalN3 = countN3;
-
-            if (countN2 > 50) {
-                finalN3 += (countN2 - 50);
-                finalN2 = 50;
+            if (huboAcreditacion) {
+                await db.collection('users').doc(currentUserPhone).update({
+                    balance: currentUserData.balance,
+                    investments: currentUserData.investments,
+                    history: currentUserData.history
+                });
             }
-
-            document.getElementById('count-n1').innerText = countN1;
-            document.getElementById('count-n2').innerText = finalN2;
-            document.getElementById('count-n3').innerText = finalN3;
         }
 
-        // RECLAMAR BONO DIARIO EN FIRESTORE
+        // HISTORIAL CON ESTADOS DINÁMICOS DE RETIRO (🟡 PENDIENTE / 🟢 RETIRADO)
+        function renderHistorial() {
+            const container = document.getElementById('history-list');
+            if (!currentUserData || !currentUserData.history) return;
+            
+            container.innerHTML = currentUserData.history.map(item => {
+                let badgeEstado = "";
+                if (item.type === "withdraw") {
+                    const esCompletado = item.status === "completed";
+                    badgeEstado = `<span class="ml-2 text-[9px] px-1.5 py-0.5 rounded font-bold ${esCompletado ? 'bg-green-900 text-green-300' : 'bg-amber-900 text-amber-300'}">${esCompletado ? '🟢 Retirado' : '🟡 Pendiente'}</span>`;
+                }
+
+                return `
+                    <div class="flex justify-between items-center bg-gray-800/60 p-2.5 rounded-lg text-xs">
+                        <div>
+                            <p class="font-semibold text-white flex items-center">${item.title} ${badgeEstado}</p>
+                            <p class="text-[10px] text-gray-400">${item.date}</p>
+                        </div>
+                        <span class="${item.amount < 0 ? 'text-red-400' : 'text-green-400'} font-bold">${item.amount < 0 ? '' : '+'}${item.amount.toLocaleString()} ARS</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // COMPRAR PRODUCTO DE INVERSIÓN
+        async function comprarProducto(nombre, precio, daily) {
+            if (currentUserData.balance < precio) {
+                alert("Saldo insuficiente. El depósito mínimo aceptado es de $15.000 ARS. Copia el CVU en Finanzas.");
+                return;
+            }
+
+            const ahora = new Date().getTime();
+            const nuevoHistorial = currentUserData.history || [];
+            nuevoHistorial.unshift({ title: "Compra: " + nombre, amount: -precio, type: "purchase", date: new Date().toLocaleTimeString() });
+
+            const nuevasInversiones = currentUserData.investments || [];
+            nuevasInversiones.push({
+                nombre: nombre,
+                daily: daily,
+                date: new Date().toLocaleDateString(),
+                created_timestamp: ahora,
+                last_payout_timestamp: ahora,
+                days_left: 90
+            });
+
+            await db.collection('users').doc(currentUserPhone).update({
+                balance: firebase.firestore.FieldValue.increment(-precio),
+                has_active_product: true,
+                history: nuevoHistorial,
+                investments: nuevasInversiones
+            });
+
+            alert(`¡Has adquirido ${nombre}! Tu inversión comenzó a producir ingresos por 90 días.`);
+        }
+
+        // RECLAMAR BONO DIARIO
         async function reclamarBonoDiario() {
             const ahora = new Date().getTime();
             const tiempoEspera = 24 * 60 * 60 * 1000;
@@ -569,7 +732,7 @@
             alert("¡Bono acreditado en Firestore! Se sumaron $500 ARS a tu balance.");
         }
 
-        // SOLICITUD DE RETIRO EN FIRESTORE
+        // SOLICITUD DE RETIRO
         async function procesarSolicitudRetiro() {
             const withdrawInput = document.getElementById('withdraw-amount');
             const monto = parseFloat(withdrawInput.value);
@@ -614,7 +777,13 @@
             }
 
             const nuevoHistorial = currentUserData.history || [];
-            nuevoHistorial.unshift({ title: "Solicitud de Retiro", amount: -monto, type: "withdraw", date: new Date().toLocaleTimeString() });
+            nuevoHistorial.unshift({
+                title: "Solicitud de Retiro",
+                amount: -monto,
+                type: "withdraw",
+                status: "pending",
+                date: new Date().toLocaleTimeString()
+            });
 
             const nuevosRetiros = currentUserData.withdrawals || [];
             nuevosRetiros.unshift({ amount: monto, date: new Date().toLocaleDateString(), status: "pending" });
@@ -627,33 +796,10 @@
             });
 
             withdrawInput.value = '';
-            alert(`¡Solicitud enviada! Descontamos $${monto.toLocaleString()} ARS de tu cuenta en Firebase.`);
+            alert(`¡Solicitud enviada! Quedó registrada como 'Pendiente' en tu historial.`);
         }
 
-        // COMPRAR PRODUCTO DE INVERSIÓN
-        async function comprarProducto(nombre, precio, daily) {
-            if (currentUserData.balance < precio) {
-                alert("Saldo insuficiente. El depósito mínimo aceptado es de $15.000 ARS. Copia el CVU en Finanzas.");
-                return;
-            }
-
-            const nuevoHistorial = currentUserData.history || [];
-            nuevoHistorial.unshift({ title: "Compra: " + nombre, amount: -precio, type: "purchase", date: new Date().toLocaleTimeString() });
-
-            const nuevasInversiones = currentUserData.investments || [];
-            nuevasInversiones.push({ nombre: nombre, daily: daily, date: new Date().toLocaleDateString() });
-
-            await db.collection('users').doc(currentUserPhone).update({
-                balance: firebase.firestore.FieldValue.increment(-precio),
-                has_active_product: true,
-                history: nuevoHistorial,
-                investments: nuevasInversiones
-            });
-
-            alert(`¡Has adquirido ${nombre}! Tu inversión y estado activo quedaron registrados en Firebase.`);
-        }
-
-        // GUARDAR DATOS BANCARIOS EN FIRESTORE
+        // GUARDAR DATOS BANCARIOS
         async function guardarDatosBancarios() {
             const holder = document.getElementById('user-holder').value.trim();
             const cbu = document.getElementById('user-cbu').value.trim();
@@ -671,42 +817,6 @@
             });
 
             alert("¡Datos bancarios guardados en Firestore correctamente!");
-        }
-
-        function renderHistorial() {
-            const container = document.getElementById('history-list');
-            if (!currentUserData || !currentUserData.history) return;
-            container.innerHTML = currentUserData.history.map(item => `
-                <div class="flex justify-between items-center bg-gray-800/60 p-2.5 rounded-lg text-xs">
-                    <div>
-                        <p class="font-semibold text-white">${item.title}</p>
-                        <p class="text-[10px] text-gray-400">${item.date}</p>
-                    </div>
-                    <span class="${item.amount < 0 ? 'text-red-400' : 'text-green-400'} font-bold">${item.amount < 0 ? '' : '+'}${item.amount.toLocaleString()} ARS</span>
-                </div>
-            `).join('');
-        }
-
-        function renderProductosActivos() {
-            const container = document.getElementById('my-products-list');
-            if (!currentUserData || !currentUserData.investments || currentUserData.investments.length === 0) {
-                container.innerHTML = `<div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center"><p class="text-sm text-gray-400">Aún no tienes productos activos produciendo ingresos.</p></div>`;
-                return;
-            }
-
-            container.innerHTML = currentUserData.investments.map(p => `
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex justify-between items-center">
-                    <div>
-                        <h4 class="font-bold text-sm text-green-400">${p.nombre}</h4>
-                        <p class="text-xs text-gray-400">Ganancia diaria: ARS ${p.daily.toLocaleString()}</p>
-                        <p class="text-[10px] text-gray-500">Adquirido: ${p.date}</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-[10px] text-gray-400 block">Próxima acreditación:</span>
-                        <span class="text-xs font-mono font-bold text-green-400 border border-green-500/30 px-2 py-1 rounded bg-green-900/30">23h 59m 50s</span>
-                    </div>
-                </div>
-            `).join('');
         }
 
         function navTo(screen) {
@@ -732,6 +842,7 @@
         }
 
         function cerrarSesion() {
+            if (timerInterval) clearInterval(timerInterval);
             localStorage.removeItem('aura_user_phone');
             location.reload();
         }
