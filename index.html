@@ -409,7 +409,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON LOGICA COMPLETA DE FIRESTORE, TEMPORIZADOR Y CARGAS -->
+    <!-- SCRIPT CON LOGICA FIRESTORE, TEMPORIZADOR AUTO-CORREGIDO Y CARGAS -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBhQ8tC7IFzzXygkIQLZqeNINzZqXAtZps",
@@ -526,9 +526,9 @@
 
             renderHistorial();
             renderProductosActivos();
+            actualizarTemporizadoresEnVivo();
         }
 
-        // NOTIFICAR DEPÓSITO VÍA WHATSAPP (CON PRE-ARMADO Y ESTADO PENDIENTE)
         async function notificarDepositoWhatsApp() {
             const depositInput = document.getElementById('deposit-amount');
             const monto = parseFloat(depositInput.value);
@@ -562,7 +562,6 @@
             window.open(waUrl, '_blank');
         }
 
-        // RED DE REFERIDOS Y COMISIONES AUTOMÁTICAS (30%)
         async function contarReferidosYAcreditarComision() {
             if (!currentUserData || !currentUserData.referral_code) return;
 
@@ -666,24 +665,32 @@
                         </div>
                         <div class="bg-gray-800/80 p-2.5 rounded-lg flex justify-between items-center mt-2 border border-gray-700">
                             <span class="text-[11px] text-gray-300">Próxima acreditación en:</span>
-                            <span id="timer-${index}" class="text-xs font-mono font-bold text-green-400 bg-green-950 px-2.5 py-1 rounded border border-green-500/30">Cargando reloj...</span>
+                            <span id="timer-${index}" class="text-xs font-mono font-bold text-green-400 bg-green-950 px-2.5 py-1 rounded border border-green-500/30">Calculando...</span>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // RELOJ REGRESIVO EN VIVO SEGUNDO A SEGUNDO
+        // FUNCIÓN DE TEMPORIZADORES EN VIVO SEGUNDO A SEGUNDO (A PRUEBA DE FALLOS)
         function actualizarTemporizadoresEnVivo() {
             if (!currentUserData || !currentUserData.investments) return;
 
             const ahora = new Date().getTime();
+            let requierGuardado = false;
 
             for (let i = 0; i < currentUserData.investments.length; i++) {
                 const inv = currentUserData.investments[i];
                 const timerEl = document.getElementById(`timer-${i}`);
                 
-                const startTime = inv.last_payout_timestamp || inv.created_timestamp || ahora;
+                // Si la inversión no traía timestamp registrado en Firestore, asigna el tiempo actual
+                if (!inv.created_timestamp) {
+                    inv.created_timestamp = ahora;
+                    inv.last_payout_timestamp = ahora;
+                    requierGuardado = true;
+                }
+
+                const startTime = inv.last_payout_timestamp || inv.created_timestamp;
                 const nextPayout = startTime + (24 * 60 * 60 * 1000);
                 const diff = nextPayout - ahora;
 
@@ -716,9 +723,14 @@
                     timerEl.innerText = `${hh}h ${mm}m ${ss}s`;
                 }
             }
+
+            if (requierGuardado) {
+                db.collection('users').doc(currentUserPhone).update({
+                    investments: currentUserData.investments
+                });
+            }
         }
 
-        // HISTORIAL UNIFICADO CON ETIQUETAS DE RETIROS Y CARGAS
         function renderHistorial() {
             const container = document.getElementById('history-list');
             if (!currentUserData || !currentUserData.history) return;
@@ -886,6 +898,7 @@
             alert("¡Datos bancarios guardados en Firestore correctamente!");
         }
 
+        // NAVEGACIÓN Y RE-RENDERIZADO DE PESTAÑAS
         function navTo(screen) {
             const views = ['inicio', 'productos', 'equipo', 'finanzas', 'perfil'];
             views.forEach(v => {
@@ -895,6 +908,11 @@
 
             document.getElementById('view-' + screen).classList.remove('hidden');
             document.getElementById('nav-btn-' + screen).className = "text-green-400 text-xs flex flex-col items-center space-y-1";
+
+            if (screen === 'productos') {
+                renderProductosActivos();
+                actualizarTemporizadoresEnVivo();
+            }
         }
 
         function compartirWhatsApp() {
