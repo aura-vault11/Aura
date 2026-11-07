@@ -53,7 +53,7 @@
         </div>
     </div>
 
-    <!-- PANEL PRINCIPAL CON 5 PESTAÑAS -->
+    <!-- PANEL PRINCIPAL DE 5 PESTAÑAS -->
     <div id="app-screen" class="hidden flex-1 flex flex-col pb-20">
         <header class="bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center sticky top-0 z-10">
             <div class="flex items-center space-x-2">
@@ -75,7 +75,6 @@
                 <button onclick="reclamarBonoDiario()" id="btn-checkin" class="bg-green-500 hover:bg-green-400 text-gray-950 font-bold px-3.5 py-2 rounded-lg text-xs transition shadow">Reclamar $500</button>
             </div>
 
-            <!-- Catálogo de 10 Productos -->
             <div class="space-y-4">
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
                     <img src="estrella1.png" alt="Estrella 1" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella1.PNG'">
@@ -239,7 +238,6 @@
             <h3 class="font-bold text-base text-green-400 pt-2">⭐ Mi Red de Referidos (Avance por Activos)</h3>
             
             <div class="space-y-3">
-                <!-- Nivel 1 -->
                 <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-2">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-sm text-white">Nivel 1</span>
@@ -249,7 +247,6 @@
                     <p class="text-sm font-bold text-gray-200">Activos con carga: <span id="count-n1">0</span> / 15</p>
                 </div>
 
-                <!-- Nivel 2 -->
                 <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-2">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-sm text-white">Nivel 2</span>
@@ -259,7 +256,6 @@
                     <p class="text-sm font-bold text-gray-200">Activos con carga: <span id="count-n2">0</span> / 50</p>
                 </div>
 
-                <!-- Nivel 3 -->
                 <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-2">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-sm text-white">Nivel 3</span>
@@ -279,20 +275,36 @@
             </div>
         </main>
 
-        <!-- PESTAÑA 4: FINANZAS -->
+        <!-- PESTAÑA 4: FINANZAS (CARGA + RETIRO + HISTORIAL) -->
         <main id="view-finanzas" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
+            
+            <!-- MÓDULO DE CARGA DE SALDO -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
-                <h3 class="font-bold text-sm text-gray-200">Datos para Carga de Saldo (CVU Oficial)</h3>
-                <p class="text-xs text-gray-400">Copia este CVU para transferir tu depósito a la plataforma:</p>
+                <h3 class="font-bold text-sm text-green-400">💳 Carga de Saldo (Depósito)</h3>
+                <p class="text-xs text-gray-400">1. Transfiere tu depósito al CVU oficial de AURA:</p>
+                
                 <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
                     <span id="cvu-text" class="text-xs font-mono text-gray-300">0000267900000002996367</span>
                     <button onclick="copiarCvu()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Copiar CVU</button>
                 </div>
-                <div class="bg-amber-900/30 border border-amber-500/30 rounded-lg p-2.5 text-center">
-                    <p class="text-xs text-amber-300 font-semibold">⚠️ Mínimo de carga / depósito permitido: $15.000 ARS</p>
+
+                <p class="text-xs text-gray-400 pt-1">2. Ingresa el monto transferido y envía tu comprobante:</p>
+                <div class="space-y-2">
+                    <div class="relative">
+                        <span class="absolute left-3 top-2.5 text-xs text-gray-400 font-bold">$</span>
+                        <input type="number" id="deposit-amount" placeholder="Ej: 15000 (Mínimo: $15.000 ARS)" class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-7 pr-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                    </div>
+                    <button onclick="notificarDepositoWhatsApp()" class="w-full bg-green-500 hover:bg-green-400 text-gray-950 font-bold py-2.5 rounded-lg text-xs transition shadow flex items-center justify-center space-x-1">
+                        <span>📲 Notificar Depósito y Enviar Comprobante</span>
+                    </button>
+                </div>
+
+                <div class="bg-amber-900/30 border border-amber-500/30 rounded-lg p-2 text-center mt-1">
+                    <p class="text-[11px] text-amber-300 font-semibold">⚠️ Mínimo de carga / depósito permitido: $15.000 ARS</p>
                 </div>
             </div>
 
+            <!-- SOLICITUD DE RETIRO -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <div class="flex justify-between items-center">
                     <h3 class="font-bold text-sm text-green-400">💸 Solicitud de Retiro</h3>
@@ -308,6 +320,7 @@
                 </div>
             </div>
 
+            <!-- HISTORIAL UNIFICADO DE MOVIMIENTOS -->
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <h3 class="font-bold text-sm text-green-400">📜 Historial de Movimientos</h3>
                 <div id="history-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
@@ -350,7 +363,7 @@
             </div>
         </main>
 
-        <!-- NAVEGACIÓN INFERIOR FIJA -->
+        <!-- BARRA NAVEGACIÓN INFERIOR FIJA -->
         <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex justify-around py-2.5 z-10">
             <button onclick="navTo('inicio')" id="nav-btn-inicio" class="text-green-400 text-xs flex flex-col items-center space-y-1">
                 <span class="text-base">🏠</span>
@@ -375,7 +388,7 @@
         </nav>
     </div>
 
-    <!-- POPUP DE BIENVENIDA POR LANZAMIENTO -->
+    <!-- POPUP DE BIENVENIDA -->
     <div id="modal-lanzamiento" class="fixed inset-0 bg-black/80 flex justify-center items-center p-4 z-50">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
             <h3 class="text-xl font-bold text-green-400">🚀 ¡Bienvenido a AURA!</h3>
@@ -396,7 +409,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE Y LÓGICA COMPLETA CONECTADA A AURA-7CA44 -->
+    <!-- SCRIPT CON LOGICA COMPLETA DE FIRESTORE, TEMPORIZADOR Y CARGAS -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBhQ8tC7IFzzXygkIQLZqeNINzZqXAtZps",
@@ -414,7 +427,6 @@
         let mode = 'register';
         let currentUserPhone = null;
         let currentUserData = null;
-        let timerInterval = null;
 
         function switchTab(selectedMode) {
             mode = selectedMode;
@@ -468,6 +480,7 @@
                     fullname: "",
                     investments: [],
                     withdrawals: [],
+                    deposits: [],
                     history: [{ title: "Bono de Registro (Única vez)", amount: 5000, type: "bonus", date: new Date().toLocaleTimeString() }],
                     created_at: firebase.firestore.FieldValue.serverTimestamp()
                 };
@@ -492,16 +505,12 @@
                 if (doc.exists) {
                     currentUserData = doc.data();
                     actualizarInterfazUI();
-                    contarReferidosYListar();
+                    contarReferidosYAcreditarComision();
                 }
             });
 
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-screen').classList.remove('hidden');
-
-            if (!timerInterval) {
-                timerInterval = setInterval(actualizarTemporizadoresEnVivo, 1000);
-            }
         }
 
         function actualizarInterfazUI() {
@@ -519,8 +528,42 @@
             renderProductosActivos();
         }
 
-        // RED DE REFERIDOS Y LISTA CON ETIQUETAS DE ESTADO (🟢 / 🟡)
-        async function contarReferidosYListar() {
+        // NOTIFICAR DEPÓSITO VÍA WHATSAPP (CON PRE-ARMADO Y ESTADO PENDIENTE)
+        async function notificarDepositoWhatsApp() {
+            const depositInput = document.getElementById('deposit-amount');
+            const monto = parseFloat(depositInput.value);
+
+            if (!monto || monto < 15000) {
+                alert("El monto mínimo de depósito permitido es de $15.000 ARS.");
+                return;
+            }
+
+            const nuevoHistorial = currentUserData.history || [];
+            nuevoHistorial.unshift({
+                title: "Carga de Saldo",
+                amount: monto,
+                type: "deposit",
+                status: "pending",
+                date: new Date().toLocaleTimeString()
+            });
+
+            const nuevosDepositos = currentUserData.deposits || [];
+            nuevosDepositos.unshift({ amount: monto, date: new Date().toLocaleDateString(), status: "pending" });
+
+            await db.collection('users').doc(currentUserPhone).update({
+                history: nuevoHistorial,
+                deposits: nuevosDepositos
+            });
+
+            depositInput.value = '';
+
+            const mensaje = `Hola AURA ⚡, quiero notificar mi carga de $${monto.toLocaleString()} ARS para mi cuenta registrada ${currentUserPhone}. Adjunto comprobante de transferencia.`;
+            const waUrl = `https://wa.me/message/PTDSIWHXYKYSO1?text=${encodeURIComponent(mensaje)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // RED DE REFERIDOS Y COMISIONES AUTOMÁTICAS (30%)
+        async function contarReferidosYAcreditarComision() {
             if (!currentUserData || !currentUserData.referral_code) return;
 
             const snapshot = await db.collection('users').where('invited_by', '==', currentUserData.referral_code).get();
@@ -529,6 +572,8 @@
             let countActivosN2 = 0;
             let countActivosN3 = 0;
             let htmlList = "";
+            let comisionesPendientesASumar = 0;
+            let referidosProcesados = currentUserData.processed_commissions || [];
 
             if (snapshot.empty) {
                 document.getElementById('referrals-list').innerHTML = `<p class="text-xs text-gray-400 text-center py-2">Aún no tienes invitados en tu red.</p>`;
@@ -540,6 +585,7 @@
 
             snapshot.forEach(doc => {
                 const data = doc.data();
+                const refPhone = doc.id;
                 const esActivo = data.has_active_product || (data.investments && data.investments.length > 0);
                 
                 if (esActivo) {
@@ -549,6 +595,23 @@
                         countActivosN2++;
                     } else {
                         countActivosN3++;
+                    }
+
+                    if (!referidosProcesados.includes(refPhone)) {
+                        let primerMonto = 15000;
+                        if (data.investments && data.investments.length > 0 && data.investments[0].precio) {
+                            primerMonto = data.investments[0].precio;
+                        }
+                        const comision = primerMonto * 0.30;
+                        comisionesPendientesASumar += comision;
+                        referidosProcesados.push(refPhone);
+
+                        currentUserData.history.unshift({
+                            title: `Comisión Nivel 1: ${data.phone ? data.phone.slice(-4) : 'Referido'}`,
+                            amount: comision,
+                            type: "referral_bonus",
+                            date: new Date().toLocaleTimeString()
+                        });
                     }
                 }
 
@@ -571,9 +634,17 @@
             document.getElementById('count-n1').innerText = countActivosN1;
             document.getElementById('count-n2').innerText = countActivosN2;
             document.getElementById('count-n3').innerText = countActivosN3;
+
+            if (comisionesPendientesASumar > 0) {
+                await db.collection('users').doc(currentUserPhone).update({
+                    balance: firebase.firestore.FieldValue.increment(comisionesPendientesASumar),
+                    processed_commissions: referidosProcesados,
+                    history: currentUserData.history
+                });
+                alert(`¡Se ha acreditado automáticamente +$${comisionesPendientesASumar.toLocaleString()} ARS por comisiones de tu red!`);
+            }
         }
 
-        // TEMPORIZADOR EN VIVO (24 HS) + CONTEO REGRESIVO DE 90 DÍAS
         function renderProductosActivos() {
             const container = document.getElementById('my-products-list');
             if (!currentUserData || !currentUserData.investments || currentUserData.investments.length === 0) {
@@ -602,11 +673,11 @@
             }).join('');
         }
 
-        async function actualizarTemporizadoresEnVivo() {
+        // RELOJ REGRESIVO EN VIVO SEGUNDO A SEGUNDO
+        function actualizarTemporizadoresEnVivo() {
             if (!currentUserData || !currentUserData.investments) return;
 
             const ahora = new Date().getTime();
-            let huboAcreditacion = false;
 
             for (let i = 0; i < currentUserData.investments.length; i++) {
                 const inv = currentUserData.investments[i];
@@ -617,8 +688,6 @@
                 const diff = nextPayout - ahora;
 
                 if (diff <= 0) {
-                    // ACREDITACIÓN AUTOMÁTICA AL COMPLETAR 24 HS
-                    huboAcreditacion = true;
                     inv.last_payout_timestamp = ahora;
                     inv.days_left = (inv.days_left !== undefined ? inv.days_left : 90) - 1;
 
@@ -628,6 +697,12 @@
                         amount: inv.daily,
                         type: "earning",
                         date: new Date().toLocaleTimeString()
+                    });
+
+                    db.collection('users').doc(currentUserPhone).update({
+                        balance: currentUserData.balance,
+                        investments: currentUserData.investments,
+                        history: currentUserData.history
                     });
                 } else if (timerEl) {
                     const h = Math.floor(diff / (1000 * 60 * 60));
@@ -641,17 +716,9 @@
                     timerEl.innerText = `${hh}h ${mm}m ${ss}s`;
                 }
             }
-
-            if (huboAcreditacion) {
-                await db.collection('users').doc(currentUserPhone).update({
-                    balance: currentUserData.balance,
-                    investments: currentUserData.investments,
-                    history: currentUserData.history
-                });
-            }
         }
 
-        // HISTORIAL CON ESTADOS DINÁMICOS DE RETIRO (🟡 PENDIENTE / 🟢 RETIRADO)
+        // HISTORIAL UNIFICADO CON ETIQUETAS DE RETIROS Y CARGAS
         function renderHistorial() {
             const container = document.getElementById('history-list');
             if (!currentUserData || !currentUserData.history) return;
@@ -661,6 +728,9 @@
                 if (item.type === "withdraw") {
                     const esCompletado = item.status === "completed";
                     badgeEstado = `<span class="ml-2 text-[9px] px-1.5 py-0.5 rounded font-bold ${esCompletado ? 'bg-green-900 text-green-300' : 'bg-amber-900 text-amber-300'}">${esCompletado ? '🟢 Retirado' : '🟡 Pendiente'}</span>`;
+                } else if (item.type === "deposit") {
+                    const esAprobado = item.status === "approved";
+                    badgeEstado = `<span class="ml-2 text-[9px] px-1.5 py-0.5 rounded font-bold ${esAprobado ? 'bg-green-900 text-green-300' : 'bg-amber-900 text-amber-300'}">${esAprobado ? '🟢 Depositado' : '🟡 En Revisión'}</span>`;
                 }
 
                 return `
@@ -675,10 +745,9 @@
             }).join('');
         }
 
-        // COMPRAR PRODUCTO DE INVERSIÓN
         async function comprarProducto(nombre, precio, daily) {
             if (currentUserData.balance < precio) {
-                alert("Saldo insuficiente. El depósito mínimo aceptado es de $15.000 ARS. Copia el CVU en Finanzas.");
+                alert("Saldo insuficiente. El depósito mínimo aceptado es de $15.000 ARS. Ve a Finanzas para notificar tu carga.");
                 return;
             }
 
@@ -689,6 +758,7 @@
             const nuevasInversiones = currentUserData.investments || [];
             nuevasInversiones.push({
                 nombre: nombre,
+                precio: precio,
                 daily: daily,
                 date: new Date().toLocaleDateString(),
                 created_timestamp: ahora,
@@ -706,7 +776,6 @@
             alert(`¡Has adquirido ${nombre}! Tu inversión comenzó a producir ingresos por 90 días.`);
         }
 
-        // RECLAMAR BONO DIARIO
         async function reclamarBonoDiario() {
             const ahora = new Date().getTime();
             const tiempoEspera = 24 * 60 * 60 * 1000;
@@ -729,10 +798,9 @@
                 history: nuevoHistorial
             });
 
-            alert("¡Bono acreditado en Firestore! Se sumaron $500 ARS a tu balance.");
+            alert("¡Bono acreditado! Se sumaron $500 ARS a tu balance.");
         }
 
-        // SOLICITUD DE RETIRO
         async function procesarSolicitudRetiro() {
             const withdrawInput = document.getElementById('withdraw-amount');
             const monto = parseFloat(withdrawInput.value);
@@ -799,7 +867,6 @@
             alert(`¡Solicitud enviada! Quedó registrada como 'Pendiente' en tu historial.`);
         }
 
-        // GUARDAR DATOS BANCARIOS
         async function guardarDatosBancarios() {
             const holder = document.getElementById('user-holder').value.trim();
             const cbu = document.getElementById('user-cbu').value.trim();
@@ -842,7 +909,6 @@
         }
 
         function cerrarSesion() {
-            if (timerInterval) clearInterval(timerInterval);
             localStorage.removeItem('aura_user_phone');
             location.reload();
         }
@@ -865,6 +931,8 @@
 
             const savedPhone = localStorage.getItem('aura_user_phone');
             if (savedPhone) escucharUsuario(savedPhone);
+
+            setInterval(actualizarTemporizadoresEnVivo, 1000);
         };
     </script>
 </body>
