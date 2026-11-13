@@ -308,14 +308,24 @@
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
                 <div class="flex justify-between items-center">
                     <h3 class="font-bold text-sm text-green-400">💸 Solicitud de Retiro</h3>
-                    <span class="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded border border-gray-700">Lunes a Lunes</span>
+                    <span class="text-[10px] bg-gray-800 text-green-400 px-2 py-0.5 rounded border border-green-500/30">Lun a Sáb • 12 a 20 hs</span>
                 </div>
-                <p class="text-xs text-gray-400">Ingresa el monto a retirar (Tope máximo: $1.000.000 ARS):</p>
+
+                <!-- Reglas de retiro y soporte -->
+                <div class="bg-gray-800/70 border border-gray-700 rounded-lg p-2.5 text-[11px] text-gray-300 space-y-1">
+                    <p>⏰ <strong>Solicitudes de retiro:</strong> Lunes a Sábado de 12:00 a 20:00 hs.</p>
+                    <p>💵 <strong>Mínimo:</strong> $2.500 ARS • <strong>Tope:</strong> $1.000.000 ARS (1 retiro por día).</p>
+                    <p>📉 <strong>Comisión:</strong> 10% sobre cada retiro.</p>
+                    <p class="text-blue-300 pt-0.5 border-t border-gray-700">🎧 <strong>Horario de atención:</strong> Lunes a Sábado de 09:00 a 21:00 hs.</p>
+                </div>
+
+                <p class="text-xs text-gray-400">Ingresa el monto a retirar (Mínimo $2.500 ARS):</p>
                 <div class="space-y-2">
                     <div class="relative">
                         <span class="absolute left-3 top-2.5 text-xs text-gray-400 font-bold">$</span>
-                        <input type="number" id="withdraw-amount" placeholder="Ej: 20000" class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-7 pr-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                        <input type="number" id="withdraw-amount" min="2500" placeholder="Ej: 5000 (Mínimo $2.500)" oninput="actualizarVistaPreviaRetiro()" class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-7 pr-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
                     </div>
+                    <p id="withdraw-net-preview" class="text-[11px] text-green-400 font-semibold">Recibirás neto: $0 ARS (Comisión 10%: $0 ARS)</p>
                     <button onclick="procesarSolicitudRetiro()" class="w-full bg-green-500 hover:bg-green-400 text-gray-950 font-bold py-2.5 rounded-lg text-xs transition shadow">Solicitar Retiro</button>
                 </div>
             </div>
@@ -388,16 +398,18 @@
         </nav>
     </div>
 
-    <!-- POPUP DE BIENVENIDA -->
+    <!-- POPUP DE BIENVENIDA ACTUALIZADO -->
     <div id="modal-lanzamiento" class="fixed inset-0 bg-black/80 flex justify-center items-center p-4 z-50">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
             <h3 class="text-xl font-bold text-green-400">🚀 ¡Bienvenido a AURA!</h3>
             
-            <div class="text-xs text-gray-300 space-y-2 text-left bg-gray-800/70 p-3 rounded-lg border border-gray-700">
-                <p>🕒 <strong>Período de Lanzamiento:</strong> Retiros procesados de Lunes a Lunes (09:00 a 21:00 hs).</p>
-                <p>💸 <strong>Retiros:</strong> Máximo 1 retiro por día (Tope: $1.000.000 ARS).</p>
+            <div class="text-xs text-gray-300 space-y-2 text-left bg-gray-800/70 p-3.5 rounded-lg border border-gray-700 leading-relaxed">
+                <p>⏰ <strong>Solicitudes de Retiro:</strong> Lunes a Sábado de 12:00 a 20:00 hs.</p>
+                <p>💸 <strong>Condiciones de Retiro:</strong> Mínimo $2.500 ARS • Máximo 1 retiro por día (Tope: $1.000.000 ARS).</p>
+                <p>📉 <strong>Comisión de Retiro:</strong> 10% sobre el monto retirado.</p>
+                <p>🎧 <strong>Horario de Atención:</strong> Lunes a Sábado de 09:00 a 21:00 hs.</p>
                 <p>💳 <strong>Mínimo de Carga:</strong> $15.000 ARS.</p>
-                <p>👥 <strong>Invita y Gana:</strong> Ve a <em>Mi Equipo</em> para invitar a tus amigos y ver tus comisiones automáticas.</p>
+                <p>👥 <strong>Invita y Gana:</strong> Ve a <em>Mi Equipo</em> para invitar a tus amigos y ganar comisiones automáticas.</p>
             </div>
 
             <a href="https://chat.whatsapp.com" target="_blank" class="block w-full bg-green-600 hover:bg-green-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">
@@ -409,7 +421,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON LOGICA FIRESTORE, TEMPORIZADOR AUTO-CORREGIDO Y CARGAS -->
+    <!-- SCRIPT CON LOGICA FIRESTORE, TEMPORIZADOR Y RETIROS ACTUALIZADOS -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBhQ8tC7IFzzXygkIQLZqeNINzZqXAtZps",
@@ -672,7 +684,7 @@
             }).join('');
         }
 
-        // FUNCIÓN DE TEMPORIZADORES EN VIVO SEGUNDO A SEGUNDO (A PRUEBA DE FALLOS)
+        // FUNCIÓN DE TEMPORIZADORES EN VIVO SEGUNDO A SEGUNDO
         function actualizarTemporizadoresEnVivo() {
             if (!currentUserData || !currentUserData.investments) return;
 
@@ -683,7 +695,6 @@
                 const inv = currentUserData.investments[i];
                 const timerEl = document.getElementById(`timer-${i}`);
                 
-                // Si la inversión no traía timestamp registrado en Firestore, asigna el tiempo actual
                 if (!inv.created_timestamp) {
                     inv.created_timestamp = ahora;
                     inv.last_payout_timestamp = ahora;
@@ -813,15 +824,53 @@
             alert("¡Bono acreditado! Se sumaron $500 ARS a tu balance.");
         }
 
+        // VISTA PREVIA EN VIVO DE COMISIÓN DEL 10%
+        function actualizarVistaPreviaRetiro() {
+            const monto = parseFloat(document.getElementById('withdraw-amount').value) || 0;
+            const comision = monto * 0.10;
+            const neto = monto - comision;
+            const previewEl = document.getElementById('withdraw-net-preview');
+            if (previewEl) {
+                previewEl.innerText = `Recibirás neto: $${neto.toLocaleString('es-AR')} ARS (Comisión 10%: $${comision.toLocaleString('es-AR')} ARS)`;
+            }
+        }
+
+        // PROCESO DE RETIRO ACTUALIZADO (LUN-SÁB 12-20 HS, MÍNIMO $2.500, COMISIÓN 10%, 1 POR DÍA CALENDARIO)
         async function procesarSolicitudRetiro() {
             const withdrawInput = document.getElementById('withdraw-amount');
             const monto = parseFloat(withdrawInput.value);
 
-            if (!monto || monto <= 0) {
-                alert("Por favor ingresa un monto válido.");
+            // Obtener fecha y hora actual en Argentina (GMT-3)
+            const ahoraDate = new Date();
+            const fechaArg = new Date(ahoraDate.toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+            const diaSemana = fechaArg.getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+            const horaActual = fechaArg.getHours();
+            const fechaHoyStr = fechaArg.toLocaleDateString('es-AR'); // Ej: "13/11/2026"
+
+            // 1. Validar día (Lunes a Sábado - Bloquear Domingo)
+            if (diaSemana === 0) {
+                alert("❌ Las solicitudes de retiro están habilitadas únicamente de Lunes a Sábado.");
                 return;
             }
 
+            // 2. Validar horario de retiros (12:00 a 20:00 hs)
+            if (horaActual < 12 || horaActual >= 20) {
+                alert("⏰ El horario para solicitar retiros es de 12:00 a 20:00 hs (Lunes a Sábado).\n\n🎧 Recordá que nuestro horario de atención al cliente es de Lunes a Sábado de 09:00 a 21:00 hs.");
+                return;
+            }
+
+            // 3. Validar monto mínimo ($2.500 ARS) y máximo ($1.000.000 ARS)
+            if (isNaN(monto) || monto < 2500) {
+                alert("💵 El monto mínimo de retiro es de $2.500 ARS.");
+                return;
+            }
+
+            if (monto > 1000000) {
+                alert("El tope máximo por solicitud de retiro es de $1.000.000 ARS.");
+                return;
+            }
+
+            // 4. Validar producto activo y datos bancarios
             if (!currentUserData.has_active_product && (!currentUserData.investments || currentUserData.investments.length === 0)) {
                 alert("Para solicitar un retiro debes tener al menos 1 producto de inversión activo.");
                 navTo('inicio');
@@ -834,49 +883,58 @@
                 return;
             }
 
-            if (monto > 1000000) {
-                alert("El tope máximo por solicitud de retiro es de $1.000.000 ARS.");
-                return;
-            }
-
             if (monto > currentUserData.balance) {
                 alert("Saldo insuficiente para retirar.");
                 return;
             }
 
-            const ahora = new Date().getTime();
-            const tiempoEspera = 24 * 60 * 60 * 1000;
+            // 5. Validar 1 retiro por DÍA CALENDARIO (no 24 hs de reloj)
+            let ultimoDiaRetiro = currentUserData.last_withdraw_date || "";
+            if (!ultimoDiaRetiro && currentUserData.last_withdraw_timestamp) {
+                const fechaUltimo = new Date(new Date(currentUserData.last_withdraw_timestamp).toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+                ultimoDiaRetiro = fechaUltimo.toLocaleDateString('es-AR');
+            }
 
-            if (currentUserData.last_withdraw_timestamp && (ahora - currentUserData.last_withdraw_timestamp) < tiempoEspera) {
-                const tiempoRestanteMs = tiempoEspera - (ahora - currentUserData.last_withdraw_timestamp);
-                const horasRestantes = Math.floor(tiempoRestanteMs / (1000 * 60 * 60));
-                const minutosRestantes = Math.floor((tiempoRestanteMs % (1000 * 60 * 60)) / (1000 * 60));
-
-                alert(`Solo podés retirar 1 vez por día. Podrás retirar nuevamente en ${horasRestantes}h y ${minutosRestantes}m.`);
+            if (ultimoDiaRetiro === fechaHoyStr) {
+                alert("⚠️ Solo podés solicitar 1 retiro por día. Podrás volver a solicitar mañana de 12:00 a 20:00 hs.");
                 return;
             }
 
+            // 6. Calcular comisión del 10% y monto neto a pagar
+            const comision = monto * 0.10;
+            const montoNeto = monto - comision;
+            const ahoraMs = ahoraDate.getTime();
+
             const nuevoHistorial = currentUserData.history || [];
             nuevoHistorial.unshift({
-                title: "Solicitud de Retiro",
+                title: `Retiro (Neto: $${montoNeto.toLocaleString('es-AR')} | Com. 10%)`,
                 amount: -monto,
                 type: "withdraw",
                 status: "pending",
-                date: new Date().toLocaleTimeString()
+                date: fechaArg.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
             });
 
             const nuevosRetiros = currentUserData.withdrawals || [];
-            nuevosRetiros.unshift({ amount: monto, date: new Date().toLocaleDateString(), status: "pending" });
+            nuevosRetiros.unshift({
+                amount_bruto: monto,
+                fee_10: comision,
+                amount_neto: montoNeto,
+                amount: montoNeto,
+                date: fechaHoyStr,
+                status: "pending"
+            });
 
             await db.collection('users').doc(currentUserPhone).update({
                 balance: firebase.firestore.FieldValue.increment(-monto),
-                last_withdraw_timestamp: ahora,
+                last_withdraw_timestamp: ahoraMs,
+                last_withdraw_date: fechaHoyStr,
                 history: nuevoHistorial,
                 withdrawals: nuevosRetiros
             });
 
             withdrawInput.value = '';
-            alert(`¡Solicitud enviada! Quedó registrada como 'Pendiente' en tu historial.`);
+            actualizarVistaPreviaRetiro();
+            alert(`✅ ¡Solicitud de retiro enviada!\n\n• Monto descontado: $${monto.toLocaleString('es-AR')} ARS\n• Comisión (10%): $${comision.toLocaleString('es-AR')} ARS\n• Total neto a recibir: $${montoNeto.toLocaleString('es-AR')} ARS\n\nQuedó registrada como 'Pendiente' en tu historial.`);
         }
 
         async function guardarDatosBancarios() {
