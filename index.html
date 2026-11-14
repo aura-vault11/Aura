@@ -11,197 +11,197 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-gray-950 text-white font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-[#0B0E11] text-[#EAECEF] font-sans antialiased min-h-screen flex flex-col">
 
     <!-- PANTALLA DE AUTENTICACIÓN -->
     <div id="auth-screen" class="flex-1 flex flex-col justify-center items-center p-4 max-w-md mx-auto w-full">
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full shadow-2xl">
+        <div class="bg-[#181A20] border border-[#2B3139] rounded-2xl p-6 w-full shadow-2xl">
             <div class="text-center mb-6">
                 <img src="logo.png" alt="Logo Aura" class="w-24 h-auto mx-auto mb-3 object-contain" onerror="this.src='logo.PNG'">
-                <h1 class="text-2xl font-bold text-green-400 tracking-wider">AURA</h1>
-                <p class="text-xs text-gray-400 mt-1">Flota de Movilidad Sostenible</p>
+                <h1 class="text-2xl font-bold text-[#F0B90B] tracking-wider">AURA</h1>
+                <p class="text-xs text-[#848E9C] mt-1">Flota de Movilidad Sostenible</p>
             </div>
 
-            <div class="flex bg-gray-800 rounded-lg p-1 mb-6">
-                <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white">¿Sos nuevo?</button>
-                <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400">Ya estoy registrado</button>
+            <div class="flex bg-[#2B3139] rounded-lg p-1 mb-6">
+                <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-sm font-semibold rounded-md transition bg-[#F0B90B] text-[#0B0E11]">¿Sos nuevo?</button>
+                <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-2 text-sm font-semibold rounded-md transition text-[#848E9C]">Ya estoy registrado</button>
             </div>
 
             <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4" autocomplete="off">
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Teléfono</label>
-                    <input type="text" id="phone" placeholder="Ej: 341564778" required autocomplete="none" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    <label class="block text-xs text-[#848E9C] mb-1">Teléfono</label>
+                    <input type="text" id="phone" placeholder="Ej: 341564778" required autocomplete="none" class="w-full bg-[#2B3139] border border-[#474D57] rounded-lg px-4 py-3 text-[#EAECEF] focus:outline-none focus:border-[#F0B90B]">
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-400 mb-1">Contraseña</label>
-                    <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                    <label class="block text-xs text-[#848E9C] mb-1">Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" required autocomplete="new-password" class="w-full bg-[#2B3139] border border-[#474D57] rounded-lg px-4 py-3 text-[#EAECEF] focus:outline-none focus:border-[#F0B90B]">
                 </div>
                 
                 <div id="register-fields" class="space-y-4">
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Confirmar Contraseña</label>
-                        <input type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                        <label class="block text-xs text-[#848E9C] mb-1">Confirmar Contraseña</label>
+                        <input type="password" id="confirm-password" placeholder="••••••••" autocomplete="new-password" class="w-full bg-[#2B3139] border border-[#474D57] rounded-lg px-4 py-3 text-[#EAECEF] focus:outline-none focus:border-[#F0B90B]">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Código de Invitación <span class="text-green-400">*Obligatorio</span></label>
-                        <input type="text" id="invite-code" placeholder="Código de quien te invitó" autocomplete="off" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-green-500">
+                        <label class="block text-xs text-[#848E9C] mb-1">Código de Invitación <span class="text-[#F0B90B]">*Obligatorio</span></label>
+                        <input type="text" id="invite-code" placeholder="Código de quien te invitó" autocomplete="off" class="w-full bg-[#2B3139] border border-[#474D57] rounded-lg px-4 py-3 text-[#EAECEF] focus:outline-none focus:border-[#F0B90B]">
                     </div>
                 </div>
 
-                <button type="submit" id="submit-btn" class="w-full bg-green-500 hover:bg-green-600 text-gray-950 font-bold py-3 rounded-lg transition shadow-lg">Registrarse ($5.000 Regalo por única vez)</button>
+                <button type="submit" id="submit-btn" class="w-full bg-[#F0B90B] hover:bg-[#FCD535] text-[#0B0E11] font-bold py-3 rounded-lg transition shadow-lg">Registrarse ($5.000 Regalo por única vez)</button>
             </form>
         </div>
     </div>
 
     <!-- PANEL PRINCIPAL DE 5 PESTAÑAS -->
     <div id="app-screen" class="hidden flex-1 flex flex-col pb-20">
-        <header class="bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center sticky top-0 z-10">
+        <header class="bg-[#181A20] border-b border-[#2B3139] p-4 flex justify-between items-center sticky top-0 z-10">
             <div class="flex items-center space-x-2">
                 <img src="logo.png" alt="Aura" class="w-8 h-8 object-contain" onerror="this.src='logo.PNG'">
-                <h2 class="text-lg font-bold text-white" id="header-title">Flota Eléctrica</h2>
+                <h2 class="text-lg font-bold text-[#EAECEF]" id="header-title">Flota Eléctrica</h2>
             </div>
-            <div class="bg-green-900/40 border border-green-500/30 px-3 py-1 rounded-full text-green-400 text-xs font-semibold">
+            <div class="bg-[#F0B90B]/15 border border-[#F0B90B]/40 px-3 py-1 rounded-full text-[#F0B90B] text-xs font-semibold">
                 Capital: ARS <span id="user-balance">5000</span>
             </div>
         </header>
 
         <!-- PESTAÑA 1: INICIO -->
         <main id="view-inicio" class="p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
-            <div class="bg-gradient-to-r from-green-900/60 to-gray-900 border border-green-500/30 rounded-xl p-4 flex justify-between items-center shadow">
+            <div class="bg-gradient-to-r from-[#2B2310] to-[#1E2329] border border-[#F0B90B]/40 rounded-xl p-4 flex justify-between items-center shadow">
                 <div>
-                    <h3 class="font-bold text-sm text-green-400">🎁 Bono Diario de Check-in</h3>
-                    <p class="text-xs text-gray-300 mt-0.5">Reclama $500 ARS cada 24 horas</p>
+                    <h3 class="font-bold text-sm text-[#F0B90B]">🎁 Bono Diario de Check-in</h3>
+                    <p class="text-xs text-[#EAECEF] mt-0.5">Reclama $500 ARS cada 24 horas</p>
                 </div>
-                <button onclick="reclamarBonoDiario()" id="btn-checkin" class="bg-green-500 hover:bg-green-400 text-gray-950 font-bold px-3.5 py-2 rounded-lg text-xs transition shadow">Reclamar $500</button>
+                <button onclick="reclamarBonoDiario()" id="btn-checkin" class="bg-[#F0B90B] hover:bg-[#FCD535] text-[#0B0E11] font-bold px-3.5 py-2 rounded-lg text-xs transition shadow">Reclamar $500</button>
             </div>
 
             <div class="space-y-4">
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                    <img src="estrella1.png" alt="Estrella 1" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella1.PNG'">
+                <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella1.png" alt="Estrella 1" class="w-20 h-20 object-cover rounded-lg border border-[#474D57]" onerror="this.src='estrella1.PNG'">
                     <div class="flex-1">
-                        <h3 class="font-bold text-sm text-green-400">Estrella 1 - Scooter Urbano Eco</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 2,222</p>
-                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <h3 class="font-bold text-sm text-[#F0B90B]">Estrella 1 - Scooter Urbano Eco</h3>
+                        <p class="text-xs text-[#848E9C] mt-0.5">Ingresos diarios: ARS 2,222</p>
+                        <p class="text-xs text-[#848E9C]">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
-                            <span class="text-sm font-bold text-white">ARS 15,000</span>
-                            <button onclick="comprarProducto('Estrella 1', 15000, 2222)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <span class="text-sm font-bold text-[#EAECEF]">ARS 15,000</span>
+                            <button onclick="comprarProducto('Estrella 1', 15000, 2222)" class="bg-[#F0B90B] text-[#0B0E11] font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-[#FCD535] transition">Comprar</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                    <img src="estrella2.png" alt="Estrella 2" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella2.PNG'">
+                <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella2.png" alt="Estrella 2" class="w-20 h-20 object-cover rounded-lg border border-[#474D57]" onerror="this.src='estrella2.PNG'">
                     <div class="flex-1">
-                        <h3 class="font-bold text-sm text-green-400">Estrella 2 - Bicicleta Eléctrica</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 5,333</p>
-                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <h3 class="font-bold text-sm text-[#F0B90B]">Estrella 2 - Bicicleta Eléctrica</h3>
+                        <p class="text-xs text-[#848E9C] mt-0.5">Ingresos diarios: ARS 5,333</p>
+                        <p class="text-xs text-[#848E9C]">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
-                            <span class="text-sm font-bold text-white">ARS 35,000</span>
-                            <button onclick="comprarProducto('Estrella 2', 35000, 5333)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <span class="text-sm font-bold text-[#EAECEF]">ARS 35,000</span>
+                            <button onclick="comprarProducto('Estrella 2', 35000, 5333)" class="bg-[#F0B90B] text-[#0B0E11] font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-[#FCD535] transition">Comprar</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                    <img src="estrella3.png" alt="Estrella 3" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella3.PNG'">
+                <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella3.png" alt="Estrella 3" class="w-20 h-20 object-cover rounded-lg border border-[#474D57]" onerror="this.src='estrella3.PNG'">
                     <div class="flex-1">
-                        <h3 class="font-bold text-sm text-green-400">Estrella 3 - Moto de Reparto</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 12,444</p>
-                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <h3 class="font-bold text-sm text-[#F0B90B]">Estrella 3 - Moto de Reparto</h3>
+                        <p class="text-xs text-[#848E9C] mt-0.5">Ingresos diarios: ARS 12,444</p>
+                        <p class="text-xs text-[#848E9C]">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
-                            <span class="text-sm font-bold text-white">ARS 80,000</span>
-                            <button onclick="comprarProducto('Estrella 3', 80000, 12444)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <span class="text-sm font-bold text-[#EAECEF]">ARS 80,000</span>
+                            <button onclick="comprarProducto('Estrella 3', 80000, 12444)" class="bg-[#F0B90B] text-[#0B0E11] font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-[#FCD535] transition">Comprar</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                    <img src="estrella4.png" alt="Estrella 4" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella4.PNG'">
+                <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella4.png" alt="Estrella 4" class="w-20 h-20 object-cover rounded-lg border border-[#474D57]" onerror="this.src='estrella4.PNG'">
                     <div class="flex-1">
-                        <h3 class="font-bold text-sm text-green-400">Estrella 4 - Triciclo de Carga</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 24,000</p>
-                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <h3 class="font-bold text-sm text-[#F0B90B]">Estrella 4 - Triciclo de Carga</h3>
+                        <p class="text-xs text-[#848E9C] mt-0.5">Ingresos diarios: ARS 24,000</p>
+                        <p class="text-xs text-[#848E9C]">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
-                            <span class="text-sm font-bold text-white">ARS 150,000</span>
-                            <button onclick="comprarProducto('Estrella 4', 150000, 24000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <span class="text-sm font-bold text-[#EAECEF]">ARS 150,000</span>
+                            <button onclick="comprarProducto('Estrella 4', 150000, 24000)" class="bg-[#F0B90B] text-[#0B0E11] font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-[#FCD535] transition">Comprar</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                    <img src="estrella5.png" alt="Estrella 5" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella5.PNG'">
+                <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella5.png" alt="Estrella 5" class="w-20 h-20 object-cover rounded-lg border border-[#474D57]" onerror="this.src='estrella5.PNG'">
                     <div class="flex-1">
-                        <h3 class="font-bold text-sm text-green-400">Estrella 5 - Auto Eléctrico Urbano</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 50,000</p>
-                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <h3 class="font-bold text-sm text-[#F0B90B]">Estrella 5 - Auto Eléctrico Urbano</h3>
+                        <p class="text-xs text-[#848E9C] mt-0.5">Ingresos diarios: ARS 50,000</p>
+                        <p class="text-xs text-[#848E9C]">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
-                            <span class="text-sm font-bold text-white">ARS 300,000</span>
-                            <button onclick="comprarProducto('Estrella 5', 300000, 50000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <span class="text-sm font-bold text-[#EAECEF]">ARS 300,000</span>
+                            <button onclick="comprarProducto('Estrella 5', 300000, 50000)" class="bg-[#F0B90B] text-[#0B0E11] font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-[#FCD535] transition">Comprar</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                    <img src="estrella6.png" alt="Estrella 6" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella6.PNG'">
+                <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella6.png" alt="Estrella 6" class="w-20 h-20 object-cover rounded-lg border border-[#474D57]" onerror="this.src='estrella6.PNG'">
                     <div class="flex-1">
-                        <h3 class="font-bold text-sm text-green-400">Estrella 6 - Van Eléctrica Ejecutiva</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 105,000</p>
-                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <h3 class="font-bold text-sm text-[#F0B90B]">Estrella 6 - Van Eléctrica Ejecutiva</h3>
+                        <p class="text-xs text-[#848E9C] mt-0.5">Ingresos diarios: ARS 105,000</p>
+                        <p class="text-xs text-[#848E9C]">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
-                            <span class="text-sm font-bold text-white">ARS 600,000</span>
-                            <button onclick="comprarProducto('Estrella 6', 600000, 105000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <span class="text-sm font-bold text-[#EAECEF]">ARS 600,000</span>
+                            <button onclick="comprarProducto('Estrella 6', 600000, 105000)" class="bg-[#F0B90B] text-[#0B0E11] font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-[#FCD535] transition">Comprar</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                    <img src="estrella7.png" alt="Estrella 7" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella7.PNG'">
+                <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella7.png" alt="Estrella 7" class="w-20 h-20 object-cover rounded-lg border border-[#474D57]" onerror="this.src='estrella7.PNG'">
                     <div class="flex-1">
-                        <h3 class="font-bold text-sm text-green-400">Estrella 7 - Minibús Sostenible</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 220,000</p>
-                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <h3 class="font-bold text-sm text-[#F0B90B]">Estrella 7 - Minibús Sostenible</h3>
+                        <p class="text-xs text-[#848E9C] mt-0.5">Ingresos diarios: ARS 220,000</p>
+                        <p class="text-xs text-[#848E9C]">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
-                            <span class="text-sm font-bold text-white">ARS 1,200,000</span>
-                            <button onclick="comprarProducto('Estrella 7', 1200000, 220000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <span class="text-sm font-bold text-[#EAECEF]">ARS 1,200,000</span>
+                            <button onclick="comprarProducto('Estrella 7', 1200000, 220000)" class="bg-[#F0B90B] text-[#0B0E11] font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-[#FCD535] transition">Comprar</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                    <img src="estrella8.png" alt="Estrella 8" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella8.PNG'">
+                <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella8.png" alt="Estrella 8" class="w-20 h-20 object-cover rounded-lg border border-[#474D57]" onerror="this.src='estrella8.PNG'">
                     <div class="flex-1">
-                        <h3 class="font-bold text-sm text-green-400">Estrella 8 - Colectivo Eléctrico</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 480,000</p>
-                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <h3 class="font-bold text-sm text-[#F0B90B]">Estrella 8 - Colectivo Eléctrico</h3>
+                        <p class="text-xs text-[#848E9C] mt-0.5">Ingresos diarios: ARS 480,000</p>
+                        <p class="text-xs text-[#848E9C]">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
-                            <span class="text-sm font-bold text-white">ARS 2,500,000</span>
-                            <button onclick="comprarProducto('Estrella 8', 2500000, 480000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <span class="text-sm font-bold text-[#EAECEF]">ARS 2,500,000</span>
+                            <button onclick="comprarProducto('Estrella 8', 2500000, 480000)" class="bg-[#F0B90B] text-[#0B0E11] font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-[#FCD535] transition">Comprar</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                    <img src="estrella9.png" alt="Estrella 9" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella9.PNG'">
+                <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella9.png" alt="Estrella 9" class="w-20 h-20 object-cover rounded-lg border border-[#474D57]" onerror="this.src='estrella9.PNG'">
                     <div class="flex-1">
-                        <h3 class="font-bold text-sm text-green-400">Estrella 9 - Flota Industrial Aura</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 1,000,000</p>
-                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <h3 class="font-bold text-sm text-[#F0B90B]">Estrella 9 - Flota Industrial Aura</h3>
+                        <p class="text-xs text-[#848E9C] mt-0.5">Ingresos diarios: ARS 1,000,000</p>
+                        <p class="text-xs text-[#848E9C]">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
-                            <span class="text-sm font-bold text-white">ARS 5,000,000</span>
-                            <button onclick="comprarProducto('Estrella 9', 5000000, 1000000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <span class="text-sm font-bold text-[#EAECEF]">ARS 5,000,000</span>
+                            <button onclick="comprarProducto('Estrella 9', 5000000, 1000000)" class="bg-[#F0B90B] text-[#0B0E11] font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-[#FCD535] transition">Comprar</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow flex space-x-4 items-center">
-                    <img src="estrella10.png" alt="Estrella 10" class="w-20 h-20 object-cover rounded-lg border border-gray-700" onerror="this.src='estrella10.PNG'">
+                <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow flex space-x-4 items-center">
+                    <img src="estrella10.png" alt="Estrella 10" class="w-20 h-20 object-cover rounded-lg border border-[#474D57]" onerror="this.src='estrella10.PNG'">
                     <div class="flex-1">
-                        <h3 class="font-bold text-sm text-green-400">Estrella 10 - Red de Movilidad Global</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Ingresos diarios: ARS 2,200,000</p>
-                        <p class="text-xs text-gray-400">Validez: 90 días</p>
+                        <h3 class="font-bold text-sm text-[#F0B90B]">Estrella 10 - Red de Movilidad Global</h3>
+                        <p class="text-xs text-[#848E9C] mt-0.5">Ingresos diarios: ARS 2,200,000</p>
+                        <p class="text-xs text-[#848E9C]">Validez: 90 días</p>
                         <div class="mt-2 flex justify-between items-center">
-                            <span class="text-sm font-bold text-white">ARS 10,000,000</span>
-                            <button onclick="comprarProducto('Estrella 10', 10000000, 2200000)" class="bg-green-500 text-gray-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-400 transition">Comprar</button>
+                            <span class="text-sm font-bold text-[#EAECEF]">ARS 10,000,000</span>
+                            <button onclick="comprarProducto('Estrella 10', 10000000, 2200000)" class="bg-[#F0B90B] text-[#0B0E11] font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-[#FCD535] transition">Comprar</button>
                         </div>
                     </div>
                 </div>
@@ -210,67 +210,67 @@
 
         <!-- PESTAÑA 2: MI PRODUCTO -->
         <main id="view-productos" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
-            <h3 class="font-bold text-base text-green-400">📦 Mis Inversiones Activas</h3>
+            <h3 class="font-bold text-base text-[#F0B90B]">📦 Mis Inversiones Activas</h3>
             <div id="my-products-list" class="space-y-3">
-                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
-                    <p class="text-sm text-gray-400">Aún no tienes productos activos produciendo ingresos.</p>
+                <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 text-center">
+                    <p class="text-sm text-[#848E9C]">Aún no tienes productos activos produciendo ingresos.</p>
                 </div>
             </div>
         </main>
 
         <!-- PESTAÑA 3: MI EQUIPO -->
         <main id="view-equipo" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
-                <h3 class="font-bold text-sm text-green-400">🔗 Tu Código de Invitación Único</h3>
-                <p class="text-xs text-gray-400">Invita a tus familiares y amigos a unirse a tu red de inversión:</p>
-                <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
-                    <span id="my-referral-code" class="text-sm font-mono font-bold text-white">Cargando...</span>
-                    <button onclick="compartirWhatsApp()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">
+            <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow space-y-3">
+                <h3 class="font-bold text-sm text-[#F0B90B]">🔗 Tu Código de Invitación Único</h3>
+                <p class="text-xs text-[#848E9C]">Invita a tus familiares y amigos a unirse a tu red de inversión:</p>
+                <div class="bg-[#2B3139] p-3 rounded-lg flex justify-between items-center">
+                    <span id="my-referral-code" class="text-sm font-mono font-bold text-[#EAECEF]">Cargando...</span>
+                    <button onclick="compartirWhatsApp()" class="bg-[#F0B90B] hover:bg-[#FCD535] text-[#0B0E11] text-xs font-bold px-3 py-1.5 rounded transition">
                         💬 Compartir en WhatsApp
                     </button>
                 </div>
             </div>
 
-            <div class="bg-green-900/30 border border-green-500/30 rounded-xl p-3 text-center">
-                <p class="text-xs text-green-300 font-semibold">⚡ Comisiones acreditadas de forma automática en tu saldo disponible ante cada carga de tu red.</p>
+            <div class="bg-[#2B2310] border border-[#F0B90B]/40 rounded-xl p-3 text-center">
+                <p class="text-xs text-[#FCD535] font-semibold">⚡ Comisiones acreditadas de forma automática en tu saldo disponible ante cada carga de tu red.</p>
             </div>
 
-            <h3 class="font-bold text-base text-green-400 pt-2">⭐ Mi Red de Referidos (Avance por Activos)</h3>
+            <h3 class="font-bold text-base text-[#F0B90B] pt-2">⭐ Mi Red de Referidos (Avance por Activos)</h3>
             
             <div class="space-y-3">
-                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-2">
+                <div class="bg-[#1E2329] border border-[#2B3139] p-4 rounded-xl space-y-2">
                     <div class="flex justify-between items-center">
-                        <span class="font-bold text-sm text-white">Nivel 1</span>
-                        <span class="text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded border border-green-500/30">30% sobre Cargas</span>
+                        <span class="font-bold text-sm text-[#EAECEF]">Nivel 1</span>
+                        <span class="text-xs bg-[#F0B90B]/15 text-[#F0B90B] px-2 py-0.5 rounded border border-[#F0B90B]/40">30% sobre Cargas</span>
                     </div>
-                    <p class="text-xs text-gray-400">Comisión directa por cargas (Tope: 15 usuarios ACTIVOS).</p>
-                    <p class="text-sm font-bold text-gray-200">Activos con carga: <span id="count-n1">0</span> / 15</p>
+                    <p class="text-xs text-[#848E9C]">Comisión directa por cargas (Tope: 15 usuarios ACTIVOS).</p>
+                    <p class="text-sm font-bold text-[#EAECEF]">Activos con carga: <span id="count-n1" class="text-[#F0B90B]">0</span> / 15</p>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-2">
+                <div class="bg-[#1E2329] border border-[#2B3139] p-4 rounded-xl space-y-2">
                     <div class="flex justify-between items-center">
-                        <span class="font-bold text-sm text-white">Nivel 2</span>
-                        <span class="text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded border border-green-500/30">15% + 5% sobre Cargas</span>
+                        <span class="font-bold text-sm text-[#EAECEF]">Nivel 2</span>
+                        <span class="text-xs bg-[#F0B90B]/15 text-[#F0B90B] px-2 py-0.5 rounded border border-[#F0B90B]/40">15% + 5% sobre Cargas</span>
                     </div>
-                    <p class="text-xs text-gray-400">Comisión al completar los 15 activos del Nivel 1 (Tope: 50 ACTIVOS).</p>
-                    <p class="text-sm font-bold text-gray-200">Activos con carga: <span id="count-n2">0</span> / 50</p>
+                    <p class="text-xs text-[#848E9C]">Comisión al completar los 15 activos del Nivel 1 (Tope: 50 ACTIVOS).</p>
+                    <p class="text-sm font-bold text-[#EAECEF]">Activos con carga: <span id="count-n2" class="text-[#F0B90B]">0</span> / 50</p>
                 </div>
 
-                <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl space-y-2">
+                <div class="bg-[#1E2329] border border-[#2B3139] p-4 rounded-xl space-y-2">
                     <div class="flex justify-between items-center">
-                        <span class="font-bold text-sm text-white">Nivel 3</span>
-                        <span class="text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded border border-green-500/30">10% + 5% sobre Cargas</span>
+                        <span class="font-bold text-sm text-[#EAECEF]">Nivel 3</span>
+                        <span class="text-xs bg-[#F0B90B]/15 text-[#F0B90B] px-2 py-0.5 rounded border border-[#F0B90B]/40">10% + 5% sobre Cargas</span>
                     </div>
-                    <p class="text-xs text-gray-400">Red ampliada permanente sin límite de cupo al completar los 50 activos del Nivel 2.</p>
-                    <p class="text-sm font-bold text-gray-200">Activos con carga: <span id="count-n3">0</span></p>
+                    <p class="text-xs text-[#848E9C]">Red ampliada permanente sin límite de cupo al completar los 50 activos del Nivel 2.</p>
+                    <p class="text-sm font-bold text-[#EAECEF]">Activos con carga: <span id="count-n3" class="text-[#F0B90B]">0</span></p>
                 </div>
             </div>
 
             <!-- Listado Transparente de Invitados -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3 mt-4">
-                <h3 class="font-bold text-sm text-green-400">📋 Lista de Invitados de mi Red</h3>
+            <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow space-y-3 mt-4">
+                <h3 class="font-bold text-sm text-[#F0B90B]">📋 Lista de Invitados de mi Red</h3>
                 <div id="referrals-list" class="space-y-2 max-h-56 overflow-y-auto pr-1">
-                    <p class="text-xs text-gray-400 text-center py-2">Cargando invitados...</p>
+                    <p class="text-xs text-[#848E9C] text-center py-2">Cargando invitados...</p>
                 </div>
             </div>
         </main>
@@ -279,95 +279,95 @@
         <main id="view-finanzas" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
             
             <!-- MÓDULO DE CARGA DE SALDO -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
-                <h3 class="font-bold text-sm text-green-400">💳 Carga de Saldo (Depósito)</h3>
-                <p class="text-xs text-gray-400">1. Transfiere tu depósito al CVU oficial de AURA:</p>
+            <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow space-y-3">
+                <h3 class="font-bold text-sm text-[#F0B90B]">💳 Carga de Saldo (Depósito)</h3>
+                <p class="text-xs text-[#848E9C]">1. Transfiere tu depósito al CVU oficial de AURA:</p>
                 
-                <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
-                    <span id="cvu-text" class="text-xs font-mono text-gray-300">0000267900000002996367</span>
-                    <button onclick="copiarCvu()" class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition">Copiar CVU</button>
+                <div class="bg-[#2B3139] p-3 rounded-lg flex justify-between items-center">
+                    <span id="cvu-text" class="text-xs font-mono text-[#EAECEF]">0000267900000002996367</span>
+                    <button onclick="copiarCvu()" class="bg-[#F0B90B] hover:bg-[#FCD535] text-[#0B0E11] text-xs font-bold px-3 py-1.5 rounded transition">Copiar CVU</button>
                 </div>
 
-                <p class="text-xs text-gray-400 pt-1">2. Ingresa el monto transferido y envía tu comprobante:</p>
+                <p class="text-xs text-[#848E9C] pt-1">2. Ingresa el monto transferido y envía tu comprobante:</p>
                 <div class="space-y-2">
                     <div class="relative">
-                        <span class="absolute left-3 top-2.5 text-xs text-gray-400 font-bold">$</span>
-                        <input type="number" id="deposit-amount" placeholder="Ej: 15000 (Mínimo: $15.000 ARS)" class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-7 pr-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                        <span class="absolute left-3 top-2.5 text-xs text-[#848E9C] font-bold">$</span>
+                        <input type="number" id="deposit-amount" placeholder="Ej: 15000 (Mínimo: $15.000 ARS)" class="w-full bg-[#2B3139] border border-[#474D57] rounded-lg pl-7 pr-3 py-2 text-xs text-[#EAECEF] focus:outline-none focus:border-[#F0B90B]">
                     </div>
-                    <button onclick="notificarDepositoWhatsApp()" class="w-full bg-green-500 hover:bg-green-400 text-gray-950 font-bold py-2.5 rounded-lg text-xs transition shadow flex items-center justify-center space-x-1">
+                    <button onclick="notificarDepositoWhatsApp()" class="w-full bg-[#F0B90B] hover:bg-[#FCD535] text-[#0B0E11] font-bold py-2.5 rounded-lg text-xs transition shadow flex items-center justify-center space-x-1">
                         <span>📲 Notificar Depósito y Enviar Comprobante</span>
                     </button>
                 </div>
 
-                <div class="bg-amber-900/30 border border-amber-500/30 rounded-lg p-2 text-center mt-1">
-                    <p class="text-[11px] text-amber-300 font-semibold">⚠️ Mínimo de carga / depósito permitido: $15.000 ARS</p>
+                <div class="bg-[#2B2310] border border-[#F0B90B]/40 rounded-lg p-2 text-center mt-1">
+                    <p class="text-[11px] text-[#FCD535] font-semibold">⚠️ Mínimo de carga / depósito permitido: $15.000 ARS</p>
                 </div>
             </div>
 
             <!-- SOLICITUD DE RETIRO -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
+            <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow space-y-3">
                 <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-sm text-green-400">💸 Solicitud de Retiro</h3>
-                    <span class="text-[10px] bg-gray-800 text-green-400 px-2 py-0.5 rounded border border-green-500/30">Lun a Sáb • 12 a 20 hs</span>
+                    <h3 class="font-bold text-sm text-[#F0B90B]">💸 Solicitud de Retiro</h3>
+                    <span class="text-[10px] bg-[#2B3139] text-[#F0B90B] px-2 py-0.5 rounded border border-[#F0B90B]/40">Lun a Sáb • 12 a 20 hs</span>
                 </div>
 
                 <!-- Reglas de retiro y soporte -->
-                <div class="bg-gray-800/70 border border-gray-700 rounded-lg p-2.5 text-[11px] text-gray-300 space-y-1">
+                <div class="bg-[#0B0E11]/70 border border-[#2B3139] rounded-lg p-2.5 text-[11px] text-[#EAECEF] space-y-1">
                     <p>⏰ <strong>Solicitudes de retiro:</strong> Lunes a Sábado de 12:00 a 20:00 hs.</p>
                     <p>💵 <strong>Mínimo:</strong> $2.500 ARS • <strong>Tope:</strong> $1.000.000 ARS (1 retiro por día, no acumulables).</p>
                     <p>✅ <strong>Requisito:</strong> Contar con al menos 1 depósito aprobado y un plan activo.</p>
                     <p>📉 <strong>Comisión:</strong> 10% sobre cada retiro.</p>
-                    <p class="text-blue-300 pt-0.5 border-t border-gray-700">🎧 <strong>Horario de atención:</strong> Lunes a Sábado de 09:00 a 21:00 hs.</p>
+                    <p class="text-[#F0B90B] pt-0.5 border-t border-[#2B3139]">🎧 <strong>Horario de atención:</strong> Lunes a Sábado de 09:00 a 21:00 hs.</p>
                 </div>
 
-                <p class="text-xs text-gray-400">Ingresa el monto a retirar (Mínimo $2.500 ARS):</p>
+                <p class="text-xs text-[#848E9C]">Ingresa el monto a retirar (Mínimo $2.500 ARS):</p>
                 <div class="space-y-2">
                     <div class="relative">
-                        <span class="absolute left-3 top-2.5 text-xs text-gray-400 font-bold">$</span>
-                        <input type="number" id="withdraw-amount" min="2500" placeholder="Ej: 5000 (Mínimo $2.500)" oninput="actualizarVistaPreviaRetiro()" class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-7 pr-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                        <span class="absolute left-3 top-2.5 text-xs text-[#848E9C] font-bold">$</span>
+                        <input type="number" id="withdraw-amount" min="2500" placeholder="Ej: 5000 (Mínimo $2.500)" oninput="actualizarVistaPreviaRetiro()" class="w-full bg-[#2B3139] border border-[#474D57] rounded-lg pl-7 pr-3 py-2 text-xs text-[#EAECEF] focus:outline-none focus:border-[#F0B90B]">
                     </div>
-                    <p id="withdraw-net-preview" class="text-[11px] text-green-400 font-semibold">Recibirás neto: $0 ARS (Comisión 10%: $0 ARS)</p>
-                    <button onclick="procesarSolicitudRetiro()" class="w-full bg-green-500 hover:bg-green-400 text-gray-950 font-bold py-2.5 rounded-lg text-xs transition shadow">Solicitar Retiro</button>
+                    <p id="withdraw-net-preview" class="text-[11px] text-[#0ECB81] font-semibold">Recibirás neto: $0 ARS (Comisión 10%: $0 ARS)</p>
+                    <button onclick="procesarSolicitudRetiro()" class="w-full bg-[#F0B90B] hover:bg-[#FCD535] text-[#0B0E11] font-bold py-2.5 rounded-lg text-xs transition shadow">Solicitar Retiro</button>
                 </div>
             </div>
 
             <!-- HISTORIAL UNIFICADO DE MOVIMIENTOS -->
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-3">
-                <h3 class="font-bold text-sm text-green-400">📜 Historial de Movimientos</h3>
+            <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow space-y-3">
+                <h3 class="font-bold text-sm text-[#F0B90B]">📜 Historial de Movimientos</h3>
                 <div id="history-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
             </div>
         </main>
 
         <!-- PESTAÑA 5: PERFIL -->
         <main id="view-perfil" class="hidden p-4 space-y-4 max-w-lg mx-auto w-full flex-1">
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-4">
-                <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+            <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow space-y-4">
+                <div class="flex items-center justify-between border-b border-[#2B3139] pb-3">
                     <div>
-                        <p class="text-xs text-gray-400">Cuenta de Usuario</p>
-                        <h4 id="profile-phone" class="font-bold text-white">+54...</h4>
+                        <p class="text-xs text-[#848E9C]">Cuenta de Usuario</p>
+                        <h4 id="profile-phone" class="font-bold text-[#EAECEF]">+54...</h4>
                     </div>
-                    <span class="bg-green-900/50 text-green-400 text-xs px-2.5 py-1 rounded-full border border-green-500/30">Activo</span>
+                    <span class="bg-[#0ECB81]/15 text-[#0ECB81] text-xs px-2.5 py-1 rounded-full border border-[#0ECB81]/40">Activo</span>
                 </div>
 
                 <div class="space-y-3">
-                    <h4 class="font-bold text-xs text-gray-300">Datos Bancarios para Cobros / Retiros</h4>
+                    <h4 class="font-bold text-xs text-[#EAECEF]">Datos Bancarios para Cobros / Retiros</h4>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Titular de la Cuenta Bancaria <span class="text-green-400">*Obligatorio</span></label>
-                        <input type="text" id="user-holder" placeholder="Nombre completo del titular" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                        <label class="block text-xs text-[#848E9C] mb-1">Titular de la Cuenta Bancaria <span class="text-[#F0B90B]">*Obligatorio</span></label>
+                        <input type="text" id="user-holder" placeholder="Nombre completo del titular" class="w-full bg-[#2B3139] border border-[#474D57] rounded-lg px-3 py-2 text-xs text-[#EAECEF] focus:outline-none focus:border-[#F0B90B]">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">CBU / CVU <span class="text-green-400">*Obligatorio</span></label>
-                        <input type="text" id="user-cbu" placeholder="22 dígitos de tu CBU o CVU" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                        <label class="block text-xs text-[#848E9C] mb-1">CBU / CVU <span class="text-[#F0B90B]">*Obligatorio</span></label>
+                        <input type="text" id="user-cbu" placeholder="22 dígitos de tu CBU o CVU" class="w-full bg-[#2B3139] border border-[#474D57] rounded-lg px-3 py-2 text-xs text-[#EAECEF] focus:outline-none focus:border-[#F0B90B]">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Alias Bancario <span class="text-green-400">*Obligatorio</span></label>
-                        <input type="text" id="user-alias" placeholder="Ej: mi.alias.mp" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-green-500">
+                        <label class="block text-xs text-[#848E9C] mb-1">Alias Bancario <span class="text-[#F0B90B]">*Obligatorio</span></label>
+                        <input type="text" id="user-alias" placeholder="Ej: mi.alias.mp" class="w-full bg-[#2B3139] border border-[#474D57] rounded-lg px-3 py-2 text-xs text-[#EAECEF] focus:outline-none focus:border-[#F0B90B]">
                     </div>
-                    <button onclick="guardarDatosBancarios()" class="w-full bg-green-500 hover:bg-green-400 text-gray-950 font-bold py-2.5 rounded-lg text-xs transition shadow">Guardar Datos de Cobro</button>
+                    <button onclick="guardarDatosBancarios()" class="w-full bg-[#F0B90B] hover:bg-[#FCD535] text-[#0B0E11] font-bold py-2.5 rounded-lg text-xs transition shadow">Guardar Datos de Cobro</button>
                 </div>
 
-                <div class="pt-4 border-t border-gray-800">
-                    <button onclick="cerrarSesion()" class="w-full bg-red-900/40 hover:bg-red-800/60 text-red-300 font-semibold py-2.5 rounded-lg text-xs border border-red-500/30 transition flex items-center justify-center space-x-2">
+                <div class="pt-4 border-t border-[#2B3139]">
+                    <button onclick="cerrarSesion()" class="w-full bg-[#F6465D]/15 hover:bg-[#F6465D]/25 text-[#F6465D] font-semibold py-2.5 rounded-lg text-xs border border-[#F6465D]/40 transition flex items-center justify-center space-x-2">
                         <span>🚪 Cerrar Sesión</span>
                     </button>
                 </div>
@@ -375,24 +375,24 @@
         </main>
 
         <!-- BARRA NAVEGACIÓN INFERIOR FIJA -->
-        <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex justify-around py-2.5 z-10">
-            <button onclick="navTo('inicio')" id="nav-btn-inicio" class="text-green-400 text-xs flex flex-col items-center space-y-1">
+        <nav class="fixed bottom-0 left-0 right-0 bg-[#181A20] border-t border-[#2B3139] flex justify-around py-2.5 z-10">
+            <button onclick="navTo('inicio')" id="nav-btn-inicio" class="text-[#F0B90B] text-xs flex flex-col items-center space-y-1">
                 <span class="text-base">🏠</span>
                 <span>Inicio</span>
             </button>
-            <button onclick="navTo('productos')" id="nav-btn-productos" class="text-gray-400 text-xs flex flex-col items-center space-y-1">
+            <button onclick="navTo('productos')" id="nav-btn-productos" class="text-[#848E9C] text-xs flex flex-col items-center space-y-1">
                 <span class="text-base">📦</span>
                 <span>Mi Producto</span>
             </button>
-            <button onclick="navTo('equipo')" id="nav-btn-equipo" class="text-gray-400 text-xs flex flex-col items-center space-y-1">
+            <button onclick="navTo('equipo')" id="nav-btn-equipo" class="text-[#848E9C] text-xs flex flex-col items-center space-y-1">
                 <span class="text-base">⭐</span>
                 <span>Mi Equipo</span>
             </button>
-            <button onclick="navTo('finanzas')" id="nav-btn-finanzas" class="text-gray-400 text-xs flex flex-col items-center space-y-1">
+            <button onclick="navTo('finanzas')" id="nav-btn-finanzas" class="text-[#848E9C] text-xs flex flex-col items-center space-y-1">
                 <span class="text-base">💰</span>
                 <span>Finanzas</span>
             </button>
-            <button onclick="navTo('perfil')" id="nav-btn-perfil" class="text-gray-400 text-xs flex flex-col items-center space-y-1">
+            <button onclick="navTo('perfil')" id="nav-btn-perfil" class="text-[#848E9C] text-xs flex flex-col items-center space-y-1">
                 <span class="text-base">👤</span>
                 <span>Perfil</span>
             </button>
@@ -400,11 +400,11 @@
     </div>
 
     <!-- POPUP DE BIENVENIDA ACTUALIZADO -->
-    <div id="modal-lanzamiento" class="fixed inset-0 bg-black/80 flex justify-center items-center p-4 z-50">
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
-            <h3 class="text-xl font-bold text-green-400">🚀 ¡Bienvenido a AURA!</h3>
+    <div id="modal-lanzamiento" class="fixed inset-0 bg-black/85 flex justify-center items-center p-4 z-50">
+        <div class="bg-[#1E2329] border border-[#F0B90B]/40 rounded-2xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
+            <h3 class="text-xl font-bold text-[#F0B90B]">🚀 ¡Bienvenido a AURA!</h3>
             
-            <div class="text-xs text-gray-300 space-y-2 text-left bg-gray-800/70 p-3.5 rounded-lg border border-gray-700 leading-relaxed">
+            <div class="text-xs text-[#EAECEF] space-y-2 text-left bg-[#0B0E11]/80 p-3.5 rounded-lg border border-[#2B3139] leading-relaxed">
                 <p>⏰ <strong>Solicitudes de Retiro:</strong> Lunes a Sábado de 12:00 a 20:00 hs.</p>
                 <p>💸 <strong>Condiciones de Retiro:</strong> Mínimo $2.500 ARS • Máximo 1 retiro por día (no acumulables, tope $1.000.000 ARS).</p>
                 <p>✅ <strong>Requisito para Retirar:</strong> Contar con al menos 1 depósito aprobado y un plan activo.</p>
@@ -414,16 +414,16 @@
                 <p>👥 <strong>Invita y Gana:</strong> Ve a <em>Mi Equipo</em> para invitar a tus amigos y ganar comisiones automáticas.</p>
             </div>
 
-            <a href="https://chat.whatsapp.com" target="_blank" class="block w-full bg-green-600 hover:bg-green-500 text-white font-semibold py-2.5 rounded-lg text-sm transition">
+            <a href="https://chat.whatsapp.com" target="_blank" class="block w-full bg-[#F0B90B] hover:bg-[#FCD535] text-[#0B0E11] font-bold py-2.5 rounded-lg text-sm transition">
                 Unirme al Canal Oficial de WhatsApp
             </a>
-            <button onclick="cerrarModal()" class="w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-2.5 rounded-lg text-sm transition">
+            <button onclick="cerrarModal()" class="w-full bg-[#2B3139] hover:bg-[#474D57] text-[#EAECEF] font-semibold py-2.5 rounded-lg text-sm transition">
                 Entendido, ¡Empezar!
             </button>
         </div>
     </div>
 
-    <!-- SCRIPT CON LOGICA FIRESTORE, TEMPORIZADOR Y RETIROS BLINDADOS -->
+    <!-- SCRIPT CON LOGICA FIRESTORE, TEMPORIZADOR, REINTEGROS Y RETIROS BLINDADOS -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBhQ8tC7IFzzXygkIQLZqeNINzZqXAtZps",
@@ -450,13 +450,13 @@
             const submitBtn = document.getElementById('submit-btn');
 
             if (mode === 'login') {
-                btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white";
-                btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400";
+                btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md transition bg-[#F0B90B] text-[#0B0E11]";
+                btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md transition text-[#848E9C]";
                 registerFields.classList.add('hidden');
                 submitBtn.innerText = "Iniciar Sesión";
             } else {
-                btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md transition bg-green-600 text-white";
-                btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md transition text-gray-400";
+                btnRegister.className = "flex-1 py-2 text-sm font-semibold rounded-md transition bg-[#F0B90B] text-[#0B0E11]";
+                btnLogin.className = "flex-1 py-2 text-sm font-semibold rounded-md transition text-[#848E9C]";
                 registerFields.classList.remove('hidden');
                 submitBtn.innerText = "Registrarse ($5.000 Regalo por única vez)";
             }
@@ -516,9 +516,37 @@
 
         function escucharUsuario(phone) {
             currentUserPhone = phone;
-            db.collection('users').doc(phone).onSnapshot(doc => {
+            db.collection('users').doc(phone).onSnapshot(async doc => {
                 if (doc.exists) {
                     currentUserData = doc.data();
+
+                    // Reintegro automático si un retiro fue marcado como "rejected"
+                    let saldoAReintegrar = 0;
+                    let huboReintegros = false;
+                    const historialActualizado = (currentUserData.history || []).map(item => {
+                        if (item.type === "withdraw" && item.status === "rejected" && !item.refunded) {
+                            saldoAReintegrar += Math.abs(item.amount || 0);
+                            huboReintegros = true;
+                            return { ...item, refunded: true };
+                        }
+                        return item;
+                    });
+
+                    if (huboReintegros && saldoAReintegrar > 0) {
+                        historialActualizado.unshift({
+                            title: "Reintegro por Retiro Rechazado",
+                            amount: saldoAReintegrar,
+                            type: "refund",
+                            date: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+                        });
+
+                        await db.collection('users').doc(phone).update({
+                            balance: firebase.firestore.FieldValue.increment(saldoAReintegrar),
+                            history: historialActualizado
+                        });
+                        return;
+                    }
+
                     actualizarInterfazUI();
                     contarReferidosYAcreditarComision();
                 }
@@ -590,7 +618,7 @@
             let referidosProcesados = currentUserData.processed_commissions || [];
 
             if (snapshot.empty) {
-                document.getElementById('referrals-list').innerHTML = `<p class="text-xs text-gray-400 text-center py-2">Aún no tienes invitados en tu red.</p>`;
+                document.getElementById('referrals-list').innerHTML = `<p class="text-xs text-[#848E9C] text-center py-2">Aún no tienes invitados en tu red.</p>`;
                 document.getElementById('count-n1').innerText = "0";
                 document.getElementById('count-n2').innerText = "0";
                 document.getElementById('count-n3').innerText = "0";
@@ -632,12 +660,12 @@
                 const telOculto = data.phone ? data.phone.slice(0, 6) + '***' + data.phone.slice(-3) : 'Usuario';
 
                 htmlList += `
-                    <div class="flex justify-between items-center bg-gray-800/60 p-2.5 rounded-lg text-xs">
+                    <div class="flex justify-between items-center bg-[#2B3139]/70 p-2.5 rounded-lg text-xs">
                         <div>
-                            <p class="font-semibold text-white">${telOculto}</p>
-                            <p class="text-[10px] text-gray-400">Código: ${data.referral_code || 'N/A'}</p>
+                            <p class="font-semibold text-[#EAECEF]">${telOculto}</p>
+                            <p class="text-[10px] text-[#848E9C]">Código: ${data.referral_code || 'N/A'}</p>
                         </div>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${esActivo ? 'bg-green-900/50 text-green-400 border border-green-500/30' : 'bg-amber-900/50 text-amber-400 border border-amber-500/30'}">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${esActivo ? 'bg-[#0ECB81]/15 text-[#0ECB81] border border-[#0ECB81]/40' : 'bg-[#F0B90B]/15 text-[#F0B90B] border border-[#F0B90B]/40'}">
                             ${esActivo ? '🟢 Activo / Depositó' : '🟡 Pendiente de Depósito'}
                         </span>
                     </div>
@@ -662,25 +690,25 @@
         function renderProductosActivos() {
             const container = document.getElementById('my-products-list');
             if (!currentUserData || !currentUserData.investments || currentUserData.investments.length === 0) {
-                container.innerHTML = `<div class="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center"><p class="text-sm text-gray-400">Aún no tienes productos activos produciendo ingresos.</p></div>`;
+                container.innerHTML = `<div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 text-center"><p class="text-sm text-[#848E9C]">Aún no tienes productos activos produciendo ingresos.</p></div>`;
                 return;
             }
 
             container.innerHTML = currentUserData.investments.map((p, index) => {
                 const diasRestantes = p.days_left !== undefined ? p.days_left : 90;
                 return `
-                    <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 shadow space-y-2">
+                    <div class="bg-[#1E2329] border border-[#2B3139] rounded-xl p-4 shadow space-y-2">
                         <div class="flex justify-between items-center">
-                            <h4 class="font-bold text-sm text-green-400">${p.nombre}</h4>
-                            <span class="text-xs bg-green-900/40 border border-green-500/30 text-green-300 px-2 py-0.5 rounded-full">Días restantes: ${diasRestantes} / 90</span>
+                            <h4 class="font-bold text-sm text-[#F0B90B]">${p.nombre}</h4>
+                            <span class="text-xs bg-[#F0B90B]/15 border border-[#F0B90B]/40 text-[#F0B90B] px-2 py-0.5 rounded-full">Días restantes: ${diasRestantes} / 90</span>
                         </div>
-                        <div class="flex justify-between items-center text-xs text-gray-400">
+                        <div class="flex justify-between items-center text-xs text-[#848E9C]">
                             <span>Ganancia diaria: ARS ${p.daily.toLocaleString()}</span>
                             <span>Adquirido: ${p.date}</span>
                         </div>
-                        <div class="bg-gray-800/80 p-2.5 rounded-lg flex justify-between items-center mt-2 border border-gray-700">
-                            <span class="text-[11px] text-gray-300">Próxima acreditación en:</span>
-                            <span id="timer-${index}" class="text-xs font-mono font-bold text-green-400 bg-green-950 px-2.5 py-1 rounded border border-green-500/30">Calculando...</span>
+                        <div class="bg-[#0B0E11] p-2.5 rounded-lg flex justify-between items-center mt-2 border border-[#2B3139]">
+                            <span class="text-[11px] text-[#EAECEF]">Próxima acreditación en:</span>
+                            <span id="timer-${index}" class="text-xs font-mono font-bold text-[#F0B90B] bg-[#2B2310] px-2.5 py-1 rounded border border-[#F0B90B]/40">Calculando...</span>
                         </div>
                     </div>
                 `;
@@ -752,20 +780,30 @@
             container.innerHTML = currentUserData.history.map(item => {
                 let badgeEstado = "";
                 if (item.type === "withdraw") {
-                    const esCompletado = item.status === "completed";
-                    badgeEstado = `<span class="ml-2 text-[9px] px-1.5 py-0.5 rounded font-bold ${esCompletado ? 'bg-green-900 text-green-300' : 'bg-amber-900 text-amber-300'}">${esCompletado ? '🟢 Retirado' : '🟡 Pendiente'}</span>`;
+                    if (item.status === "completed") {
+                        badgeEstado = `<span class="ml-2 text-[9px] px-1.5 py-0.5 rounded font-bold bg-[#0ECB81]/20 text-[#0ECB81]">🟢 Retirado</span>`;
+                    } else if (item.status === "rejected") {
+                        badgeEstado = `<span class="ml-2 text-[9px] px-1.5 py-0.5 rounded font-bold bg-[#F6465D]/20 text-[#F6465D]">🔴 Rechazado</span>`;
+                    } else {
+                        badgeEstado = `<span class="ml-2 text-[9px] px-1.5 py-0.5 rounded font-bold bg-[#F0B90B]/20 text-[#F0B90B]">🟡 Pendiente</span>`;
+                    }
                 } else if (item.type === "deposit") {
-                    const esAprobado = item.status === "approved";
-                    badgeEstado = `<span class="ml-2 text-[9px] px-1.5 py-0.5 rounded font-bold ${esAprobado ? 'bg-green-900 text-green-300' : 'bg-amber-900 text-amber-300'}">${esAprobado ? '🟢 Depositado' : '🟡 En Revisión'}</span>`;
+                    if (item.status === "approved") {
+                        badgeEstado = `<span class="ml-2 text-[9px] px-1.5 py-0.5 rounded font-bold bg-[#0ECB81]/20 text-[#0ECB81]">🟢 Depositado</span>`;
+                    } else if (item.status === "rejected") {
+                        badgeEstado = `<span class="ml-2 text-[9px] px-1.5 py-0.5 rounded font-bold bg-[#F6465D]/20 text-[#F6465D]">🔴 Rechazado</span>`;
+                    } else {
+                        badgeEstado = `<span class="ml-2 text-[9px] px-1.5 py-0.5 rounded font-bold bg-[#F0B90B]/20 text-[#F0B90B]">🟡 En Revisión</span>`;
+                    }
                 }
 
                 return `
-                    <div class="flex justify-between items-center bg-gray-800/60 p-2.5 rounded-lg text-xs">
+                    <div class="flex justify-between items-center bg-[#2B3139]/70 p-2.5 rounded-lg text-xs">
                         <div>
-                            <p class="font-semibold text-white flex items-center">${item.title} ${badgeEstado}</p>
-                            <p class="text-[10px] text-gray-400">${item.date}</p>
+                            <p class="font-semibold text-[#EAECEF] flex items-center">${item.title} ${badgeEstado}</p>
+                            <p class="text-[10px] text-[#848E9C]">${item.date}</p>
                         </div>
-                        <span class="${item.amount < 0 ? 'text-red-400' : 'text-green-400'} font-bold">${item.amount < 0 ? '' : '+'}${item.amount.toLocaleString()} ARS</span>
+                        <span class="${item.amount < 0 ? 'text-[#F6465D]' : 'text-[#0ECB81]'} font-bold">${item.amount < 0 ? '' : '+'}${item.amount.toLocaleString()} ARS</span>
                     </div>
                 `;
             }).join('');
@@ -838,23 +876,18 @@
             }
         }
 
-        // PROCESO DE RETIRO BLINDADO:
-        // - Lunes a Sábado de 12:00 a 20:00 hs (ARG)
-        // - No acumulable si ya existe un retiro en estado "pending"
-        // - Exige al menos 1 depósito aprobado (status === "approved" o has_approved_deposit === true) + producto activo
-        // - Mínimo $2.500 ARS, tope $1.000.000 ARS, 1 retiro por día calendario, comisión 10%
+        // PROCESO DE RETIRO BLINDADO
         async function procesarSolicitudRetiro() {
             const withdrawInput = document.getElementById('withdraw-amount');
             const monto = parseFloat(withdrawInput.value);
 
-            // Obtener fecha y hora actual en Argentina (GMT-3)
             const ahoraDate = new Date();
             const fechaArg = new Date(ahoraDate.toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
-            const diaSemana = fechaArg.getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+            const diaSemana = fechaArg.getDay();
             const horaActual = fechaArg.getHours();
             const fechaHoyStr = fechaArg.toLocaleDateString('es-AR');
 
-            // 1. Validar día (Lunes a Sábado - Bloquear Domingo)
+            // 1. Validar día (Lunes a Sábado)
             if (diaSemana === 0) {
                 alert("❌ Las solicitudes de retiro están habilitadas únicamente de Lunes a Sábado.");
                 return;
@@ -985,11 +1018,11 @@
             const views = ['inicio', 'productos', 'equipo', 'finanzas', 'perfil'];
             views.forEach(v => {
                 document.getElementById('view-' + v).classList.add('hidden');
-                document.getElementById('nav-btn-' + v).className = "text-gray-400 text-xs flex flex-col items-center space-y-1";
+                document.getElementById('nav-btn-' + v).className = "text-[#848E9C] text-xs flex flex-col items-center space-y-1";
             });
 
             document.getElementById('view-' + screen).classList.remove('hidden');
-            document.getElementById('nav-btn-' + screen).className = "text-green-400 text-xs flex flex-col items-center space-y-1";
+            document.getElementById('nav-btn-' + screen).className = "text-[#F0B90B] text-xs flex flex-col items-center space-y-1";
 
             if (screen === 'productos') {
                 renderProductosActivos();
