@@ -314,7 +314,8 @@
                 <!-- Reglas de retiro y soporte -->
                 <div class="bg-gray-800/70 border border-gray-700 rounded-lg p-2.5 text-[11px] text-gray-300 space-y-1">
                     <p>⏰ <strong>Solicitudes de retiro:</strong> Lunes a Sábado de 12:00 a 20:00 hs.</p>
-                    <p>💵 <strong>Mínimo:</strong> $2.500 ARS • <strong>Tope:</strong> $1.000.000 ARS (1 retiro por día).</p>
+                    <p>💵 <strong>Mínimo:</strong> $2.500 ARS • <strong>Tope:</strong> $1.000.000 ARS (1 retiro por día, no acumulables).</p>
+                    <p>✅ <strong>Requisito:</strong> Contar con al menos 1 depósito aprobado y un plan activo.</p>
                     <p>📉 <strong>Comisión:</strong> 10% sobre cada retiro.</p>
                     <p class="text-blue-300 pt-0.5 border-t border-gray-700">🎧 <strong>Horario de atención:</strong> Lunes a Sábado de 09:00 a 21:00 hs.</p>
                 </div>
@@ -405,7 +406,8 @@
             
             <div class="text-xs text-gray-300 space-y-2 text-left bg-gray-800/70 p-3.5 rounded-lg border border-gray-700 leading-relaxed">
                 <p>⏰ <strong>Solicitudes de Retiro:</strong> Lunes a Sábado de 12:00 a 20:00 hs.</p>
-                <p>💸 <strong>Condiciones de Retiro:</strong> Mínimo $2.500 ARS • Máximo 1 retiro por día (Tope: $1.000.000 ARS).</p>
+                <p>💸 <strong>Condiciones de Retiro:</strong> Mínimo $2.500 ARS • Máximo 1 retiro por día (no acumulables, tope $1.000.000 ARS).</p>
+                <p>✅ <strong>Requisito para Retirar:</strong> Contar con al menos 1 depósito aprobado y un plan activo.</p>
                 <p>📉 <strong>Comisión de Retiro:</strong> 10% sobre el monto retirado.</p>
                 <p>🎧 <strong>Horario de Atención:</strong> Lunes a Sábado de 09:00 a 21:00 hs.</p>
                 <p>💳 <strong>Mínimo de Carga:</strong> $15.000 ARS.</p>
@@ -421,7 +423,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT CON LOGICA FIRESTORE, TEMPORIZADOR Y RETIROS ACTUALIZADOS -->
+    <!-- SCRIPT CON LOGICA FIRESTORE, TEMPORIZADOR Y RETIROS BLINDADOS -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBhQ8tC7IFzzXygkIQLZqeNINzZqXAtZps",
@@ -487,6 +489,7 @@
                     invited_by: inviteCode,
                     balance: 5000,
                     has_active_product: false,
+                    has_approved_deposit: false,
                     alias: "",
                     cbu: "",
                     fullname: "",
@@ -835,7 +838,11 @@
             }
         }
 
-        // PROCESO DE RETIRO ACTUALIZADO (LUN-SÁB 12-20 HS, MÍNIMO $2.500, COMISIÓN 10%, 1 POR DÍA CALENDARIO)
+        // PROCESO DE RETIRO BLINDADO:
+        // - Lunes a Sábado de 12:00 a 20:00 hs (ARG)
+        // - No acumulable si ya existe un retiro en estado "pending"
+        // - Exige al menos 1 depósito aprobado (status === "approved" o has_approved_deposit === true) + producto activo
+        // - Mínimo $2.500 ARS, tope $1.000.000 ARS, 1 retiro por día calendario, comisión 10%
         async function procesarSolicitudRetiro() {
             const withdrawInput = document.getElementById('withdraw-amount');
             const monto = parseFloat(withdrawInput.value);
@@ -845,7 +852,7 @@
             const fechaArg = new Date(ahoraDate.toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
             const diaSemana = fechaArg.getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
             const horaActual = fechaArg.getHours();
-            const fechaHoyStr = fechaArg.toLocaleDateString('es-AR'); // Ej: "13/11/2026"
+            const fechaHoyStr = fechaArg.toLocaleDateString('es-AR');
 
             // 1. Validar día (Lunes a Sábado - Bloquear Domingo)
             if (diaSemana === 0) {
@@ -859,7 +866,37 @@
                 return;
             }
 
-            // 3. Validar monto mínimo ($2.500 ARS) y máximo ($1.000.000 ARS)
+            // 3. Validar que NO tenga un retiro pendiente (No acumulables)
+            const tieneRetiroPendienteEnLista = (currentUserData.withdrawals || []).some(w => w.status === "pending");
+            const tieneRetiroPendienteEnHistorial = (currentUserData.history || []).some(h => h.type === "withdraw" && h.status === "pending");
+
+            if (tieneRetiroPendienteEnLista || tieneRetiroPendienteEnHistorial) {
+                alert("⏳ Ya tenés una solicitud de retiro pendiente en proceso. No se pueden acumular retiros; aguardá a que se acredite el actual para solicitar uno nuevo.");
+                return;
+            }
+
+            // 4. Validar DEPÓSITO REAL APROBADO + Producto Activo
+            const tieneDepositoAprobado =
+                currentUserData.has_approved_deposit === true ||
+                (currentUserData.deposits || []).some(d => d.status === "approved") ||
+                (currentUserData.history || []).some(h => h.type === "deposit" && h.status === "approved");
+
+            const tieneProductoActivo = currentUserData.has_active_product || (currentUserData.investments && currentUserData.investments.length > 0);
+
+            if (!tieneDepositoAprobado || !tieneProductoActivo) {
+                alert("💳 Para habilitar los retiros debes contar con al menos 1 depósito aprobado y una inversión activa en tu cuenta.");
+                navTo('finanzas');
+                return;
+            }
+
+            // 5. Validar datos bancarios completos
+            if (!currentUserData.fullname || !currentUserData.cbu || !currentUserData.alias) {
+                alert("Completa tus datos bancarios en Perfil antes de solicitar un retiro.");
+                navTo('perfil');
+                return;
+            }
+
+            // 6. Validar monto mínimo ($2.500 ARS), máximo ($1.000.000 ARS) y saldo disponible
             if (isNaN(monto) || monto < 2500) {
                 alert("💵 El monto mínimo de retiro es de $2.500 ARS.");
                 return;
@@ -870,25 +907,12 @@
                 return;
             }
 
-            // 4. Validar producto activo y datos bancarios
-            if (!currentUserData.has_active_product && (!currentUserData.investments || currentUserData.investments.length === 0)) {
-                alert("Para solicitar un retiro debes tener al menos 1 producto de inversión activo.");
-                navTo('inicio');
-                return;
-            }
-
-            if (!currentUserData.fullname || !currentUserData.cbu || !currentUserData.alias) {
-                alert("Completa tus datos bancarios en Perfil antes de solicitar un retiro.");
-                navTo('perfil');
-                return;
-            }
-
             if (monto > currentUserData.balance) {
                 alert("Saldo insuficiente para retirar.");
                 return;
             }
 
-            // 5. Validar 1 retiro por DÍA CALENDARIO (no 24 hs de reloj)
+            // 7. Validar 1 retiro por DÍA CALENDARIO
             let ultimoDiaRetiro = currentUserData.last_withdraw_date || "";
             if (!ultimoDiaRetiro && currentUserData.last_withdraw_timestamp) {
                 const fechaUltimo = new Date(new Date(currentUserData.last_withdraw_timestamp).toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
@@ -900,7 +924,7 @@
                 return;
             }
 
-            // 6. Calcular comisión del 10% y monto neto a pagar
+            // 8. Calcular comisión del 10% y monto neto a pagar
             const comision = monto * 0.10;
             const montoNeto = monto - comision;
             const ahoraMs = ahoraDate.getTime();
